@@ -20,7 +20,7 @@ class TelegramController extends Controller
             $telegram = new Telegram($botApiKey, $botUserName);
             $telegram->handle();
             TelegramBotRequest::sendMessage([
-                'chat_id' => 1246832006,
+                'chat_id' => $request->all()['message']['chat']['id'],
                 'text' => 'Hello, World!'
             ]);
         } catch (TelegramException $e) {
