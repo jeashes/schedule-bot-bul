@@ -14,7 +14,7 @@ class TelegramWebhookUpdateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:telegram-webhook-update-command';
+    protected $signature = 'app:telegram-webhook-update';
 
     /**
      * The console command description.
