@@ -4,8 +4,8 @@ namespace App\Dto;
 
 use MongoDB\Laravel\Eloquent\Casts\ObjectId;
 
-class UserDto {
-
+class UserDto
+{
     public function __construct(
         private readonly string $username,
         private readonly ?ObjectId $workspaceId,
