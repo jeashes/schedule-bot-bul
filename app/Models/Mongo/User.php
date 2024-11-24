@@ -30,7 +30,7 @@ class User extends Model
         return $this->getAttribute('_id');
     }
 
-    public function getUserName(): string
+    public function getUserName(): ?string
     {
         return $this->getAttribute('username');
     }
@@ -50,7 +50,7 @@ class User extends Model
         $this->setAttribute('first_name', $value);
     }
 
-    public function getLastName(): string
+    public function getLastName(): ?string
     {
         return $this->getAttribute('last_name');
     }
