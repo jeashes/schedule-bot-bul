@@ -16,6 +16,7 @@ class TelegramController extends Controller
     {
         $botApiKey = config('telegram.bot_api_token');
         $botUserName = config('telegram.bot_username');
+        Log::channel('telegram')->debug(json_encode($request->all()));
 
         try {
             $telegram = new Telegram($botApiKey, $botUserName);
