@@ -15,17 +15,19 @@ use Longman\TelegramBot\Telegram;
 
 class TelegramController extends Controller
 {
+    public function __construct(private readonly Telegram $telegram)
+    {
+
+    }
+
     public function handleWebhook(Request $request, UserRepository $userRepository): void
     {
-        $botApiKey = config('telegram.bot_api_token');
-        $botUserName = config('telegram.bot_username');
         Log::channel('telegram')->debug(json_encode($request->all()));
 
         try {
-            $telegram = new Telegram($botApiKey, $botUserName);
-            $telegram->handle();
+            $this->telegram->handle();
 
-            $messageFrom = $request['message']['from'];
+            $messageFrom = $request['message']['from'] ?? $request['callback_query']['from'];
 
             $userDto = new UserDto(
                 username: array_key_exists('username', $messageFrom) ? $messageFrom['username']: null,
@@ -37,7 +39,8 @@ class TelegramController extends Controller
 
             $user = $userRepository->findByChatIdOrCreate($userDto);
 
-            $this->handleBotStart($user, $request['message']['text']);
+            $this->handleBotStart($user, $request['message']['text'] ?? '');
+            $this->handleClickLetsGoButton($user, $request['callback_query']['data'] ?? '');
 
         } catch (TelegramException $e) {
             Log::channel('telegram')->error($e->getMessage());
@@ -48,7 +51,10 @@ class TelegramController extends Controller
     {
         if ($text === '/start') {
             $keyboard = new InlineKeyboard([
-                ['text' => 'LET\'S GOOO', 'url' => 'https://www.youtube.com/watch?v=44pt8w67S8I']
+                [
+                    'text' => 'LET\'S GOOO',
+                    'callback_data' => 'start_questions'
+                ]
             ]);
 
             TelegramBotRequest::sendMessage([
@@ -58,6 +64,16 @@ class TelegramController extends Controller
                     'bot_messages.welcome', ['name' => $user->getFirstName() . ' ' . $user->getLastName()]
                 ),
                 'parse_mode' => 'Markdown'
+            ]);
+        }
+    }
+
+    private function handleClickLetsGoButton(MongoUser $user, string $callbackData): void
+    {
+        if ($callbackData === 'start_questions') {
+            TelegramBotRequest::sendMessage([
+                'chat_id' => $user->getChatId(),
+                'text' => 'Test button handling'
             ]);
         }
     }
