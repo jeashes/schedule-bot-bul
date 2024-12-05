@@ -25,7 +25,7 @@ class User extends Model
 
     public $timestamps = true;
 
-    public function getId(): ObjectId
+    public function getId(): string
     {
         return $this->getAttribute('_id');
     }

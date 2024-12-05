@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Dto\TelegramMessageDto;
 use App\Dto\UserDto;
+use App\Managers\TelegramMessageManager;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
-use App\Models\Mongo\User as MongoUser;
 use App\Repository\UserRepository;
-use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Exception\TelegramException;
-use Longman\TelegramBot\Request as TelegramBotRequest;
 use Longman\TelegramBot\Telegram;
+use Termwind\Components\Dd;
 
 class TelegramController extends Controller
 {
-    public function __construct(private readonly Telegram $telegram)
-    {
+    public function __construct(
+        private readonly Telegram $telegram,
+        private readonly TelegramMessageManager $telegramMessageManager
+    ) {
 
     }
 
@@ -27,7 +29,8 @@ class TelegramController extends Controller
         try {
             $this->telegram->handle();
 
-            $messageFrom = $request['message']['from'] ?? $request['callback_query']['from'];
+            $messageFrom = ($request['message']['from'] ?? $request['callback_query']['from'])
+                    ?? $request['my_chat_member']['from'];
 
             $userDto = new UserDto(
                 username: array_key_exists('username', $messageFrom) ? $messageFrom['username']: null,
@@ -38,43 +41,16 @@ class TelegramController extends Controller
             );
 
             $user = $userRepository->findByChatIdOrCreate($userDto);
+            $message = new TelegramMessageDto(
+                $request['message']['text'] ?? null,
+                $request['callback_query']['data'] ?? null,
+                $user
+            );
 
-            $this->handleBotStart($user, $request['message']['text'] ?? '');
-            $this->handleClickLetsGoButton($user, $request['callback_query']['data'] ?? '');
+            $this->telegramMessageManager->handleMessages($message);
 
         } catch (TelegramException $e) {
             Log::channel('telegram')->error($e->getMessage());
-        }
-    }
-
-    private function handleBotStart(MongoUser $user, string $text): void
-    {
-        if ($text === '/start') {
-            $keyboard = new InlineKeyboard([
-                [
-                    'text' => 'LET\'S GOOO',
-                    'callback_data' => 'start_questions'
-                ]
-            ]);
-
-            TelegramBotRequest::sendMessage([
-                'chat_id' => $user->getChatId(),
-                'reply_markup' => $keyboard,
-                'text' => __(
-                    'bot_messages.welcome', ['name' => $user->getFirstName() . ' ' . $user->getLastName()]
-                ),
-                'parse_mode' => 'Markdown'
-            ]);
-        }
-    }
-
-    private function handleClickLetsGoButton(MongoUser $user, string $callbackData): void
-    {
-        if ($callbackData === 'start_questions') {
-            TelegramBotRequest::sendMessage([
-                'chat_id' => $user->getChatId(),
-                'text' => 'Test button handling'
-            ]);
         }
     }
 }
