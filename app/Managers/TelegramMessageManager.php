@@ -31,7 +31,9 @@ class TelegramMessageManager
     private function botStartMessage(TelegramMessageDto $telegramMessageDto): void
     {
         if ($telegramMessageDto->answer === '/start') {
-            Redis::del($telegramMessageDto->user->getId());
+
+            Redis::del($telegramMessageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value);
+
             $keyboard = new InlineKeyboard([
                 [
                     'text' => 'LET\'S GOOO',

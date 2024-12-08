@@ -14,12 +14,15 @@ class TelegramStudySubjectMessageManager
     public function sendQuestion(TelegramMessageDto $telegramMessageDto): void
     {
         if ($telegramMessageDto->callbackData === $telegramMessageDto->user->getId()) {
-            Redis::set($telegramMessageDto->user->getId(), json_encode([
-                'name' => SubjectStudiesEnum::KEY_NAME->value,
-                'current_answer' => '',
-                'previous_answer' => '',
-                'edited' => 0
-            ]));
+            Redis::set(
+                $telegramMessageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                json_encode([
+                    'name' => SubjectStudiesEnum::KEY_NAME->value,
+                    'current_answer' => '',
+                    'previous_answer' => '',
+                    'edited' => 0
+                ])
+            );
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $telegramMessageDto->user->getChatId(),
@@ -34,7 +37,9 @@ class TelegramStudySubjectMessageManager
 
     public function clarifyAnswer(TelegramMessageDto $telegramMessageDto): void
     {
-        $subjectStudiesInfo = json_decode(Redis::get($telegramMessageDto->user->getId()), true);
+        $subjectStudiesInfo = json_decode(
+            Redis::get($telegramMessageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
+
         if (!empty($telegramMessageDto->answer) && !empty($subjectStudiesInfo) && $subjectStudiesInfo['edited'] < 2) {
             $keyboard = new InlineKeyboard([
                 [
@@ -47,12 +52,15 @@ class TelegramStudySubjectMessageManager
                 ]
             ]);
 
-            Redis::set($telegramMessageDto->user->getId(), json_encode([
-                'name' => SubjectStudiesEnum::KEY_NAME->value,
-                'current_answer' => $telegramMessageDto->answer,
-                'previous_answer' => $subjectStudiesInfo['previous_answer'],
-                'edited' => $subjectStudiesInfo['edited']
-            ]));
+            Redis::set(
+                $telegramMessageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                json_encode([
+                    'name' => SubjectStudiesEnum::KEY_NAME->value,
+                    'current_answer' => $telegramMessageDto->answer,
+                    'previous_answer' => $subjectStudiesInfo['previous_answer'],
+                    'edited' => $subjectStudiesInfo['edited']
+                ])
+            );
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $telegramMessageDto->user->getChatId(),
@@ -68,18 +76,22 @@ class TelegramStudySubjectMessageManager
 
     public function validateAnswer(TelegramMessageDto $telegramMessageDto): void
     {
-        $subjectStudiesInfo = json_decode(Redis::get($telegramMessageDto->user->getId()), true);
+        $subjectStudiesInfo = json_decode(
+            Redis::get($telegramMessageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
 
         if ($telegramMessageDto->callbackData === SubjectStudiesEnum::NAME_DECLINE->value && ($subjectStudiesInfo['edited'] ?? 0) <= 2) {
             $triesCount = ($subjectStudiesInfo['edited'] ?? 0) + 1;
             $currentAnswer = $subjectStudiesInfo['current_answer'] ?? '';
 
-            Redis::set($telegramMessageDto->user->getId(), json_encode([
-                'name' => SubjectStudiesEnum::KEY_NAME->value,
-                'current_answer' => '',
-                'previous_answer' => $currentAnswer,
-                'edited' => $triesCount
-            ]));
+            Redis::set(
+                $telegramMessageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                json_encode([
+                    'name' => SubjectStudiesEnum::KEY_NAME->value,
+                    'current_answer' => '',
+                    'previous_answer' => $currentAnswer,
+                    'edited' => $triesCount
+                ])
+            );
 
             $this->sendQuestionAgain($telegramMessageDto, 3 - $triesCount);
         }
@@ -101,20 +113,24 @@ class TelegramStudySubjectMessageManager
 
     public function acceptAnswer(TelegramMessageDto $telegramMessageDto): void
     {
-        $subjectStudiesInfo = json_decode(Redis::get($telegramMessageDto->user->getId()), true);
+        $subjectStudiesInfo = json_decode(
+            Redis::get($telegramMessageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
 
         if ($telegramMessageDto->callbackData === SubjectStudiesEnum::NAME_ACCEPT->value || ($subjectStudiesInfo['edited'] ?? 0) === 2 && !empty($telegramMessageDto->answer)) {
-                Redis::set($telegramMessageDto->user->getId(), json_encode([
+            Redis::set(
+                $telegramMessageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                json_encode([
                     'name' => SubjectStudiesEnum::KEY_NAME->value,
                     'current_answer' => $telegramMessageDto->answer,
                     'previous_answer' => $subjectStudiesInfo['previous_answer'],
                     'edited' => $subjectStudiesInfo['edited'] + 1
-                ]));
+                ])
+            );
 
-                TelegramBotRequest::sendMessage([
-                    'chat_id' => $telegramMessageDto->user->getChatId(),
-                    'text' => 'Your title of object studies was save'
-                ]);
-            }
+            TelegramBotRequest::sendMessage([
+                'chat_id' => $telegramMessageDto->user->getChatId(),
+                'text' => 'Your title of object studies was save'
+            ]);
+        }
     }
 }
