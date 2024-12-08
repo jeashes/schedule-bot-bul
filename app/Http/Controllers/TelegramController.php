@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Log;
 use App\Repository\UserRepository;
 use Longman\TelegramBot\Exception\TelegramException;
 use Longman\TelegramBot\Telegram;
-use Termwind\Components\Dd;
 
 class TelegramController extends Controller
 {

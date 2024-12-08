@@ -2,6 +2,7 @@
 
 namespace App\Managers;
 
+use App\Dto\TelegramChatCurrentStateDto;
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use Illuminate\Support\Facades\Redis;
@@ -14,40 +15,50 @@ class TelegramMessageManager
         private readonly TelegramStudySubjectMessageManager $studySubjectMessageManger
     ) {}
 
-    public function handleMessages(TelegramMessageDto $telegramMessageDto): void
-    {
+    public function handleMessages(
+        TelegramMessageDto $telegramMessageDto
+    ): void {
         $this->botStartMessage($telegramMessageDto);
         $this->subjectStudyMessages($telegramMessageDto);
     }
 
-    private function subjectStudyMessages(TelegramMessageDto $telegramMessageDto): void
+    private function subjectStudyMessages(TelegramMessageDto $messageDto): void
     {
-        $this->studySubjectMessageManger->sendQuestion($telegramMessageDto);
-        $this->studySubjectMessageManger->clarifyAnswer($telegramMessageDto);
-        $this->studySubjectMessageManger->validateAnswer($telegramMessageDto);
-        $this->studySubjectMessageManger->acceptAnswer($telegramMessageDto);
+        $this->studySubjectMessageManger->sendQuestion($messageDto);
+        $this->studySubjectMessageManger->clarifyAnswer($messageDto);
+        // $this->studySubjectMessageManger->validateAnswer($telegramMessageDto);
+        $this->studySubjectMessageManger->acceptAnswer($messageDto);
     }
 
-    private function botStartMessage(TelegramMessageDto $telegramMessageDto): void
+    private function botStartMessage(TelegramMessageDto $messageDto): void
     {
-        if ($telegramMessageDto->answer === '/start') {
+        if ($messageDto->answer === '/start') {
 
-            Redis::del($telegramMessageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value);
+            Redis::del($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value);
+
+            Redis::set(
+                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                json_encode([
+                    'current_answer' => null,
+                    'edited' => null,
+                    'approved' => null
+                ])
+            );
 
             $keyboard = new InlineKeyboard([
                 [
                     'text' => 'LET\'S GOOO',
-                    'callback_data' => $telegramMessageDto->user->getId()
+                    'callback_data' => $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value
                 ]
             ]);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $telegramMessageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->getChatId(),
                 'reply_markup' => $keyboard,
                 'text' => __(
                     'bot_messages.welcome', [
-                        'name' => $telegramMessageDto->user->getFirstName()  . ' '
-                        . $telegramMessageDto->user->getLastName()
+                        'name' => $messageDto->user->getFirstName()  . ' '
+                        . $messageDto->user->getLastName()
                     ]
                 ),
                 'parse_mode' => 'Markdown'
