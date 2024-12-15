@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Managers;
+namespace App\Managers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
@@ -9,12 +9,16 @@ use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use Illuminate\Support\Facades\Log;
 
-class TelegramHoursOnStudyManager
+class HoursOnStudyManager
 {
+    const EDIT_COUNT_CLARIFY = 2;
+    const EDIT_COUNT_ACCEPT = 3;
+
     public function sendQuestion(TelegramMessageDto $messageDto): void
     {
         $hoursOnStudyInfo = json_decode(
             Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
+
         if (is_null($hoursOnStudyInfo['current_answer'])) {
             Redis::set(
                 $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
@@ -43,7 +47,10 @@ class TelegramHoursOnStudyManager
         $hoursOnStudyInfo = json_decode(
             Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
 
-        if (!empty($messageDto->answer) && $hoursOnStudyInfo['edited'] < 2 && $hoursOnStudyInfo['approved'] === 0) {
+        if (!empty($messageDto->answer)
+            && $hoursOnStudyInfo['edited'] < self::EDIT_COUNT_CLARIFY
+            && $hoursOnStudyInfo['approved'] === 0) {
+
             $keyboard = new InlineKeyboard([
                 [
                     'text' => 'Yes',
@@ -71,7 +78,9 @@ class TelegramHoursOnStudyManager
             ]);
         }
 
-        if (!empty($messageDto->answer) && $hoursOnStudyInfo['edited'] === 2 && $hoursOnStudyInfo['approved'] === 0) {
+        if (!empty($messageDto->answer)
+            && $hoursOnStudyInfo['edited'] === self::EDIT_COUNT_CLARIFY && $hoursOnStudyInfo['approved'] === 0) {
+
             Redis::set(
                 $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
                 json_encode([
@@ -87,8 +96,11 @@ class TelegramHoursOnStudyManager
     {
         $hoursOnStudyInfo = json_decode(
             Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
+
         if (($messageDto->callbackData === HoursOnStudyEnum::NAME_ACCEPT->value
-            || $hoursOnStudyInfo['edited'] >= 3 && !empty($messageDto->answer)) && $hoursOnStudyInfo['approved'] === 0) {
+            || $hoursOnStudyInfo['edited'] >= self::EDIT_COUNT_ACCEPT && !empty($messageDto->answer))
+            && $hoursOnStudyInfo['approved'] === 0) {
+
             Redis::set(
                 $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
                 json_encode([

@@ -1,25 +1,22 @@
 <?php
 
-namespace App\Managers;
+namespace App\Managers\Telegram;
 
-use App\Dto\TelegramChatCurrentStateDto;
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Enums\Telegram\PaceLevelEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
-use App\Managers\TelegramStudyPaceLevelManager;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
-use Longman\TelegramBot\Telegram;
 
-class TelegramMessageManager
+class MessageManager
 {
     public function __construct(
-        private readonly TelegramStudySubjectMessageManager $studySubjectMessageManger,
-        private readonly TelegramHoursOnStudyManager $hoursOnStudyMessageManger,
-        private readonly TelegramStudyPaceLevelManager $studyPaceLevelManager
+        private readonly StudySubjectMessageManager $studySubjectMessageManger,
+        private readonly HoursOnStudyManager $hoursOnStudyMessageManger,
+        private readonly StudyPaceLevelManager $studyPaceLevelManager
     ) {}
 
     public function handleMessages(TelegramMessageDto $telegramMessageDto): void
@@ -73,37 +70,7 @@ class TelegramMessageManager
     private function botStartMessage(TelegramMessageDto $messageDto): void
     {
         if ($messageDto->answer === '/start') {
-
-            Redis::del($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value);
-            Redis::del($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value);
-            Redis::del($messageDto->user->getId() . '_' . PaceLevelEnum::QUESTION->value);
-
-            Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => null,
-                    'edited' => null,
-                    'approved' => null,
-                ])
-            );
-
-            Redis::set(
-                $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => null,
-                    'edited' => null,
-                    'approved' => null
-                ])
-            );
-
-            Redis::set(
-                $messageDto->user->getId() . '_' . PaceLevelEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => null,
-                    'approved' => null
-                ])
-            );
-
+            $this->resetUserAnswers($messageDto->user->getId());
             $keyboard = new InlineKeyboard([
                 [
                     'text' => 'LET\'S GOOO',
@@ -125,5 +92,43 @@ class TelegramMessageManager
                 'parse_mode' => 'Markdown'
             ]);
         }
+    }
+
+    private function resetUserAnswers(string $userId): void
+    {
+        $this->removeOldAnswers($userId);
+
+        Redis::set(
+            $userId . '_' . SubjectStudiesEnum::QUESTION->value,
+            json_encode([
+                'current_answer' => null,
+                'edited' => null,
+                'approved' => null,
+            ])
+        );
+
+        Redis::set(
+            $userId . '_' . HoursOnStudyEnum::QUESTION->value,
+            json_encode([
+                'current_answer' => null,
+                'edited' => null,
+                'approved' => null
+            ])
+        );
+
+        Redis::set(
+            $userId . '_' . PaceLevelEnum::QUESTION->value,
+            json_encode([
+                'current_answer' => null,
+                'approved' => null
+            ])
+        );
+    }
+
+    private function removeOldAnswers(string $userId): void
+    {
+        Redis::del($userId . '_' . SubjectStudiesEnum::QUESTION->value);
+        Redis::del($userId . '_' . HoursOnStudyEnum::QUESTION->value);
+        Redis::del($userId . '_' . PaceLevelEnum::QUESTION->value);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Managers;
+namespace App\Managers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
@@ -10,12 +10,13 @@ use App\Enums\Telegram\PaceLevelEnum;
 use App\Enums\Workspace\PaceLevelEnum as WorkspacePaceLevelEnum;
 use Illuminate\Support\Facades\Log;
 
-class TelegramStudyPaceLevelManager
+class StudyPaceLevelManager
 {
     public function sendQuestion(TelegramMessageDto $messageDto): void
     {
         $hoursOnStudyInfo = json_decode(
             Redis::get($messageDto->user->getId() . '_' . PaceLevelEnum::QUESTION->value), true);
+
         if (is_null($hoursOnStudyInfo['current_answer'])) {
             Redis::set(
                 $messageDto->user->getId() . '_' . PaceLevelEnum::QUESTION->value,
@@ -53,7 +54,6 @@ class TelegramStudyPaceLevelManager
 
     public function acceptAnswer(TelegramMessageDto $messageDto): void
     {
-        Log::channel('telegram')->debug('Callback data for pace level' . $messageDto->callbackData);
         if (in_array(
             $messageDto->callbackData,
             array_column(WorkspacePaceLevelEnum::cases(), 'value')

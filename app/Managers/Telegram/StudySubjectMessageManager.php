@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Managers;
+namespace App\Managers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
@@ -9,8 +9,11 @@ use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use Illuminate\Support\Facades\Log;
 
-class TelegramStudySubjectMessageManager
+class StudySubjectMessageManager
 {
+    const EDIT_COUNT_CLARIFY = 2;
+    const EDIT_COUNT_ACCEPT = 3;
+
     public function sendQuestion(TelegramMessageDto $messageDto): void
     {
         if ($messageDto->callbackData === $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value) {
@@ -42,7 +45,10 @@ class TelegramStudySubjectMessageManager
         $subjectStudiesInfo = json_decode(
             Redis::get($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
 
-        if (!empty($messageDto->answer) && $subjectStudiesInfo['edited'] < 2 && $subjectStudiesInfo['approved'] === 0) {
+        if (!empty($messageDto->answer)
+            && $subjectStudiesInfo['edited'] < self::EDIT_COUNT_CLARIFY
+            && $subjectStudiesInfo['approved'] === 0) {
+
             $keyboard = new InlineKeyboard([
                 [
                     'text' => 'Yes',
@@ -70,7 +76,10 @@ class TelegramStudySubjectMessageManager
             ]);
         }
 
-        if (!empty($messageDto->answer) && $subjectStudiesInfo['edited'] === 2 && $subjectStudiesInfo['approved'] === 0) {
+        if (!empty($messageDto->answer)
+            && $subjectStudiesInfo['edited'] === self::EDIT_COUNT_CLARIFY
+            && $subjectStudiesInfo['approved'] === 0) {
+
             Redis::set(
                 $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
                 json_encode([
@@ -88,7 +97,9 @@ class TelegramStudySubjectMessageManager
             Redis::get($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
 
         if (($messageDto->callbackData === SubjectStudiesEnum::NAME_ACCEPT->value
-            || $subjectStudiesInfo['edited'] >= 3 && !empty($messageDto->answer)) && $subjectStudiesInfo['approved'] === 0) {
+            || $subjectStudiesInfo['edited'] >= self::EDIT_COUNT_ACCEPT && !empty($messageDto->answer))
+            && $subjectStudiesInfo['approved'] === 0) {
+
             Redis::set(
                 $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
                 json_encode([

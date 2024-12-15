@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Dto\TelegramMessageDto;
 use App\Dto\UserDto;
-use App\Managers\TelegramMessageManager;
+use App\Managers\Telegram\MessageManager as TelegramMessageManager;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
