@@ -20,7 +20,7 @@ class Workspace extends Model
         'task_ids'
     ];
 
-    public function getId(): ObjectId
+    public function getId(): string
     {
         return $this->getAttribute('_id');
     }
@@ -55,7 +55,7 @@ class Workspace extends Model
         $this->setAttribute('task_ids', $value);
     }
 
-    public function addTaskId(ObjectId $value): void
+    public function addTaskId(string $value): void
     {
         $currentTasks = $this->task_ids ?? [];
         if (!in_array((string)$value, array_map('strval', $currentTasks))) {
