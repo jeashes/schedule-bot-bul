@@ -7,9 +7,10 @@ use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Interfaces\TelegramMessageManagerInterface;
 use Illuminate\Support\Facades\Log;
 
-class StudySubjectMessageManager
+class StudySubjectMessageManager implements TelegramMessageManagerInterface
 {
     const EDIT_COUNT_CLARIFY = 2;
     const EDIT_COUNT_ACCEPT = 3;

@@ -8,9 +8,10 @@ use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\PaceLevelEnum;
 use App\Enums\Workspace\PaceLevelEnum as WorkspacePaceLevelEnum;
+use App\Interfaces\TelegramMessageManagerInterface;
 use Illuminate\Support\Facades\Log;
 
-class StudyPaceLevelManager
+class StudyPaceLevelManager implements TelegramMessageManagerInterface
 {
     public function sendQuestion(TelegramMessageDto $messageDto): void
     {
