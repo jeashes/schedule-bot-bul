@@ -115,7 +115,7 @@ class HoursOnStudyManager implements TelegramMessageManagerInterface
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => 'Hours on studying was sucessufylly save✅'
+                'text' => 'Hours on studying was sucessufully save✅'
             ]);
         }
     }

@@ -15,10 +15,9 @@ class StudyPaceLevelManager implements TelegramMessageManagerInterface
 {
     public function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $hoursOnStudyInfo = json_decode(
+        $paceLevelInfo = json_decode(
             Redis::get($messageDto->user->getId() . '_' . PaceLevelEnum::QUESTION->value), true);
-
-        if (is_null($hoursOnStudyInfo['current_answer'])) {
+        if (is_null($paceLevelInfo['current_answer'])) {
             Redis::set(
                 $messageDto->user->getId() . '_' . PaceLevelEnum::QUESTION->value,
                 json_encode([
@@ -66,6 +65,8 @@ class StudyPaceLevelManager implements TelegramMessageManagerInterface
                     'approved' => 1
                 ])
             );
+
+            $messageDto->callbackData = null;
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
