@@ -6,17 +6,18 @@ use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
-use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Enums\Telegram\HoursOnStudyEnum;
 use Illuminate\Support\Facades\Log;
 
-class TelegramStudySubjectMessageManager
+class TelegramHoursOnStudyManager
 {
     public function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        if ($messageDto->callbackData === $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value) {
-
+        $hoursOnStudyInfo = json_decode(
+            Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
+        if (is_null($hoursOnStudyInfo['current_answer'])) {
             Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
                 json_encode([
                     'current_answer' => '',
                     'edited' => 0,
@@ -29,7 +30,7 @@ class TelegramStudySubjectMessageManager
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => __(
-                    'bot_messages.subject_of_studies',
+                    'bot_messages.total_hours_on_study',
                     ['triesCount' => 3]
                 ),
                 'parse_mode' => 'Markdown'
@@ -39,23 +40,23 @@ class TelegramStudySubjectMessageManager
 
     public function clarifyAnswer(TelegramMessageDto $messageDto): void
     {
-        $subjectStudiesInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
+        $hoursOnStudyInfo = json_decode(
+            Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
 
-        if (!empty($messageDto->answer) && $subjectStudiesInfo['edited'] < 2 && $subjectStudiesInfo['approved'] === 0) {
+        if (!empty($messageDto->answer) && $hoursOnStudyInfo['edited'] < 2 && $hoursOnStudyInfo['approved'] === 0) {
             $keyboard = new InlineKeyboard([
                 [
                     'text' => 'Yes',
-                    'callback_data' => SubjectStudiesEnum::NAME_ACCEPT->value
+                    'callback_data' => HoursOnStudyEnum::NAME_ACCEPT->value
                 ]
             ]);
 
             Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
                 json_encode([
                     'current_answer' => $messageDto->answer,
-                    'edited' => $subjectStudiesInfo['edited'] + 1,
-                    'approved' => $subjectStudiesInfo['approved']
+                    'edited' => $hoursOnStudyInfo['edited'] + 1,
+                    'approved' => $hoursOnStudyInfo['approved']
                 ])
             );
 
@@ -70,13 +71,13 @@ class TelegramStudySubjectMessageManager
             ]);
         }
 
-        if (!empty($messageDto->answer) && $subjectStudiesInfo['edited'] === 2 && $subjectStudiesInfo['approved'] === 0) {
+        if (!empty($messageDto->answer) && $hoursOnStudyInfo['edited'] === 2 && $hoursOnStudyInfo['approved'] === 0) {
             Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
                 json_encode([
                     'current_answer' => $messageDto->answer,
-                    'edited' => $subjectStudiesInfo['edited'] + 1,
-                    'approved' => $subjectStudiesInfo['approved']
+                    'edited' => $hoursOnStudyInfo['edited'] + 1,
+                    'approved' => $hoursOnStudyInfo['approved']
                 ])
             );
         }
@@ -84,16 +85,15 @@ class TelegramStudySubjectMessageManager
 
     public function acceptAnswer(TelegramMessageDto $messageDto): void
     {
-        $subjectStudiesInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
-
-        if (($messageDto->callbackData === SubjectStudiesEnum::NAME_ACCEPT->value
-            || $subjectStudiesInfo['edited'] >= 3 && !empty($messageDto->answer)) && $subjectStudiesInfo['approved'] === 0) {
+        $hoursOnStudyInfo = json_decode(
+            Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
+        if (($messageDto->callbackData === HoursOnStudyEnum::NAME_ACCEPT->value
+            || $hoursOnStudyInfo['edited'] >= 3 && !empty($messageDto->answer)) && $hoursOnStudyInfo['approved'] === 0) {
             Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
                 json_encode([
-                    'current_answer' => $subjectStudiesInfo['current_answer'],
-                    'edited' => $subjectStudiesInfo['edited'],
+                    'current_answer' => $hoursOnStudyInfo['current_answer'],
+                    'edited' => $hoursOnStudyInfo['edited'],
                     'approved' => 1
                 ])
             );
@@ -102,7 +102,7 @@ class TelegramStudySubjectMessageManager
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => 'Your title of object studies was save✅'
+                'text' => 'Hours on studying was sucessufylly save✅'
             ]);
         }
     }

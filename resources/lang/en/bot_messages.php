@@ -12,8 +12,9 @@ return [
                           "\nYou have *:triesCount* tries on rename workspace name." .
                           "\nLast one will takes as workspace name automatically.",
 
-    'total_hours_on_study' => 'How many hours you give yourself?' .
-                            "\nPlease think about it so much carefully as you can",
+    'total_hours_on_study' => 'How many hours you give yourself on this 2 weeks?' .
+                            "\nPlease think about it so much carefully as you can" .
+                            "\nYou have *:triesCount* tries to enter hours",
 
     'pace_level' => 'What pace level you want take for education: *easy*, *medium*, *hard*',
 
