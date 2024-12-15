@@ -8,7 +8,7 @@ class TelegramMessageDto
 {
     public function __construct(
         public ?string $answer,
-        public readonly ?string $callbackData,
+        public ?string $callbackData,
         public readonly MongoUser $user
     ) {
     }
