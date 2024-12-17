@@ -5,6 +5,11 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
 use Longman\TelegramBot\Telegram;
+use App\Managers\Telegram\HoursOnStudyManager;
+use App\Managers\Telegram\StudyPaceLevelManager;
+use App\Managers\Telegram\StudySubjectMessageManager;
+use App\Managers\Telegram\MessageManager as TelegramMessageManager;
+use App\Repository\TrelloWorkSpaceRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +24,12 @@ class AppServiceProvider extends ServiceProvider
 
             return new Telegram($botApiKey, $botUserName);
         });
+
+        $this->app->singleton(StudySubjectMessageManager::class);
+        $this->app->singleton(HoursOnStudyManager::class);
+        $this->app->singleton(StudyPaceLevelManager::class);
+        $this->app->singleton(TrelloWorkSpaceRepository::class);
+        $this->app->singleton(TelegramMessageManager::class);
     }
 
     /**
