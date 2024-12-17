@@ -2,30 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Dto\TelegramMessageDto;
 use App\Dto\UserDto;
+use App\Managers\Telegram\MessageManager as TelegramMessageManager;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
-use App\Models\Mongo\User as MongoUser;
 use App\Repository\UserRepository;
-use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Exception\TelegramException;
-use Longman\TelegramBot\Request as TelegramBotRequest;
 use Longman\TelegramBot\Telegram;
 
 class TelegramController extends Controller
 {
+    public function __construct(
+        private readonly Telegram $telegram,
+        private readonly TelegramMessageManager $telegramMessageManager
+    ) {
+
+    }
+
     public function handleWebhook(Request $request, UserRepository $userRepository): void
     {
-        $botApiKey = config('telegram.bot_api_token');
-        $botUserName = config('telegram.bot_username');
         Log::channel('telegram')->debug(json_encode($request->all()));
 
         try {
-            $telegram = new Telegram($botApiKey, $botUserName);
-            $telegram->handle();
+            $this->telegram->handle();
 
-            $messageFrom = $request['message']['from'];
+            $messageFrom = ($request['message']['from'] ?? $request['callback_query']['from'])
+                    ?? $request['my_chat_member']['from'];
 
             $userDto = new UserDto(
                 username: array_key_exists('username', $messageFrom) ? $messageFrom['username']: null,
@@ -36,29 +40,16 @@ class TelegramController extends Controller
             );
 
             $user = $userRepository->findByChatIdOrCreate($userDto);
+            $message = new TelegramMessageDto(
+                $request['message']['text'] ?? null,
+                $request['callback_query']['data'] ?? null,
+                $user
+            );
 
-            $this->handleBotStart($user, $request['message']['text']);
+            $this->telegramMessageManager->handleMessages($message);
 
         } catch (TelegramException $e) {
             Log::channel('telegram')->error($e->getMessage());
-        }
-    }
-
-    private function handleBotStart(MongoUser $user, string $text): void
-    {
-        if ($text === '/start') {
-            $keyboard = new InlineKeyboard([
-                ['text' => 'LET\'S GOOO', 'url' => 'https://www.youtube.com/watch?v=44pt8w67S8I']
-            ]);
-
-            TelegramBotRequest::sendMessage([
-                'chat_id' => $user->getChatId(),
-                'reply_markup' => $keyboard,
-                'text' => __(
-                    'bot_messages.welcome', ['name' => $user->getFirstName() . ' ' . $user->getLastName()]
-                ),
-                'parse_mode' => 'Markdown'
-            ]);
         }
     }
 }

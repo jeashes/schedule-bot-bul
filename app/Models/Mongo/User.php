@@ -25,7 +25,7 @@ class User extends Model
 
     public $timestamps = true;
 
-    public function getId(): ObjectId
+    public function getId(): string
     {
         return $this->getAttribute('_id');
     }
@@ -90,12 +90,12 @@ class User extends Model
         $this->setAttribute('email', $value);
     }
 
-    public function getWorkspaceId(): ?ObjectId
+    public function getWorkspaceId(): ?string
     {
         return $this->getAttribute('workspace_id');
     }
 
-    public function setWorkspaceId(ObjectId $value): void
+    public function setWorkspaceId(string $value): void
     {
         $this->setAttribute('workspace_id', $value);
     }
