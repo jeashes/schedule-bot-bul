@@ -12,7 +12,6 @@
         "laravel/tinker": "^2.8",
         "longman/telegram-bot": "^0.83.1",
         "mongodb/laravel-mongodb": "^5.1",
-        "semaio/php-trello-api": "^1.3",
         "symfony/event-dispatcher": "^6.4"
     },
     "require-dev": {
