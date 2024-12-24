@@ -25,6 +25,16 @@ class Workspace extends Model
         return $this->getAttribute('_id');
     }
 
+    public function getName(): string
+    {
+        return $this->getAttribute('name');
+    }
+
+    public function setName(string $value): void
+    {
+        $this->setAttribute('name', $value);
+    }
+
     public function getTimeOnSchedule(): float
     {
         return $this->getAttribute('time_on_schedule');
