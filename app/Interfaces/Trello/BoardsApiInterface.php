@@ -23,4 +23,14 @@ interface BoardsApiInterface
     public function removeMember(string $boardId, string $idMember): Response;
 
     public function createBoard(string $name, string $desc, string $idOrganization, ?string $idBoardSource): Response;
+
+    public function getCards(string $boardId): Response;
+
+    public function getFilteredCards(string $boardId, string $filter): Response;
+
+    public function getLabels(string $boardId): Response;
+
+    public function createLabel(string $boardId, string $name, string $color): Response;
+
+    public function getLists(string $boardId): Response;
 }
