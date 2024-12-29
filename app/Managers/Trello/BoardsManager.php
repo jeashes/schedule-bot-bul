@@ -115,7 +115,7 @@ class BoardsManager extends TrelloClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->put($query . self::API_TOKEN_QUERY);
     }
 
     public function addMemberToBoard(string $boardId, string $idMember, string $type): Response
@@ -129,7 +129,7 @@ class BoardsManager extends TrelloClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->put($query . self::API_TOKEN_QUERY);
     }
 
     public function removeMember(string $boardId, string $idMember): Response

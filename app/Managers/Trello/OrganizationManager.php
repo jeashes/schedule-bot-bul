@@ -18,49 +18,54 @@ class OrganizationManager extends TrelloClient implements OrganizationApiInterfa
 
     public function create(string $name): Response
     {
-        return Http::withUrlParameters([
-            'endpoint' => self::ORGANIZATION_URI,
-            'displayName' => $name,
-            'key' => $this->apiKey,
-            'token' => $this->apiToken,
-            ])
+        $params = $this->prepareApiTokenParams();
+        $params['name'] = $name;
+
+        $query = '{+endpoint}?displayName={displayName}&';
+
+        return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post('{+endpoint}?displayName={displayName}&' . self::API_TOKEN_QUERY);
+            ->post($query . self::API_TOKEN_QUERY);
     }
 
     public function get(string $id): Response
     {
-        return Http::withUrlParameters([
-            'endpoint' => self::ORGANIZATION_URI,
-            'id' => $id,
-            'key' => $this->apiKey,
-            'token' => $this->apiToken,
-            ])
+        $params = $this->prepareApiTokenParams();
+        $params['id'] = $id;
+
+        $query = '{+endpoint}/{id}?';
+
+        return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get('{+endpoint}/{id}?' . self::API_TOKEN_QUERY);
+            ->get($query . self::API_TOKEN_QUERY);
     }
 
     public function update(string $id): Response
     {
-        return Http::withUrlParameters([
-            'endpoint' => self::ORGANIZATION_URI,
-            'id' => $id,
-            'key' => $this->apiKey,
-            'token' => $this->apiToken,
-            ])
+        $params = $this->prepareApiTokenParams();
+        $params['id'] = $id;
+
+        $query = '{+endpoint}/{id}?';
+
+        return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put('{+endpoint}/{id}?' . self::API_TOKEN_QUERY);
+            ->put($query . self::API_TOKEN_QUERY);
     }
 
     public function delete(string $id): Response
     {
-        return Http::withUrlParameters([
-            'endpoint' => self::ORGANIZATION_URI,
-            'id' => $id,
-            'key' => $this->apiKey,
-            'token' => $this->apiToken,
-            ])
+        $params = $this->prepareApiTokenParams();
+        $params['id'] = $id;
+
+        $query = '{+endpoint}/{id}?';
+
+        return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete('{+endpoint}/{id}?' . self::API_TOKEN_QUERY);
+            ->delete($query . self::API_TOKEN_QUERY);
+    }
+
+    private function prepareApiTokenParams(): array
+    {
+        return ['key' => $this->apiKey, 'token' => $this->apiToken, 'endpoint' => self::ORGANIZATION_URI];
     }
 }
