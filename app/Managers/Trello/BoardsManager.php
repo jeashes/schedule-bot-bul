@@ -57,23 +57,44 @@ class BoardsManager extends TrelloClient implements BoardsApiInterface
     }
 
     // TODO implement query params: permission level, invitations, comments, calendar feed enabled, label names
+    // reimplement function
     public function updateBoard(
         string $boardId,
-        string $name,
-        string $desc,
-        bool $closed,
-        string $subscribed,
-        string $idOrganization,
+        ?string $name,
+        ?string $desc,
+        ?bool $closed,
+        ?string $subscribed,
+        ?string $idOrganization,
     ): Response {
         $params = $this->prepareApiTokenParams();
-        $params['id'] = $boardId;
-        $params['name'] = $name;
-        $params['desc'] = $desc;
-        $params['closed'] = $closed;
-        $params['subscribed'] = $subscribed;
-        $params['idOrganization'] = $idOrganization;
 
-        $query = '{+endpoint}/{id}?name={name}&desc={desc}&closed={closed}&subscribed={subscribed}&idOrganization={idOrganization}&';
+        $params['id'] = $boardId;
+        $query = '{+endpoint}/{id}?';
+
+        if (!empty($name)) {
+            $params['name'] = $name;
+            $query .= 'name={name}&';
+        }
+
+        if (!empty($desc)) {
+            $params['desc'] = $desc;
+            $query .= 'desc={desc}&';
+        }
+
+        if (!empty($closed)) {
+            $params['closed'] = $closed;
+            $query .= 'closed={closed}&';
+        }
+
+        if (!empty($closed)) {
+            $params['subscribed'] = $subscribed;
+            $query .= 'subscribed={subscribed}&';
+        }
+
+        if (!empty($closed)) {
+            $params['idOrganization'] = $idOrganization;
+            $query .= 'idOrganization={idOrganization}&';
+        }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
@@ -160,7 +181,7 @@ class BoardsManager extends TrelloClient implements BoardsApiInterface
 
         if (!empty($idBoardSource)) {
             $params['idBoardSource'] = $idBoardSource;
-            $query .= '&idBoardSource={idBoardSource}';
+            $query .= 'idBoardSource={idBoardSource}&';
         }
 
         return Http::withUrlParameters($params)
