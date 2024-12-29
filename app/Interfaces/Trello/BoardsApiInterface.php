@@ -10,7 +10,7 @@ interface BoardsApiInterface
 
     public function getBoard(string $boardId, string $fields, bool $myPrefs, bool $tags): Response;
 
-    public function updateBoard(string $boardId, string $name, string $desc, bool $closed, string $subscribed, string $idOrganization): Response;
+    public function updateBoard(string $boardId, ?string $name, ?string $desc, ?bool $closed, ?string $subscribed, ?string $idOrganization): Response;
 
     public function deleteBoard(string $boardId): Response;
 
