@@ -2,7 +2,6 @@
 
 namespace App\Models\Mongo;
 
-use MongoDB\Laravel\Eloquent\Casts\ObjectId;
 use MongoDB\Laravel\Eloquent\Model;
 
 class Workspace extends Model

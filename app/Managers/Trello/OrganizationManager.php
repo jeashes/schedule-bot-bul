@@ -2,20 +2,18 @@
 
 namespace App\Managers\Trello;
 
+use App\Clients\TrelloClient;
+use App\Interfaces\Trello\OrganizationApiInterface;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\Response;
 
-class OrganizationManager
+class OrganizationManager extends TrelloClient implements OrganizationApiInterface
 {
     private const ORGANIZATION_URI = 'https://api.trello.com/1/organizations';
 
-    private string $apiKey;
-    private string $apiToken;
-
     public function __construct()
     {
-        $this->apiKey = config('trello.api_key');
-        $this->apiToken = config('trello.api_token');
+        self::__construct();
     }
 
     public function create(string $name): Response
@@ -27,7 +25,7 @@ class OrganizationManager
             'token' => $this->apiToken,
             ])
             ->withHeaders($this->prepareHeaders())
-            ->post('{+endpoint}?displayName={displayName}&key={key}&token={token}');
+            ->post('{+endpoint}?displayName={displayName}&' . self::API_TOKEN_QUERY);
     }
 
     public function get(string $id): Response
@@ -39,7 +37,7 @@ class OrganizationManager
             'token' => $this->apiToken,
             ])
             ->withHeaders($this->prepareHeaders())
-            ->get('{+endpoint}/{id}?key={key}&token={token}');
+            ->get('{+endpoint}/{id}?' . self::API_TOKEN_QUERY);
     }
 
     public function update(string $id): Response
@@ -51,7 +49,7 @@ class OrganizationManager
             'token' => $this->apiToken,
             ])
             ->withHeaders($this->prepareHeaders())
-            ->put('{+endpoint}/{id}?key={key}&token={token}');
+            ->put('{+endpoint}/{id}?' . self::API_TOKEN_QUERY);
     }
 
     public function delete(string $id): Response
@@ -63,11 +61,6 @@ class OrganizationManager
             'token' => $this->apiToken,
             ])
             ->withHeaders($this->prepareHeaders())
-            ->delete('{+endpoint}/{id}?key={key}&token={token}');
-    }
-
-    private function prepareHeaders(): array
-    {
-        return ['Accept' => 'application/json'];
+            ->delete('{+endpoint}/{id}?' . self::API_TOKEN_QUERY);
     }
 }

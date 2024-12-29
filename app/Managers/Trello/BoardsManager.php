@@ -3,10 +3,11 @@
 namespace App\Managers\Trello;
 
 use App\Clients\TrelloClient;
+use App\Interfaces\Trello\BoardsApiInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class BoardsManager extends TrelloClient
+class BoardsManager extends TrelloClient implements BoardsApiInterface
 {
     private const BOARDS_URI = 'https://api.trello.com/1/boards';
 

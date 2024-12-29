@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Semaio\TrelloApi\ClientBuilder;
 
 class TestTrelloApiCommand extends Command
 {
@@ -26,12 +25,5 @@ class TestTrelloApiCommand extends Command
      */
     public function handle()
     {
-        $client = new ClientBuilder();
-        $client = $client->build(
-            config('trello.api_key'),
-            config('trello.api_token')
-        );
-
-        dump($client->getMemberApi()->boards()->all());
     }
 }
