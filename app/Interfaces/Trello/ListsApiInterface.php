@@ -21,7 +21,7 @@ interface ListsApiInterface
 
     public function archiveAllCards(string $idList): Response;
 
-    public function moveAllCards(string $fromIdList, string $idBoard, string $toIdList): Response;
+    public function moveAllCards(string $idList, string $idBoard, string $toIdList): Response;
 
     public function archiveOrUnarchiveList(string $idList, bool $value): Response;
 
@@ -31,5 +31,5 @@ interface ListsApiInterface
 
     public function getBoardOfList(string $idList): Response;
 
-    public function getCardsOfList(string $idList): Response;
+    public function getCardsInList(string $idList): Response;
 }
