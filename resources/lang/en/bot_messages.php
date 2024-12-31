@@ -20,5 +20,10 @@ return [
 
     'ask_email' => 'On the last give me your email adress. I will use for creating workspace for you!',
 
-    'validate_answer' => 'Are you really sure in *:title* ?'
+    'validate_answer' => 'Are you really sure in *:title* ?',
+
+    'trello_workspace_created' => ':name you Trello workspace for studying was successfully created🔥' .
+                                 "\nPlease wait on letter on your gmail with invite!",
+
+    'error' => 'Something is going wrong, please wait, we are working to fix it'
 ];

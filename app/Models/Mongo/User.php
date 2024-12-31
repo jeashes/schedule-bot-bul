@@ -3,7 +3,6 @@
 namespace App\Models\Mongo;
 
 use MongoDB\Laravel\Eloquent\Model;
-use MongoDB\Laravel\Eloquent\Casts\ObjectId;
 
 class User extends Model
 {

@@ -6,6 +6,8 @@ use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Enums\Telegram\PaceLevelEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Managers\Trello\OrganizationManager;
+use Throwable;
 use App\Repository\TrelloWorkSpaceRepository;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
@@ -18,31 +20,55 @@ class MessageManager
         private readonly StudySubjectMessageManager $studySubjectManager,
         private readonly HoursOnStudyManager $hoursOnStudyManager,
         private readonly StudyPaceLevelManager $studyPaceLevelManager,
-        private readonly TrelloWorkSpaceRepository $trelloWorkSpaceRepository
+        private readonly TrelloWorkSpaceRepository $trelloWorkSpaceRepository,
+        private readonly OrganizationManager $organizationManager
     ) {}
 
     public function handleMessages(TelegramMessageDto $messageDto): void
     {
-        $this->botStartMessage($messageDto);
-        $this->subjectStudyMessages($messageDto);
+        try {
+            $this->botStartMessage($messageDto);
+            $this->subjectStudyMessages($messageDto);
 
-        $userId = $messageDto->user->getId();
+            $userId = $messageDto->user->getId();
 
-        if ($this->isSubjectStudyApproved($userId)) {
-            Log::channel('telegram')->info('Subject name is approved');
-            $this->hoursOnStudyMessages($messageDto);
-        }
+            if ($this->isSubjectStudyApproved($userId)) {
+                Log::channel('telegram')->info('Subject name is approved');
+                $this->hoursOnStudyMessages($messageDto);
+            }
 
-        if ($this->isHoursForStudyApproved($userId)) {
-            Log::channel('telegram')->info('Hourse for study is approved');
-            $this->paceLevelMessages($messageDto);
-        }
+            if ($this->isHoursForStudyApproved($userId)) {
+                Log::channel('telegram')->info('Hourse for study is approved');
+                $this->paceLevelMessages($messageDto);
+            }
 
-        if ($this->isPaceLevelApproved($userId)) {
-            $this->trelloWorkSpaceRepository->createWorkspaceByUserId(
-                $this->getWorkspaceParamsByAnswers($userId),
-                $userId
-            );
+            if ($this->isPaceLevelApproved($userId)) {
+
+                $workspace = $this->trelloWorkSpaceRepository->createWorkspaceByUserId(
+                    $this->getWorkspaceParamsByAnswers($userId),
+                    $userId
+                );
+
+                $this->organizationManager->create($workspace->getName());
+
+                TelegramBotRequest::sendMessage([
+                    'chat_id' => $messageDto->user->getChatId(),
+                    'text' => __(
+                        'bot_messages.trello_workspace_created', [
+                            'name' => $messageDto->user->getFirstName()  . ' '
+                            . $messageDto->user->getLastName()
+                        ]
+                    ),
+                    'parse_mode' => 'Markdown'
+                ]);
+            }
+        } catch (Throwable $e) {
+            Log::channel('telegram')->error('Something went wrong: ' . $e->getMessage());
+            TelegramBotRequest::sendMessage([
+                'chat_id' => $messageDto->user->getChatId(),
+                'text' => __('bot_messages.error'),
+                'parse_mode' => 'Markdown'
+            ]);
         }
     }
 

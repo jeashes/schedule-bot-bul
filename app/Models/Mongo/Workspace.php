@@ -2,7 +2,6 @@
 
 namespace App\Models\Mongo;
 
-use MongoDB\Laravel\Eloquent\Casts\ObjectId;
 use MongoDB\Laravel\Eloquent\Model;
 
 class Workspace extends Model
@@ -23,6 +22,16 @@ class Workspace extends Model
     public function getId(): string
     {
         return $this->getAttribute('_id');
+    }
+
+    public function getName(): string
+    {
+        return $this->getAttribute('name');
+    }
+
+    public function setName(string $value): void
+    {
+        $this->setAttribute('name', $value);
     }
 
     public function getTimeOnSchedule(): float
