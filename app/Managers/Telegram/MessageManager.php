@@ -6,9 +6,12 @@ use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Enums\Telegram\PaceLevelEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Enums\Telegram\UserEmailEnum;
 use App\Managers\Trello\OrganizationManager;
+use App\Models\Mongo\User;
 use Throwable;
 use App\Repository\TrelloWorkSpaceRepository;
+use App\Repository\UserRepository;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
@@ -20,7 +23,9 @@ class MessageManager
         private readonly StudySubjectMessageManager $studySubjectManager,
         private readonly HoursOnStudyManager $hoursOnStudyManager,
         private readonly StudyPaceLevelManager $studyPaceLevelManager,
+        private readonly UserEmailManager $userEmailManager,
         private readonly TrelloWorkSpaceRepository $trelloWorkSpaceRepository,
+        private readonly UserRepository $userRepository,
         private readonly OrganizationManager $organizationManager
     ) {}
 
@@ -43,13 +48,21 @@ class MessageManager
             }
 
             if ($this->isPaceLevelApproved($userId)) {
+                $this->userEmailMessages($messageDto);
+            }
+
+            if ($this->isUserEmailApproved($userId)) {
+                $userEmailInfo = json_decode(
+                    Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
 
                 $workspace = $this->trelloWorkSpaceRepository->createWorkspaceByUserId(
                     $this->getWorkspaceParamsByAnswers($userId),
                     $userId
                 );
 
-                $this->organizationManager->create($workspace->getName());
+                $this->userRepository->findById($userId)->update([
+                    'email' => $userEmailInfo['current_answer']
+                ]);
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
@@ -86,6 +99,13 @@ class MessageManager
         $this->hoursOnStudyManager->acceptAnswer($messageDto);
     }
 
+    private function userEmailMessages(TelegramMessageDto $messageDto): void
+    {
+        $this->userEmailManager->sendQuestion($messageDto);
+        $this->userEmailManager->clarifyAnswer($messageDto);
+        $this->userEmailManager->acceptAnswer($messageDto);
+    }
+
     private function paceLevelMessages(TelegramMessageDto $messageDto): void
     {
         $this->studyPaceLevelManager->sendQuestion($messageDto);
@@ -108,6 +128,12 @@ class MessageManager
     {
         $paceLevelInfo = json_decode(Redis::get($userId . '_' . PaceLevelEnum::QUESTION->value), true);
         return !empty($paceLevelInfo['current_answer']) && !empty($paceLevelInfo['approved']);
+    }
+
+    private function isUserEmailApproved(string $userId): bool
+    {
+        $userEmailInfo = json_decode(Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
+        return !empty($userEmailInfo['current_answer']) && !empty($userEmailInfo['approved']);
     }
 
     private function getWorkspaceParamsByAnswers(string $userId): array
@@ -180,6 +206,15 @@ class MessageManager
                 'approved' => null
             ])
         );
+
+        Redis::set(
+            $userId . '_' . UserEmailEnum::QUESTION->value,
+            json_encode([
+                'current_answer' => null,
+                'edited' => null,
+                'approved' => null
+            ])
+        );
     }
 
     private function removeOldAnswers(string $userId): void
@@ -187,5 +222,6 @@ class MessageManager
         Redis::del($userId . '_' . SubjectStudiesEnum::QUESTION->value);
         Redis::del($userId . '_' . HoursOnStudyEnum::QUESTION->value);
         Redis::del($userId . '_' . PaceLevelEnum::QUESTION->value);
+        Redis::del($userId . '_' . UserEmailEnum::QUESTION->value);
     }
 }

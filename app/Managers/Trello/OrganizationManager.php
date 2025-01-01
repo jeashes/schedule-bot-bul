@@ -13,7 +13,7 @@ class OrganizationManager extends TrelloClient implements OrganizationApiInterfa
 
     public function __construct()
     {
-        self::__construct();
+        parent::__construct();
     }
 
     public function create(string $name): Response

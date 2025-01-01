@@ -23,6 +23,11 @@ class UserRepository
             $userMessageData['username'] = $userDto->getUsername();
         }
 
-        return MongoUser::firstOrCreate(['chat_id' => $userDto->getChatId()], $userMessageData);
+        return MongoUser::query()->firstOrCreate(['chat_id' => $userDto->getChatId()], $userMessageData);
+    }
+
+    public function findById(string $userId): MongoUser
+    {
+        return MongoUser::query()->findOrFail($userId);
     }
 }
