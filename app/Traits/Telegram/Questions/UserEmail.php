@@ -3,6 +3,7 @@
 namespace App\Traits\Telegram\Questions;
 
 use App\Dto\TelegramMessageDto;
+use App\Enums\Telegram\AnswerEditAcceptEnum;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
@@ -10,9 +11,6 @@ use App\Enums\Telegram\UserEmailEnum;
 
 trait UserEmail
 {
-    const EDIT_COUNT_CLARIFY = 2;
-    const EDIT_COUNT_ACCEPT = 3;
-
     public function sendEmailQuestion(TelegramMessageDto $messageDto): void
     {
         $userEmailInfo = json_decode(
@@ -47,7 +45,7 @@ trait UserEmail
             Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
 
         if (!empty($messageDto->answer)
-            && $userEmailInfo['edited'] < self::EDIT_COUNT_CLARIFY
+            && $userEmailInfo['edited'] < AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
             && $userEmailInfo['approved'] === 0) {
 
             $keyboard = new InlineKeyboard([
@@ -78,7 +76,7 @@ trait UserEmail
         }
 
         if (!empty($messageDto->answer)
-            && $userEmailInfo['edited'] === self::EDIT_COUNT_CLARIFY
+            && $userEmailInfo['edited'] === AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
             && $userEmailInfo['approved'] === 0) {
 
             Redis::set(
@@ -98,7 +96,7 @@ trait UserEmail
             Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
 
         if (($messageDto->callbackData === UserEmailEnum::NAME_ACCEPT->value
-            || $userEmailInfo['edited'] >= self::EDIT_COUNT_ACCEPT && !empty($messageDto->answer))
+            || $userEmailInfo['edited'] >= AnswerEditAcceptEnum::EDIT_COUNT_ACCEPT->value && !empty($messageDto->answer))
             && $userEmailInfo['approved'] === 0) {
 
             Redis::set(

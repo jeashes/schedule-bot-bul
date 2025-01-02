@@ -3,6 +3,7 @@
 namespace App\Traits\Telegram\Questions;
 
 use App\Dto\TelegramMessageDto;
+use App\Enums\Telegram\AnswerEditAcceptEnum;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
@@ -10,9 +11,6 @@ use App\Enums\Telegram\SubjectStudiesEnum;
 
 trait StudySubject
 {
-    const EDIT_COUNT_CLARIFY = 2;
-    const EDIT_COUNT_ACCEPT = 3;
-
     public function sendSubjectQuestion(TelegramMessageDto $messageDto): void
     {
         if ($messageDto->callbackData === $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value) {
@@ -45,7 +43,7 @@ trait StudySubject
             Redis::get($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
 
         if (!empty($messageDto->answer)
-            && $subjectStudiesInfo['edited'] < self::EDIT_COUNT_CLARIFY
+            && $subjectStudiesInfo['edited'] < AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
             && $subjectStudiesInfo['approved'] === 0) {
 
             $keyboard = new InlineKeyboard([
@@ -76,7 +74,7 @@ trait StudySubject
         }
 
         if (!empty($messageDto->answer)
-            && $subjectStudiesInfo['edited'] === self::EDIT_COUNT_CLARIFY
+            && $subjectStudiesInfo['edited'] === AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
             && $subjectStudiesInfo['approved'] === 0) {
 
             Redis::set(
@@ -96,7 +94,8 @@ trait StudySubject
             Redis::get($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
 
         if (($messageDto->callbackData === SubjectStudiesEnum::NAME_ACCEPT->value
-            || $subjectStudiesInfo['edited'] >= self::EDIT_COUNT_ACCEPT && !empty($messageDto->answer))
+            || $subjectStudiesInfo['edited'] >= AnswerEditAcceptEnum::EDIT_COUNT_ACCEPT->value
+            && !empty($messageDto->answer))
             && $subjectStudiesInfo['approved'] === 0) {
 
             Redis::set(

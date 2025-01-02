@@ -7,12 +7,10 @@ use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\HoursOnStudyEnum;
+use App\Enums\Telegram\AnswerEditAcceptEnum;
 
 trait HoursOnStudy
 {
-    const EDIT_COUNT_CLARIFY = 2;
-    const EDIT_COUNT_ACCEPT = 3;
-
     public function sendHoursQuestion(TelegramMessageDto $messageDto): void
     {
         $hoursOnStudyInfo = json_decode(
@@ -47,7 +45,7 @@ trait HoursOnStudy
             Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
 
         if (!empty($messageDto->answer)
-            && $hoursOnStudyInfo['edited'] < self::EDIT_COUNT_CLARIFY
+            && $hoursOnStudyInfo['edited'] < AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
             && $hoursOnStudyInfo['approved'] === 0) {
 
             $keyboard = new InlineKeyboard([
@@ -78,7 +76,8 @@ trait HoursOnStudy
         }
 
         if (!empty($messageDto->answer)
-            && $hoursOnStudyInfo['edited'] === self::EDIT_COUNT_CLARIFY && $hoursOnStudyInfo['approved'] === 0) {
+            && $hoursOnStudyInfo['edited'] === AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
+            && $hoursOnStudyInfo['approved'] === 0) {
 
             Redis::set(
                 $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
@@ -97,7 +96,8 @@ trait HoursOnStudy
             Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
 
         if (($messageDto->callbackData === HoursOnStudyEnum::NAME_ACCEPT->value
-            || $hoursOnStudyInfo['edited'] >= self::EDIT_COUNT_ACCEPT && !empty($messageDto->answer))
+            || $hoursOnStudyInfo['edited'] >= AnswerEditAcceptEnum::EDIT_COUNT_ACCEPT->value
+            && !empty($messageDto->answer))
             && $hoursOnStudyInfo['approved'] === 0) {
 
             Redis::set(
