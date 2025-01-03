@@ -4,7 +4,7 @@ namespace App\Traits\Telegram;
 
 use Illuminate\Support\Facades\Redis;
 use App\Enums\Telegram\HoursOnStudyEnum;
-use App\Enums\Telegram\PaceLevelEnum;
+use App\Enums\Telegram\ScheduleEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\UserEmailEnum;
 
@@ -22,10 +22,10 @@ trait AnswerApprovedValidate
         return !empty($hoursOnStudyInfo['current_answer']) && !empty($hoursOnStudyInfo['approved']);
     }
 
-    private function isPaceLevelApproved(string $userId): bool
+    private function isScheduleApproved(string $userId): bool
     {
-        $paceLevelInfo = json_decode(Redis::get($userId . '_' . PaceLevelEnum::QUESTION->value), true);
-        return !empty($paceLevelInfo['current_answer']) && !empty($paceLevelInfo['approved']);
+        $scheduleInfo = json_decode(Redis::get($userId . '_' . ScheduleEnum::QUESTION->value), true);
+        return !empty($scheduleInfo['current_answer']) && !empty($scheduleInfo['approved']);
     }
 
     private function isUserEmailApproved(string $userId): bool
