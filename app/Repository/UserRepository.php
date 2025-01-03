@@ -10,20 +10,20 @@ class UserRepository
     public function findByChatIdOrCreate(UserDto $userDto): MongoUser
     {
         $userMessageData = [
-            'first_name' => $userDto->getFirstName(),
-            'chat_id' => $userDto->getChatId(),
-            'language_code' => $userDto->getLanguageCode()
+            'first_name' => $userDto->firstName,
+            'chat_id' => $userDto->chatId,
+            'language_code' => $userDto->languageCode
         ];
 
-        if (!is_null($userDto->getLastName())) {
-            $userMessageData['last_name'] = $userDto->getLastName();
+        if (!is_null($userDto->lastName)) {
+            $userMessageData['last_name'] = $userDto->lastName;
         }
 
-        if (!is_null($userDto->getUsername())) {
-            $userMessageData['username'] = $userDto->getUsername();
+        if (!is_null($userDto->username)) {
+            $userMessageData['username'] = $userDto->username;
         }
 
-        return MongoUser::query()->firstOrCreate(['chat_id' => $userDto->getChatId()], $userMessageData);
+        return MongoUser::query()->firstOrCreate(['chat_id' => $userDto->chatId], $userMessageData);
     }
 
     public function findById(string $userId): MongoUser
