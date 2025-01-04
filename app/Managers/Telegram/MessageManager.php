@@ -45,19 +45,17 @@ class MessageManager
             $userId = $messageDto->user->getId();
 
             if ($this->isSubjectStudyApproved($userId)) {
-                Log::channel('telegram')->info('Subject name is approved');
                 $this->sendHoursQuestion($messageDto);
                 $this->clarifyHoursAnswer($messageDto);
                 $this->acceptHoursAnswer($messageDto);
             }
 
             if ($this->isHoursForStudyApproved($userId)) {
-                Log::channel('telegram')->info('Hourse for study is approved');
                 $this->sendScheduleQuestion($messageDto);
                 $this->acceptScheduleAnswer($messageDto);
             }
 
-            if ($this->isPaceLevelApproved($userId)) {
+            if ($this->isScheduleApproved($userId)) {
                 $this->sendEmailQuestion($messageDto);
                 $this->clarifyEmailAnswer($messageDto);
                 $this->acceptEmailAnswer($messageDto);

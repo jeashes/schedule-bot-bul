@@ -69,7 +69,7 @@ trait HoursOnStudy
                 'reply_markup' => $keyboard,
                 'text' => __(
                     'bot_messages.validate_answer',
-                    ['title' => $messageDto->answer]
+                    ['title' => $messageDto->answer . 'h']
                 ),
                 'parse_mode' => 'Markdown'
             ]);

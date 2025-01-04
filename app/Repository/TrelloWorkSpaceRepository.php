@@ -6,7 +6,7 @@ use App\Models\Mongo\User as MongoUser;
 use App\Models\Mongo\Workspace;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\HoursOnStudyEnum;
-use App\Enums\Telegram\PaceLevelEnum;
+use App\Enums\Telegram\ScheduleEnum;
 use Illuminate\Support\Facades\Redis;
 
 class TrelloWorkSpaceRepository
@@ -23,12 +23,12 @@ class TrelloWorkSpaceRepository
     {
         $subjectStudiesInfo = json_decode(Redis::get($userId . '_' . SubjectStudiesEnum::QUESTION->value), true);
         $hoursOnStudyInfo = json_decode(Redis::get($userId . '_' . HoursOnStudyEnum::QUESTION->value), true);
-        $paceLevelInfo = json_decode(Redis::get($userId . '_' . PaceLevelEnum::QUESTION->value), true);
+        $scheduleInfo = json_decode(Redis::get($userId . '_' . ScheduleEnum::QUESTION->value), true);
 
         return [
             'name' => $subjectStudiesInfo['current_answer'],
             'time_on_scedule' => (int)$hoursOnStudyInfo['current_answer'],
-            'pace_level' => $paceLevelInfo['current_answer'],
+            'schedule' => $scheduleInfo['current_answer'],
             'task_ids' => []
         ];
     }

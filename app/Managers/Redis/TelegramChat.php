@@ -4,7 +4,7 @@ namespace App\Managers\Redis;
 
 use Illuminate\Support\Facades\Redis;
 use App\Enums\Telegram\HoursOnStudyEnum;
-use App\Enums\Telegram\PaceLevelEnum;
+use App\Enums\Telegram\ScheduleEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\UserEmailEnum;
 
@@ -33,7 +33,7 @@ trait TelegramChat
         );
 
         Redis::set(
-            $userId . '_' . PaceLevelEnum::QUESTION->value,
+            $userId . '_' . ScheduleEnum::QUESTION->value,
             json_encode([
                 'current_answer' => null,
                 'approved' => null
@@ -54,7 +54,7 @@ trait TelegramChat
     {
         Redis::del($userId . '_' . SubjectStudiesEnum::QUESTION->value);
         Redis::del($userId . '_' . HoursOnStudyEnum::QUESTION->value);
-        Redis::del($userId . '_' . PaceLevelEnum::QUESTION->value);
+        Redis::del($userId . '_' . ScheduleEnum::QUESTION->value);
         Redis::del($userId . '_' . UserEmailEnum::QUESTION->value);
     }
 }

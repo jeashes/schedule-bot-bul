@@ -15,7 +15,7 @@ class Workspace extends Model
     protected $fillable = [
         'name',
         'time_on_schedule',
-        'pace_level',
+        'schedule',
         'task_ids'
     ];
 
@@ -44,14 +44,14 @@ class Workspace extends Model
         $this->setAttribute('time_on_schedule', $value);
     }
 
-    public function getPaceLevel(): string
+    public function getSchedule(): int
     {
         return $this->getAttribute('pace_level');
     }
 
-    public function setPaceLevel(string $value): void
+    public function setSchedule(int $value): void
     {
-        $this->setAttribute('pace_level', $value);
+        $this->setAttribute('schedule', $value);
     }
 
     public function getTaskIds(): array
