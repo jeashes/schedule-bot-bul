@@ -39,12 +39,33 @@ trait UserEmail
         }
     }
 
+    public function validateEmailAnswer(TelegramMessageDto $messageDto): void
+    {
+        $userEmailInfo = json_decode(
+            Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
+
+        if (!empty($messageDto->answer)
+            && !$this->validateEmail($messageDto->answer)
+            && $userEmailInfo['edited'] < AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
+            && $userEmailInfo['approved'] === 0) {
+
+            TelegramBotRequest::sendMessage([
+                'chat_id' => $messageDto->user->getChatId(),
+                'text' => __(
+                    'bot_messages.wrong_email',
+                    ['email' => $messageDto->answer]
+                ),
+            ]);
+        }
+    }
+
     public function clarifyEmailAnswer(TelegramMessageDto $messageDto): void
     {
         $userEmailInfo = json_decode(
             Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
 
         if (!empty($messageDto->answer)
+            && $this->validateEmail($messageDto->answer)
             && $userEmailInfo['edited'] < AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
             && $userEmailInfo['approved'] === 0) {
 
@@ -110,5 +131,11 @@ trait UserEmail
 
             $messageDto->answer = null;
         }
+    }
+
+    private function validateEmail(string $email): bool
+    {
+        $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
+        return (preg_match($pattern, $email)) ? true : false;
     }
 }

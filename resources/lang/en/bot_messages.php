@@ -24,5 +24,7 @@ return [
     'trello_workspace_created' => ':name you Trello workspace for studying was successfully created🔥' .
                                  "\nPlease wait on letter on your gmail with invite!",
 
-    'error' => 'Something is going wrong, please wait, we are working to fix it'
+    'error' => 'Something is going wrong, please wait, we are working to fix it',
+
+    'wrong_email' => 'The :email has wrong format, please enter correct one'
 ];
