@@ -8,6 +8,7 @@ use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
 use App\Enums\Telegram\ScheduleEnum;
+use Illuminate\Support\Facades\Log;
 
 trait StudySchedule
 {
@@ -24,7 +25,8 @@ trait StudySchedule
                 ])
             );
 
-            $keyboard = new InlineKeyboard([
+            $keyboard = new InlineKeyboard(
+            [
                 [
                     'text' => 'Mon-Wed-Fri',
                     'callback_data' => WorkspaceSchedule::MON_WED_FRI->value
@@ -33,6 +35,8 @@ trait StudySchedule
                     'text' => 'Tue-Thu-Sat',
                     'callback_data' => WorkspaceSchedule::TUE_THU_SAT->value
                 ],
+            ],
+            [
                 [
                     'text' => 'Sat-Sun',
                     'callback_data' => WorkspaceSchedule::SAT_SUN->value
@@ -51,7 +55,7 @@ trait StudySchedule
                 'chat_id' => $messageDto->user->getChatId(),
                 'reply_markup' => $keyboard,
                 'text' => __(
-                    'bot_messages.pace_level',
+                    'bot_messages.schedule',
                 ),
                 'parse_mode' => 'Markdown'
             ]);
@@ -60,6 +64,7 @@ trait StudySchedule
 
     public function acceptScheduleAnswer(TelegramMessageDto $messageDto): void
     {
+        Log::channel('telegram')->info('shedule answer accept' . $messageDto->callbackData);
         if (in_array(
             $messageDto->callbackData,
             array_column(WorkspaceSchedule::cases(), 'value')
@@ -76,7 +81,7 @@ trait StudySchedule
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => 'Pace level was sucessufylly save✅',
+                'text' => 'Schedule was sucessufylly save✅',
             ]);
         }
     }
