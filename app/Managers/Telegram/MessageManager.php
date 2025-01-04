@@ -57,6 +57,7 @@ class MessageManager
 
             if ($this->isScheduleApproved($userId)) {
                 $this->sendEmailQuestion($messageDto);
+                $this->validateEmailAnswer($messageDto);
                 $this->clarifyEmailAnswer($messageDto);
                 $this->acceptEmailAnswer($messageDto);
             }
