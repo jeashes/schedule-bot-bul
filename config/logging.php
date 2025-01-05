@@ -131,6 +131,12 @@ return [
             'driver' => 'single',
             'level' => 'debug',
             'path' => storage_path('logs/telegram.log')
+        ],
+
+        'trello' => [
+            'driver' => 'single',
+            'level' => 'debug',
+            'path' => storage_path('logs/trello.log')
         ]
     ],
 
