@@ -6,7 +6,7 @@ use Illuminate\Http\Client\Response;
 
 interface OrganizationApiInterface
 {
-    public function create(string $name): Response;
+    public function create(string $displayName, ?string $description, ?string $name): Response;
 
     public function get(string $id): Response;
 

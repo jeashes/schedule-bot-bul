@@ -16,12 +16,22 @@ class OrganizationManager extends TrelloClient implements OrganizationApiInterfa
         parent::__construct();
     }
 
-    public function create(string $name): Response
+    public function create(string $displayName, ?string $description, ?string $name): Response
     {
         $params = $this->prepareApiTokenParams();
-        $params['name'] = $name;
+        $params['displayName'] = $name;
 
         $query = '{+endpoint}?displayName={displayName}&';
+
+        if (!empty($description)) {
+            $params['description'] = $description;
+            $query .= 'description={description}&';
+        }
+
+        if (!empty($name)) {
+            $params['name'] = $name;
+            $query .= 'name={name}&';
+        }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
