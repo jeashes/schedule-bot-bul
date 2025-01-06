@@ -15,7 +15,7 @@ class BoardsManager extends TrelloClient implements BoardsApiInterface
 
     public function __construct()
     {
-        self::__construct();
+        parent::__construct();
     }
 
     public function getMemberships(
@@ -170,7 +170,7 @@ class BoardsManager extends TrelloClient implements BoardsApiInterface
         string $name,
         string $desc,
         string $idOrganization,
-        ?string $idBoardSource
+        ?string $idBoardSource = null,
     ): Response {
         $params = $this->prepareApiTokenParams();
         $params['name'] = $name;

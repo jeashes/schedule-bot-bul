@@ -13,7 +13,7 @@ class ListManager extends TrelloClient implements ListsApiInterface
 
     public function __construct()
     {
-        self::__construct();
+        parent::__construct();
     }
 
     public function createNewList(string $name, string $idBoard, ?string $idListSource, ?string $position): Response

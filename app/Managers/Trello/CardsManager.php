@@ -13,7 +13,7 @@ class CardsManager extends TrelloClient implements CardsApiInterface
 
     public function __construct()
     {
-        self::__construct();
+        parent::__construct();
     }
 
     public function getCard(string $idCard): Response

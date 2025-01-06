@@ -5,6 +5,7 @@ namespace App\Managers\Telegram;
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\UserEmailEnum;
+use App\Managers\Trello\BoardsManager;
 use Throwable;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
@@ -14,6 +15,7 @@ use App\Traits\Telegram\Questions\StudySchedule;
 use App\Traits\Telegram\Questions\StudySubject;
 use App\Traits\Telegram\Questions\UserEmail;
 use App\Traits\Telegram\ResetUserAnswers;
+use Dotenv\Store\File\Reader;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
@@ -30,6 +32,7 @@ class MessageManager
 
     public function __construct(
         private readonly TrelloWorkSpaceRepository $trelloWorkSpaceRepository,
+        private readonly BoardsManager $boardsManager,
         private readonly UserRepository $userRepository
     ) {}
 
@@ -75,6 +78,12 @@ class MessageManager
                 $this->userRepository->findById($userId)->update([
                     'email' => $userEmailInfo['current_answer']
                 ]);
+
+                $this->boardsManager->createBoard(
+                    name: $workspace->getName(),
+                    desc: 'test description',
+                    idOrganization: config('trello.organization_id')
+                );
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
