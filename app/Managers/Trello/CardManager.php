@@ -7,7 +7,7 @@ use App\Interfaces\Trello\CardsApiInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class CardsManager extends TrelloClient implements CardsApiInterface
+class CardManager extends TrelloClient implements CardsApiInterface
 {
     private const CARDS_URI = 'https://api.trello.com/1/cards';
 
@@ -29,9 +29,9 @@ class CardsManager extends TrelloClient implements CardsApiInterface
     }
 
     public function updateCard(
-        string $idCard, ?string $name, ?string $desc, ?bool $closed, ?string $idMembers,
-        ?string $idAttachmentCover, ?string $idList, ?string $idLabels, ?string $idBoard,
-        ?string $position, ?string $dueDate, ?string $startDate, ?bool $dueCompleteDate,
+        string $idCard, ?string $name = null, ?string $desc = null, ?bool $closed = null, ?string $idMembers = null,
+        ?string $idAttachmentCover = null, ?string $idList = null, ?string $idLabels = null, ?string $idBoard = null,
+        ?string $position = null, ?string $dueDate = null, ?string $startDate = null, ?bool $dueCompleteDate = null,
         ?bool $subscribed
     ): Response {
         $params = $this->prepareApiTokenParams();
@@ -122,9 +122,9 @@ class CardsManager extends TrelloClient implements CardsApiInterface
     }
 
     public function createNewCard(
-        string $idList, ?string $name, ?string $desc, ?string $position, ?string $dueDate,
-        ?string $startDate, ?bool $dueCompleteDate, ?string $idMembers, ?string $idLabels,
-        ?string $urlSource, ?string $idCardSource
+        string $idList, ?string $name = null, ?string $desc = null, ?string $position = null, ?string $dueDate = null,
+        ?string $startDate = null, ?bool $dueCompleteDate = null, ?string $idMembers = null, ?string $idLabels = null,
+        ?string $urlSource = null, ?string $idCardSource = null
     ): Response {
         $params = $this->prepareApiTokenParams();
         $params['idList'] = $idList;
@@ -182,7 +182,7 @@ class CardsManager extends TrelloClient implements CardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query . self::API_TOKEN_QUERY);
+            ->post($query . self::API_TOKEN_QUERY);
     }
 
     public function getBoardOfCard(string $idCard, string $fields): Response

@@ -16,8 +16,10 @@ class ListManager extends TrelloClient implements ListsApiInterface
         parent::__construct();
     }
 
-    public function createNewList(string $name, string $idBoard, ?string $idListSource, ?string $position): Response
-    {
+    public function createNewList(
+        string $name, string $idBoard,
+        ?string $idListSource = null, ?string $position = null
+    ): Response {
         $params = $this->prepareApiTokenParams();
         $params['name'] = $name;
         $params['idBoard'] = $idBoard;
@@ -51,8 +53,10 @@ class ListManager extends TrelloClient implements ListsApiInterface
             ->get($query  . self::API_TOKEN_QUERY);
     }
 
-    public function updateList(string $idList, ?string $name, ?bool $closed, ?string $idBoard, ?string $position, ?bool $subscribed): Response
-    {
+    public function updateList(
+        string $idList, ?string $name = null, ?bool $closed = null, ?string $idBoard = null,
+        ?string $position = null, ?bool $subscribed = null
+    ): Response {
         $params = $this->prepareApiTokenParams();
 
         $params['id'] = $idList;
