@@ -5,7 +5,8 @@ namespace App\Managers\Telegram;
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\UserEmailEnum;
-use App\Managers\Trello\BoardsManager;
+use App\Managers\Trello\BoardManager;
+use App\Models\Mongo\TrelloBoard;
 use Throwable;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
@@ -15,7 +16,6 @@ use App\Traits\Telegram\Questions\StudySchedule;
 use App\Traits\Telegram\Questions\StudySubject;
 use App\Traits\Telegram\Questions\UserEmail;
 use App\Traits\Telegram\ResetUserAnswers;
-use Dotenv\Store\File\Reader;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
@@ -32,7 +32,7 @@ class MessageManager
 
     public function __construct(
         private readonly TrelloWorkSpaceRepository $trelloWorkSpaceRepository,
-        private readonly BoardsManager $boardsManager,
+        private readonly BoardManager $boardsManager,
         private readonly UserRepository $userRepository
     ) {}
 
@@ -79,11 +79,20 @@ class MessageManager
                     'email' => $userEmailInfo['current_answer']
                 ]);
 
-                $this->boardsManager->createBoard(
+                $response = $this->boardsManager->createBoard(
                     name: $workspace->getName(),
                     desc: 'test description',
                     idOrganization: config('trello.organization_id')
                 );
+
+                $data = json_decode($response, true);
+
+                TrelloBoard::query()->firstOrCreate([
+                    'user_id' => $userId,
+                    'trello_id' => $data['id'],
+                    'name' => $data['name'],
+                    'desc' => $data['desc']
+                ]);
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
