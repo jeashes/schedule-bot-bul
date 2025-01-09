@@ -16,7 +16,7 @@ class OrganizationManager extends TrelloClient implements OrganizationApiInterfa
         parent::__construct();
     }
 
-    public function create(string $displayName, ?string $description, ?string $name): Response
+    public function create(string $displayName, ?string $description = null, ?string $name = null): Response
     {
         $params = $this->prepareApiTokenParams();
         $params['displayName'] = $name;

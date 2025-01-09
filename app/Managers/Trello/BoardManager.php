@@ -7,7 +7,7 @@ use App\Interfaces\Trello\BoardsApiInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class BoardsManager extends TrelloClient implements BoardsApiInterface
+class BoardManager extends TrelloClient implements BoardsApiInterface
 {
     private const BOARDS_URI = 'https://api.trello.com/1/boards';
 
@@ -15,7 +15,7 @@ class BoardsManager extends TrelloClient implements BoardsApiInterface
 
     public function __construct()
     {
-        self::__construct();
+        parent::__construct();
     }
 
     public function getMemberships(
@@ -60,11 +60,11 @@ class BoardsManager extends TrelloClient implements BoardsApiInterface
     // reimplement function
     public function updateBoard(
         string $boardId,
-        ?string $name,
-        ?string $desc,
-        ?bool $closed,
-        ?string $subscribed,
-        ?string $idOrganization,
+        ?string $name = null,
+        ?string $desc = null,
+        ?bool $closed = null,
+        ?string $subscribed = null,
+        ?string $idOrganization = null,
     ): Response {
         $params = $this->prepareApiTokenParams();
 
@@ -170,7 +170,7 @@ class BoardsManager extends TrelloClient implements BoardsApiInterface
         string $name,
         string $desc,
         string $idOrganization,
-        ?string $idBoardSource
+        ?string $idBoardSource = null,
     ): Response {
         $params = $this->prepareApiTokenParams();
         $params['name'] = $name;

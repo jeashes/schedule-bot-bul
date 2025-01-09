@@ -22,7 +22,7 @@ interface BoardsApiInterface
 
     public function removeMember(string $boardId, string $idMember): Response;
 
-    public function createBoard(string $name, string $desc, string $idOrganization, ?string $idBoardSource): Response;
+    public function createBoard(string $name, string $desc, string $idOrganization, ?string $idBoardSource = null): Response;
 
     public function getCards(string $boardId): Response;
 
