@@ -15,7 +15,6 @@ class TrelloList extends Model
         'user_id',
         'workspace_id',
         'board_id',
-        'card_ids',
         'name',
     ];
 
