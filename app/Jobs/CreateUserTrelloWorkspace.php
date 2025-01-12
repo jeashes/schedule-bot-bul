@@ -7,6 +7,7 @@ use App\Service\Trello\Boards\BoardClient;
 use App\Models\Mongo\User;
 use App\Models\Mongo\Workspace;
 use App\Repository\Trello\BoardRepository;
+use App\Repository\Trello\ListRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -30,12 +31,19 @@ class CreateUserTrelloWorkspace implements ShouldQueue
      */
     public function handle(
         BoardRepository $boardRepository,
-        BoardClient $boardClient
+        BoardClient $boardClient,
+        ListRepository $listRepository
     ): void {
         $board = $boardRepository->createAndStoreBoard($this->workspace, $this->user);
 
         $boardClient->inviteMemberViaEmail(
             $board->trello_id, $this->user->getEmail(), InviteTypeEnum::NORMAL->value
         );
+
+        $lists = json_decode($boardClient->getLists($board->trello_id), true);
+        $listRepository->saveDefaultLists($this->user->getId(), $lists);
+
+        $toDoList = $listRepository->getToDoList($this->user->getId());
+
     }
 }
