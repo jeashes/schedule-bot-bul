@@ -2,10 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Enums\Trello\InviteTypeEnum;
 use App\Service\Trello\Boards\BoardClient;
-use App\Service\Trello\Lists\ListClient;
-use App\Service\Trello\Cards\CardClient;
-use App\Models\Mongo\TrelloBoard;
 use App\Models\Mongo\User;
 use App\Models\Mongo\Workspace;
 use App\Repository\Trello\BoardRepository;
@@ -30,7 +28,14 @@ class CreateUserTrelloWorkspace implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(BoardRepository $boardRepository): void {
+    public function handle(
+        BoardRepository $boardRepository,
+        BoardClient $boardClient
+    ): void {
         $board = $boardRepository->createAndStoreBoard($this->workspace, $this->user);
+
+        $boardClient->inviteMemberViaEmail(
+            $board->trello_id, $this->user->getEmail(), InviteTypeEnum::NORMAL->value
+        );
     }
 }
