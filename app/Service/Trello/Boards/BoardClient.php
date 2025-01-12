@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Managers\Trello;
+namespace App\Service\Trello\Boards;
 
-use App\Clients\TrelloClient;
+use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\BoardsApiInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class BoardManager extends TrelloClient implements BoardsApiInterface
+class BoardClient extends BaseClient implements BoardsApiInterface
 {
     private const BOARDS_URI = 'https://api.trello.com/1/boards';
 

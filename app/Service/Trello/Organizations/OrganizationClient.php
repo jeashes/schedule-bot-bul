@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Managers\Trello;
+namespace App\Service\Trello\Organizations;
 
-use App\Clients\TrelloClient;
+use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\OrganizationApiInterface;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Client\Response;
 
-class OrganizationManager extends TrelloClient implements OrganizationApiInterface
+class OrganizationClient extends BaseClient implements OrganizationApiInterface
 {
     private const ORGANIZATION_URI = 'https://api.trello.com/1/organizations';
 

@@ -7,6 +7,8 @@ use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Enums\Telegram\ScheduleEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\UserEmailEnum;
+use App\Models\Mongo\TrelloBoard;
+use Throwable;
 
 trait AnswerApprovedValidate
 {
@@ -32,5 +34,15 @@ trait AnswerApprovedValidate
     {
         $userEmailInfo = json_decode(Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
         return !empty($userEmailInfo['current_answer']) && !empty($userEmailInfo['approved']);
+    }
+
+    private function userBoardWasNotCreated(string $userId): bool
+    {
+        try {
+            TrelloBoard::query()->where(['user_id' => $userId])->firstOrFail();
+            return true;
+        } catch (Throwable $e) {
+            return false;
+        }
     }
 }

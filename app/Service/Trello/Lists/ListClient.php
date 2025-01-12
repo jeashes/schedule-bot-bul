@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Managers\Trello;
+namespace App\Service\Trello\Lists;
 
-use App\Clients\TrelloClient;
+use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\ListsApiInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class ListManager extends TrelloClient implements ListsApiInterface
+class ListClient extends BaseClient implements ListsApiInterface
 {
     private const LISTS_URI = 'https://api.trello.com/1/lists';
 

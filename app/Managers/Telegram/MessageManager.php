@@ -5,8 +5,7 @@ namespace App\Managers\Telegram;
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\UserEmailEnum;
-use App\Managers\Trello\BoardManager;
-use App\Models\Mongo\TrelloBoard;
+use App\Jobs\CreateUserTrelloWorkspace;
 use Throwable;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
@@ -32,7 +31,6 @@ class MessageManager
 
     public function __construct(
         private readonly TrelloWorkSpaceRepository $trelloWorkSpaceRepository,
-        private readonly BoardManager $boardsManager,
         private readonly UserRepository $userRepository
     ) {}
 
@@ -65,7 +63,7 @@ class MessageManager
                 $this->acceptEmailAnswer($messageDto);
             }
 
-            if ($this->isUserEmailApproved($userId)) {
+            if ($this->isUserEmailApproved($userId) && !$this->userBoardWasNotCreated($userId)) {
                 $userEmailInfo = json_decode(
                     Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
 
@@ -75,24 +73,10 @@ class MessageManager
                     $userId
                 );
 
-                $this->userRepository->findById($userId)->update([
-                    'email' => $userEmailInfo['current_answer']
-                ]);
+                $user = $this->userRepository->findById($userId);
+                $user->update(['email' => $userEmailInfo['current_answer']]);
 
-                $response = $this->boardsManager->createBoard(
-                    name: $workspace->getName(),
-                    desc: 'test description',
-                    idOrganization: config('trello.organization_id')
-                );
-
-                $data = json_decode($response, true);
-
-                TrelloBoard::query()->firstOrCreate([
-                    'user_id' => $userId,
-                    'trello_id' => $data['id'],
-                    'name' => $data['name'],
-                    'desc' => $data['desc']
-                ]);
+                dispatch(new CreateUserTrelloWorkspace($workspace, $user));
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Managers\Trello;
+namespace App\Service\Trello\Cards;
 
-use App\Clients\TrelloClient;
+use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\CardsApiInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class CardManager extends TrelloClient implements CardsApiInterface
+class CardClient extends BaseClient implements CardsApiInterface
 {
     private const CARDS_URI = 'https://api.trello.com/1/cards';
 
