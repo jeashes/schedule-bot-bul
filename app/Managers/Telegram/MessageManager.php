@@ -63,7 +63,7 @@ class MessageManager
                 $this->acceptEmailAnswer($messageDto);
             }
 
-            if ($this->isUserEmailApproved($userId)) {
+            if ($this->isUserEmailApproved($userId) && !$this->userBoardWasNotCreated($userId)) {
                 $userEmailInfo = json_decode(
                     Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
 
