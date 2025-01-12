@@ -6,7 +6,6 @@ use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\UserEmailEnum;
 use App\Jobs\CreateUserTrelloWorkspace;
-use App\Managers\Trello\BoardManager;
 use Throwable;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
@@ -32,7 +31,6 @@ class MessageManager
 
     public function __construct(
         private readonly TrelloWorkSpaceRepository $trelloWorkSpaceRepository,
-        private readonly BoardManager $boardsManager,
         private readonly UserRepository $userRepository
     ) {}
 
