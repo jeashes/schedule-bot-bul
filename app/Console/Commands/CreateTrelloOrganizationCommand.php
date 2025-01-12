@@ -2,12 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Managers\Trello\OrganizationManager;
-use App\Models\Mongo\Organization;
+use App\Service\Trello\Organizations\OrganizationClient;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Predis\Command\Redis\DUMP;
 use Throwable;
 
 class CreateTrelloOrganizationCommand extends Command
@@ -29,17 +26,17 @@ class CreateTrelloOrganizationCommand extends Command
     /**s
      * Execute the console command.
      */
-    public function handle(OrganizationManager $manager)
+    public function handle(OrganizationClient $client)
     {
-        $displayName = 'Zabuliti velika';
-        $name = 'Main orga';
+        $displayName = 'Organization for schedule';
+        $name = 'Main organization';
         $desription = 'The organization where creates boards for scheduling';
-        if ($this->isTrelloOrgAlreadyCreated(config('trello.organization_id'), $manager)) {
+        if ($this->isTrelloOrgAlreadyCreated(config('trello.organization_id'), $client)) {
             $this->info('Organization id already exist in config/trello');
             die();
         }
 
-        $response = $manager->create(
+        $response = $client->create(
             displayName: $displayName,
             name: $name,
             description: $desription
@@ -51,10 +48,10 @@ class CreateTrelloOrganizationCommand extends Command
         $this->info("Your organization id successfully created: $organizationId, please add into config/trello");
     }
 
-    private function isTrelloOrgAlreadyCreated(string $orgId, OrganizationManager $organizationManager): bool
+    private function isTrelloOrgAlreadyCreated(string $orgId, OrganizationClient $client): bool
     {
         try {
-            $response = $organizationManager->get($orgId);
+            $response = $client->get($orgId);
             if ($response->status() === 200) {
                 Log::channel('trello')->info('Organization already created');
                 return true;
