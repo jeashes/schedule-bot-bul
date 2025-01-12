@@ -2,18 +2,18 @@
 
 namespace App\Jobs;
 
-use App\Managers\Trello\BoardManager;
-use App\Managers\Trello\ListManager;
-use App\Managers\Trello\CardManager;
+use App\Service\Trello\Boards\BoardClient;
+use App\Service\Trello\Lists\ListClient;
+use App\Service\Trello\Cards\CardClient;
 use App\Models\Mongo\TrelloBoard;
 use App\Models\Mongo\User;
 use App\Models\Mongo\Workspace;
+use App\Repository\Trello\BoardRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class CreateUserTrelloWorkspace implements ShouldQueue
 {
@@ -30,22 +30,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(
-        BoardManager $boardManager, ListManager $listManager, CardManager $cardManager
-    ): void {
-        $response = $boardManager->createBoard(
-            name: $this->workspace->getName(),
-            desc: 'test description',
-            idOrganization: config('trello.organization_id')
-        );
-
-        $data = json_decode($response, true);
-
-        TrelloBoard::query()->firstOrCreate([
-            'user_id' => $this->user->getId(),
-            'trello_id' => $data['id'],
-            'name' => $data['name'],
-            'desc' => $data['desc']
-        ]);
+    public function handle(BoardRepository $boardRepository): void {
+        $board = $boardRepository->createAndStoreBoard($this->workspace, $this->user);
     }
 }
