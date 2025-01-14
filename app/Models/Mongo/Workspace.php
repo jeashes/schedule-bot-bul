@@ -46,7 +46,7 @@ class Workspace extends Model
 
     public function getSchedule(): int
     {
-        return $this->getAttribute('pace_level');
+        return $this->getAttribute('schedule');
     }
 
     public function setSchedule(int $value): void

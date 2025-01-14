@@ -146,7 +146,7 @@ class CardClient extends BaseClient implements CardsApiInterface
         }
 
         if (!empty($dueDate)) {
-            $params['dueDate'] = $dueDate;
+            $params['due'] = $dueDate;
             $query .= 'due={due}&';
         }
 

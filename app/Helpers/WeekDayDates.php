@@ -17,50 +17,50 @@ class WeekDayDates
     public function getMonWenFriDates(): array
     {
         return [
-            'monday' => $this->currentDay->weekday(Carbon::MONDAY)->toDate(),
-            'wednesday' => $this->currentDay->weekday(Carbon::WEDNESDAY)->toDate(),
-            'friday' => $this->currentDay->weekday(Carbon::FRIDAY)->toDate()
+            'monday' => $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
+            'wednesday' => $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
+            'friday' => $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
         ];
     }
 
     public function getTueThuSatDates(): array
     {
         return [
-            'tuesday' => $this->currentDay->weekday(Carbon::TUESDAY)->toDate(),
-            'thursday' => $this->currentDay->weekday(Carbon::THURSDAY)->toDate(),
-            'saturday' => $this->currentDay->weekday(Carbon::SATURDAY)->toDate()
+            'tuesday' => $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
+            'thursday' => $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
+            'saturday' => $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String()
         ];
     }
 
     public function getSatSunDates(): array
     {
         return [
-            'saturday' => $this->currentDay->weekday(Carbon::SATURDAY)->toDate(),
-            'sunday' => $this->currentDay->weekday(Carbon::SUNDAY)->toDate()
+            'saturday' => $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
+            'sunday' => $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
         ];
     }
 
     public function getAllWeekDaysDates(): array
     {
         return [
-            'monday' => $this->currentDay->weekday(Carbon::MONDAY)->toDate(),
-            'tuesday' => $this->currentDay->weekday(Carbon::TUESDAY)->toDate(),
-            'wednesday' => $this->currentDay->weekday(Carbon::WEDNESDAY)->toDate(),
-            'thursday' => $this->currentDay->weekday(Carbon::THURSDAY)->toDate(),
-            'friday' => $this->currentDay->weekday(Carbon::FRIDAY)->toDate()
+            'monday' => $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
+            'tuesday' => $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
+            'wednesday' => $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
+            'thursday' => $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
+            'friday' => $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
         ];
     }
 
     public function getEveryDayDates(): array
     {
         return [
-            'monday' => $this->currentDay->weekday(Carbon::MONDAY)->toDate(),
-            'tuesday' => $this->currentDay->weekday(Carbon::TUESDAY)->toDate(),
-            'wednesday' => $this->currentDay->weekday(Carbon::WEDNESDAY)->toDate(),
-            'thursday' => $this->currentDay->weekday(Carbon::THURSDAY)->toDate(),
-            'friday' => $this->currentDay->weekday(Carbon::FRIDAY)->toDate(),
-            'saturday' => $this->currentDay->weekday(Carbon::SATURDAY)->toDate(),
-            'sunday' => $this->currentDay->weekday(Carbon::SUNDAY)->toDate()
+            'monday' => $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
+            'tuesday' => $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
+            'wednesday' => $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
+            'thursday' => $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
+            'friday' => $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
+            'saturday' => $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
+            'sunday' => $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
         ];
     }
 

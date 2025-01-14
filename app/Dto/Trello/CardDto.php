@@ -13,7 +13,7 @@ class CardDto
     public readonly string $name;
     public readonly int $pos;
     public readonly string $url;
-    public readonly bool|string $description;
+    public readonly bool|string $desc;
     public readonly bool $closed;
     public readonly null|string $due;
     public readonly bool|string $dueComplete;
@@ -30,7 +30,7 @@ class CardDto
         $this->name = $data['name'];
         $this->pos = $data['pos'];
         $this->url = $data['url'];
-        $this->description = $data['description'];
+        $this->desc = $data['desc'];
         $this->closed = $data['closed'];
         $this->due = $data['due'];
         $this->dueComplete = $data['dueComplete'];
@@ -49,7 +49,7 @@ class CardDto
             'name' => $this->name,
             'pos' => $this->pos,
             'url' => $this->url,
-            'description' => $this->description,
+            'desc' => $this->desc,
             'closed' => $this->closed,
             'due' => $this->due,
             'dueComplete' => $this->dueComplete,

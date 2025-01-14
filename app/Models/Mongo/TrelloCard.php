@@ -21,4 +21,9 @@ class TrelloCard extends Model
         'due',
         'dueComplete'
     ];
+
+    public function getId(): string
+    {
+        return $this->getAttribute('_id');
+    }
 }
