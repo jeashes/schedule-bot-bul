@@ -19,13 +19,13 @@ class ListRepository
         foreach ($data as $list) {
             switch ($list['name']) {
                 case DefaultListNameEnum::TODO->value:
-                    $this->saveList($userId, new ListDto($list['name']));
+                    $this->saveList($userId, new ListDto($list));
                     break;
                 case DefaultListNameEnum::DOING->value:
-                    $this->saveList($userId, new ListDto($list['name']));
+                    $this->saveList($userId, new ListDto($list));
                     break;
                 case DefaultListNameEnum::DONE->value:
-                    $this->saveList($userId, new ListDto($list['name']));
+                    $this->saveList($userId, new ListDto($list));
                     break;
             }
         }
@@ -33,17 +33,21 @@ class ListRepository
 
     public function saveList(string $userId, ListDto $dto): TrelloList
     {
-        return TrelloList::query()->firstOrCreate([
-            'trello_id' => $dto->id,
-            'user_id' => $userId,
-            'board_id' => $dto->idBoard,
-            'name' => $dto->name
-        ]);
+        return TrelloList::firstOrCreate(
+            [
+                'trello_id' => $dto->id,
+                'user_id' => $userId,
+                'board_id' => $dto->idBoard,
+            ],
+            [
+                'name' => $dto->name
+            ]
+        );
     }
 
     public function getToDoList(string $userId): TrelloList
     {
-        return TrelloList::query()->where([
+        return TrelloList::where([
             'user_id' => $userId,
             'name' => DefaultListNameEnum::TODO->value
         ])->first();

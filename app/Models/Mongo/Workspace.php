@@ -70,6 +70,7 @@ class Workspace extends Model
         if (!in_array((string)$value, array_map('strval', $currentTasks))) {
             $currentTasks[] = $value;
             $this->setTaskIds($currentTasks);
+            $this->save();
         }
     }
 }

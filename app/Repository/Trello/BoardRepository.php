@@ -29,13 +29,20 @@ class BoardRepository
         return $this->saveBoard($user->getId(), $dto);
     }
 
-    public function saveBoard(int $userId, BoardDto $dto): TrelloBoard
+    public function saveBoard(string $userId, BoardDto $dto): TrelloBoard
     {
-        return TrelloBoard::query()->firstOrCreate([
-            'user_id' => $userId,
-            'trello_id' => $dto->id,
-            'name' => $dto->name,
-            'desc' => $dto->desc
-        ]);
+        return TrelloBoard::firstOrCreate(
+            [
+                'trello_id' => $dto->id,
+                'user_id' => $userId,
+            ],
+            [
+                'name' => $dto->name,
+                'desc' => $dto->desc,
+                'closed' => $dto->closed,
+                'url' => $dto->url,
+                'permission_level' => $dto->permissionLevel,
+            ]
+        );
     }
 }

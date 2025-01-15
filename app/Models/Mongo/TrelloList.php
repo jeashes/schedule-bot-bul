@@ -13,9 +13,14 @@ class TrelloList extends Model
     protected $fillable = [
         'trello_id',
         'user_id',
-        'workspace_id',
         'board_id',
-        'name',
+        'name'
     ];
 
+    protected function casts(): array
+    {
+        return [
+            '_id' => 'string'
+        ];
+    }
 }

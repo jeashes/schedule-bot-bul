@@ -19,6 +19,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
+use App\Helpers\WeekDayDates;
+use App\Service\Trello\Boards\BoardClient;
+use App\Repository\Trello\BoardRepository;
+use App\Repository\Trello\CardRepository;
+use App\Repository\Trello\ListRepository;
+use App\Service\Trello\Cards\CardClient;
 
 class MessageManager
 {
@@ -31,7 +37,13 @@ class MessageManager
 
     public function __construct(
         private readonly TrelloWorkSpaceRepository $trelloWorkSpaceRepository,
-        private readonly UserRepository $userRepository
+        private readonly UserRepository $userRepository,
+        private readonly BoardRepository $boardRepository,
+        private readonly CardRepository $cardRepository,
+        private readonly BoardClient $boardClient,
+        private readonly CardClient $cardClient,
+        private readonly ListRepository $listRepository,
+        private readonly WeekDayDates $weekDayDates,
     ) {}
 
     public function handleMessages(TelegramMessageDto $messageDto): void
