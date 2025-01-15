@@ -11,11 +11,19 @@ class TrelloBoard extends Model
     protected $collection = 'trello_boards';
 
     protected $fillable = [
-        'user_id',
         'trello_id',
-        'workspace_id',
-        'list_ids',
+        'user_id',
         'name',
         'desc',
+        'closed',
+        'url',
+        'permission_level'
     ];
+
+    protected function casts(): array
+    {
+        return [
+            '_id' => 'string'
+        ];
+    }
 }

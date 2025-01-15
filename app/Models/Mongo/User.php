@@ -2,6 +2,7 @@
 
 namespace App\Models\Mongo;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use MongoDB\Laravel\Eloquent\Model;
 
 class User extends Model
@@ -87,6 +88,16 @@ class User extends Model
     public function setEmail(string $value): void
     {
         $this->setAttribute('email', $value);
+    }
+
+    public function workspace(): HasOne
+    {
+        return $this->hasOne(Workspace::class, 'workspace_id', '_id');
+    }
+
+    public function getWorkspace(): ?Workspace
+    {
+        return $this->workspace;
     }
 
     public function getWorkspaceId(): ?string

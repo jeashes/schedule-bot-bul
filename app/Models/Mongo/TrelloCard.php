@@ -11,14 +11,26 @@ class TrelloCard extends Model
     protected $collection = 'trello_cards';
 
     protected $fillable = [
-        'trello_id',
         'user_id',
-        'workspace_id',
+        'trello_id',
         'board_id',
-        'list_id',
-        'closed',
-        'description',
+        'name',
+        'desc',
+        'url',
         'due',
-        'dueComplete'
+        'dueComplete',
+        'email'
     ];
+
+    protected function casts(): array
+    {
+        return [
+            '_id' => 'string'
+        ];
+    }
+
+    public function getId(): string
+    {
+        return $this->getAttribute('_id');
+    }
 }
