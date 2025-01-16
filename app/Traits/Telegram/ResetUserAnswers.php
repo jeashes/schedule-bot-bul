@@ -18,8 +18,7 @@ trait ResetUserAnswers
             $userId . '_' . SubjectStudiesEnum::QUESTION->value,
             json_encode([
                 'current_answer' => null,
-                'edited' => null,
-                'approved' => null,
+                'approved' => null
             ])
         );
 
@@ -27,7 +26,6 @@ trait ResetUserAnswers
             $userId . '_' . HoursOnStudyEnum::QUESTION->value,
             json_encode([
                 'current_answer' => null,
-                'edited' => null,
                 'approved' => null
             ])
         );
@@ -44,7 +42,6 @@ trait ResetUserAnswers
             $userId . '_' . UserEmailEnum::QUESTION->value,
             json_encode([
                 'current_answer' => null,
-                'edited' => null,
                 'approved' => null
             ])
         );

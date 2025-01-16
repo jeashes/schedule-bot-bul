@@ -14,15 +14,12 @@ trait StudySchedule
 {
     public function sendScheduleQuestion(TelegramMessageDto $messageDto): void
     {
-        $scheduleInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value), true);
+        $scheduleInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value), true);
+
         if (is_null($scheduleInfo['current_answer'])) {
             Redis::set(
                 $messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => '',
-                    'approved' => 0
-                ])
+                json_encode(['current_answer' => '', 'approved' => 0])
             );
 
             $keyboard = new InlineKeyboard(
@@ -54,9 +51,7 @@ trait StudySchedule
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'reply_markup' => $keyboard,
-                'text' => __(
-                    'bot_messages.schedule',
-                ),
+                'text' => __('bot_messages.schedule'),
                 'parse_mode' => 'Markdown'
             ]);
         }
@@ -71,10 +66,7 @@ trait StudySchedule
         )) {
             Redis::set(
                 $messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => $messageDto->callbackData,
-                    'approved' => 1
-                ])
+                json_encode(['current_answer' => $messageDto->callbackData, 'approved' => 1])
             );
 
             $messageDto->callbackData = null;

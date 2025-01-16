@@ -52,26 +52,24 @@ class MessageManager
             $this->botStartMessage($messageDto);
 
             $this->sendSubjectQuestion($messageDto);
-            $this->clarifySubjectAnswer($messageDto);
             $this->acceptSubjectAnswer($messageDto);
 
             $userId = $messageDto->user->getId();
 
             if ($this->isSubjectStudyApproved($userId)) {
                 $this->sendHoursQuestion($messageDto);
-                $this->clarifyHoursAnswer($messageDto);
                 $this->acceptHoursAnswer($messageDto);
             }
 
             if ($this->isHoursForStudyApproved($userId)) {
                 $this->sendScheduleQuestion($messageDto);
+                $this->validateHoursAnswer($messageDto);
                 $this->acceptScheduleAnswer($messageDto);
             }
 
             if ($this->isScheduleApproved($userId)) {
                 $this->sendEmailQuestion($messageDto);
                 $this->validateEmailAnswer($messageDto);
-                $this->clarifyEmailAnswer($messageDto);
                 $this->acceptEmailAnswer($messageDto);
             }
 
