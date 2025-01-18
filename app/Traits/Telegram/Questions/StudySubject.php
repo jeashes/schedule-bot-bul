@@ -6,6 +6,7 @@ use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Helpers\TelegramHelper;
 
 trait StudySubject
 {
@@ -30,14 +31,11 @@ trait StudySubject
 
     public function acceptSubjectAnswer(TelegramMessageDto $messageDto): void
     {
-        $subjectStudiesInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
-
-        if (!empty($messageDto->answer) && $subjectStudiesInfo['approved'] === 0) {
+        if (TelegramHelper::notEmptyNotApprovedMessage($messageDto, SubjectStudiesEnum::QUESTION->value)) {
 
             Redis::set(
                 $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode(['current_answer' => $subjectStudiesInfo['current_answer'], 'approved' => 1])
+                json_encode(['current_answer' => $messageDto->answer, 'approved' => 1])
             );
 
             $messageDto->answer = null;

@@ -6,6 +6,7 @@ use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\UserEmailEnum;
+use App\Helpers\TelegramHelper;
 
 trait UserEmail
 {
@@ -34,9 +35,7 @@ trait UserEmail
 
     public function validateEmailAnswer(TelegramMessageDto $messageDto): void
     {
-        $userEmailInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
-
-        if (!empty($messageDto->answer) && !$this->validateEmail($messageDto->answer) && $userEmailInfo['approved'] === 0) {
+        if (!$this->validateEmail($messageDto->answer) && TelegramHelper::notEmptyNotApprovedMessage($messageDto, UserEmailEnum::QUESTION->value)) {
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
@@ -50,13 +49,11 @@ trait UserEmail
 
     public function acceptEmailAnswer(TelegramMessageDto $messageDto): void
     {
-        $userEmailInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
-
-        if (!empty($messageDto->answer) && $userEmailInfo['approved'] === 0) {
+        if (TelegramHelper::notEmptyNotApprovedMessage($messageDto, UserEmailEnum::QUESTION->value)) {
 
             Redis::set(
                 $messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value,
-                json_encode(['current_answer' => $userEmailInfo['current_answer'], 'approved' => 1])
+                json_encode(['current_answer' => $messageDto->answer, 'approved' => 1])
             );
 
             $messageDto->answer = null;

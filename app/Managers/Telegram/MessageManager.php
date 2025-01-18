@@ -58,12 +58,12 @@ class MessageManager
 
             if ($this->isSubjectStudyApproved($userId)) {
                 $this->sendHoursQuestion($messageDto);
+                $this->validateHoursAnswer($messageDto);
                 $this->acceptHoursAnswer($messageDto);
             }
 
             if ($this->isHoursForStudyApproved($userId)) {
                 $this->sendScheduleQuestion($messageDto);
-                $this->validateHoursAnswer($messageDto);
                 $this->acceptScheduleAnswer($messageDto);
             }
 

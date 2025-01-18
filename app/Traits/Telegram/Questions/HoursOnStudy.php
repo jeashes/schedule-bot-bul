@@ -6,6 +6,7 @@ use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\HoursOnStudyEnum;
+use App\Helpers\TelegramHelper;
 
 trait HoursOnStudy
 {
@@ -30,9 +31,7 @@ trait HoursOnStudy
 
     public function validateHoursAnswer(TelegramMessageDto $messageDto): void
     {
-        $hoursOnStudyInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
-
-        if (!empty($messageDto->answer) && !$this->validateEmail($messageDto->answer) && $hoursOnStudyInfo['approved'] === 0) {
+        if (!$this->validateEmail($messageDto->answer) && TelegramHelper::notEmptyNotApprovedMessage($messageDto, HoursOnStudyEnum::QUESTION->value)) {
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
@@ -46,13 +45,11 @@ trait HoursOnStudy
 
     public function acceptHoursAnswer(TelegramMessageDto $messageDto): void
     {
-        $hoursOnStudyInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
-
-        if (!empty($messageDto->answer) && $hoursOnStudyInfo['approved'] === 0) {
+        if (TelegramHelper::notEmptyNotApprovedMessage($messageDto, HoursOnStudyEnum::QUESTION->value)) {
 
             Redis::set(
                 $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
-                json_encode(['current_answer' => $hoursOnStudyInfo['current_answer'], 'approved' => 1])
+                json_encode(['current_answer' =>  $messageDto->answer, 'approved' => 1])
             );
 
             $messageDto->answer = null;
