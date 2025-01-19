@@ -7,6 +7,7 @@ use App\Models\Mongo\TrelloBoard;
 use App\Models\Mongo\User;
 use App\Models\Mongo\Workspace;
 use App\Service\Trello\Boards\BoardClient;
+use Throwable;
 
 class BoardRepository
 {
@@ -44,5 +45,20 @@ class BoardRepository
                 'permission_level' => $dto->permissionLevel,
             ]
         );
+    }
+
+    public function userBoardWasCreated(string $userId): bool
+    {
+        try {
+            TrelloBoard::query()->where(['user_id' => $userId])->firstOrFail();
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    public function getBoardByUserId(string $userId): TrelloBoard
+    {
+        return TrelloBoard::query()->where(['user_id' => $userId])->firstOrFail();
     }
 }
