@@ -3,11 +3,10 @@
 namespace App\Traits\Telegram\Questions;
 
 use App\Dto\TelegramMessageDto;
-use App\Enums\Telegram\AnswerEditAcceptEnum;
 use Illuminate\Support\Facades\Redis;
-use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Helpers\TelegramHelper;
 
 trait StudySubject
 {
@@ -17,94 +16,28 @@ trait StudySubject
 
             Redis::set(
                 $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => '',
-                    'edited' => 0,
-                    'approved' => 0
-                ])
+                json_encode(['current_answer' => '', 'approved' => 0])
             );
 
             $messageDto->answer = null;
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => __(
-                    'bot_messages.subject_of_studies',
-                    ['triesCount' => 3]
-                ),
+                'text' => __('bot_messages.subject_of_studies'),
                 'parse_mode' => 'Markdown'
             ]);
         }
     }
 
-    public function clarifySubjectAnswer(TelegramMessageDto $messageDto): void
+    public function acceptSubjectAnswer(TelegramMessageDto $messageDto): bool
     {
-        $subjectStudiesInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
+        $userId = $messageDto->user->getId();
 
-        if (!empty($messageDto->answer)
-            && $subjectStudiesInfo['edited'] < AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
-            && $subjectStudiesInfo['approved'] === 0) {
-
-            $keyboard = new InlineKeyboard([
-                [
-                    'text' => 'Yes',
-                    'callback_data' => SubjectStudiesEnum::NAME_ACCEPT->value
-                ]
-            ]);
+        if (TelegramHelper::notEmptyNotApprovedMessage($messageDto, SubjectStudiesEnum::QUESTION->value)) {
 
             Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => $messageDto->answer,
-                    'edited' => $subjectStudiesInfo['edited'] + 1,
-                    'approved' => $subjectStudiesInfo['approved']
-                ])
-            );
-
-            TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
-                'reply_markup' => $keyboard,
-                'text' => __(
-                    'bot_messages.validate_answer',
-                    ['title' => $messageDto->answer]
-                ),
-                'parse_mode' => 'Markdown'
-            ]);
-        }
-
-        if (!empty($messageDto->answer)
-            && $subjectStudiesInfo['edited'] === AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
-            && $subjectStudiesInfo['approved'] === 0) {
-
-            Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => $messageDto->answer,
-                    'edited' => $subjectStudiesInfo['edited'] + 1,
-                    'approved' => $subjectStudiesInfo['approved']
-                ])
-            );
-        }
-    }
-
-    public function acceptSubjectAnswer(TelegramMessageDto $messageDto): void
-    {
-        $subjectStudiesInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value), true);
-
-        if (($messageDto->callbackData === SubjectStudiesEnum::NAME_ACCEPT->value
-            || $subjectStudiesInfo['edited'] >= AnswerEditAcceptEnum::EDIT_COUNT_ACCEPT->value
-            && !empty($messageDto->answer))
-            && $subjectStudiesInfo['approved'] === 0) {
-
-            Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => $subjectStudiesInfo['current_answer'],
-                    'edited' => $subjectStudiesInfo['edited'],
-                    'approved' => 1
-                ])
+                $userId . '_' . SubjectStudiesEnum::QUESTION->value,
+                json_encode(['current_answer' => $messageDto->answer, 'approved' => 1])
             );
 
             $messageDto->answer = null;
@@ -113,6 +46,10 @@ trait StudySubject
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => 'Your title of object studies was save✅'
             ]);
+
+            return true;
         }
+
+        return false;
     }
 }

@@ -7,13 +7,10 @@ return [
                 "\n2 weeks." .
                 "\n*If you are really want to improve yourself, push on button*",
 
-    'subject_of_studies' => 'Please tell me the name of your study subject!' .
-                          "\nYou have *:triesCount* tries on rename workspace name." .
-                          "\nLast one will takes as workspace name automatically.",
+    'subject_of_studies' => 'Please tell me the name of your study subject!',
 
     'total_hours_on_study' => 'How many hours you give yourself on this 2 weeks?' .
-                            "\nPlease think about it so much carefully as you can" .
-                            "\nYou have *:triesCount* tries to enter hours",
+                            "\nPlease think about it so much carefully as you can",
 
     'schedule' => 'What schedule you want take for education',
 
@@ -26,5 +23,9 @@ return [
 
     'error' => 'Something is going wrong, please wait, we are working to fix it',
 
-    'wrong_email' => 'The :email has wrong format, please enter correct one'
+    'wrong_email' => 'The :email has wrong format, please enter correct one 🚫',
+
+    'wrong_hours' => 'The :hours hours has wrong format, please enter correct one 🚫',
+
+    'workspace_created' => 'You alredy have study worskpace: :url'
 ];

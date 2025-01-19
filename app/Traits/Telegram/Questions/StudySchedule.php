@@ -8,21 +8,17 @@ use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
 use App\Enums\Telegram\ScheduleEnum;
-use Illuminate\Support\Facades\Log;
 
 trait StudySchedule
 {
     public function sendScheduleQuestion(TelegramMessageDto $messageDto): void
     {
-        $scheduleInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value), true);
+        $scheduleInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value), true);
+
         if (is_null($scheduleInfo['current_answer'])) {
             Redis::set(
                 $messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => '',
-                    'approved' => 0
-                ])
+                json_encode(['current_answer' => '', 'approved' => 0])
             );
 
             $keyboard = new InlineKeyboard(
@@ -54,27 +50,23 @@ trait StudySchedule
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'reply_markup' => $keyboard,
-                'text' => __(
-                    'bot_messages.schedule',
-                ),
+                'text' => __('bot_messages.schedule'),
                 'parse_mode' => 'Markdown'
             ]);
         }
     }
 
-    public function acceptScheduleAnswer(TelegramMessageDto $messageDto): void
+    public function acceptScheduleAnswer(TelegramMessageDto $messageDto): bool
     {
-        Log::channel('telegram')->info('shedule answer accept' . $messageDto->callbackData);
+        $userId = $messageDto->user->getId();
+
         if (in_array(
             $messageDto->callbackData,
             array_column(WorkspaceSchedule::cases(), 'value')
         )) {
             Redis::set(
-                $messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => $messageDto->callbackData,
-                    'approved' => 1
-                ])
+                $userId . '_' . ScheduleEnum::QUESTION->value,
+                json_encode(['current_answer' => $messageDto->callbackData, 'approved' => 1])
             );
 
             $messageDto->callbackData = null;
@@ -83,6 +75,10 @@ trait StudySchedule
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => 'Schedule was sucessufylly save✅',
             ]);
+
+            return true;
         }
+
+        return false;
     }
 }

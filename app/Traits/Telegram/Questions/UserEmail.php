@@ -3,9 +3,8 @@
 namespace App\Traits\Telegram\Questions;
 
 use App\Dto\TelegramMessageDto;
-use App\Enums\Telegram\AnswerEditAcceptEnum;
+use App\Enums\Telegram\ChatStateEnum;
 use Illuminate\Support\Facades\Redis;
-use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\UserEmailEnum;
 
@@ -13,17 +12,12 @@ trait UserEmail
 {
     public function sendEmailQuestion(TelegramMessageDto $messageDto): void
     {
-        $userEmailInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
+        $userEmailInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
 
         if (is_null($userEmailInfo['current_answer'])) {
             Redis::set(
                 $messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => '',
-                    'edited' => 0,
-                    'approved' => 0
-                ])
+                json_encode(['current_answer' => '', 'approved' => 0])
             );
 
             $messageDto->answer = null;
@@ -39,103 +33,37 @@ trait UserEmail
         }
     }
 
-    public function validateEmailAnswer(TelegramMessageDto $messageDto): void
+    public function acceptEmailAnswer(TelegramMessageDto $messageDto): bool
     {
-        $userEmailInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
+        $userId = $messageDto->user->getId();
+        $validatedEmail = $this->validateEmail($messageDto->answer);
 
-        if (!empty($messageDto->answer)
-            && !$this->validateEmail($messageDto->answer)
-            && $userEmailInfo['edited'] < AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
-            && $userEmailInfo['approved'] === 0) {
+        switch ($validatedEmail) {
+            case true:
+                Redis::set(
+                    $userId . '_' . UserEmailEnum::QUESTION->value,
+                    json_encode(['current_answer' => $messageDto->answer, 'approved' => 1])
+                );
 
-            TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
-                'text' => __(
-                    'bot_messages.wrong_email',
-                    ['email' => $messageDto->answer]
-                ),
-            ]);
+                $messageDto->answer = null;
+                return $validatedEmail;
+            case false:
+                TelegramBotRequest::sendMessage([
+                    'chat_id' => $messageDto->user->getChatId(),
+                    'text' => __(
+                        'bot_messages.wrong_email',
+                        ['email' => $messageDto->answer]
+                    ),
+                ]);
+                return $validatedEmail;
         }
+
+        return false;
     }
 
-    public function clarifyEmailAnswer(TelegramMessageDto $messageDto): void
-    {
-        $userEmailInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
-
-        if (!empty($messageDto->answer)
-            && $this->validateEmail($messageDto->answer)
-            && $userEmailInfo['edited'] < AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
-            && $userEmailInfo['approved'] === 0) {
-
-            $keyboard = new InlineKeyboard([
-                [
-                    'text' => 'Yes',
-                    'callback_data' => UserEmailEnum::NAME_ACCEPT->value
-                ]
-            ]);
-
-            Redis::set(
-                $messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => $messageDto->answer,
-                    'edited' => $userEmailInfo['edited'] + 1,
-                    'approved' => $userEmailInfo['approved']
-                ])
-            );
-
-            TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
-                'reply_markup' => $keyboard,
-                'text' => __(
-                    'bot_messages.validate_answer',
-                    ['title' => $messageDto->answer]
-                ),
-                'parse_mode' => 'Markdown'
-            ]);
-        }
-
-        if (!empty($messageDto->answer)
-            && $userEmailInfo['edited'] === AnswerEditAcceptEnum::EDIT_COUNT_CLARIFY->value
-            && $userEmailInfo['approved'] === 0) {
-
-            Redis::set(
-                $messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => $messageDto->answer,
-                    'edited' => $userEmailInfo['edited'] + 1,
-                    'approved' => $userEmailInfo['approved']
-                ])
-            );
-        }
-    }
-
-    public function acceptEmailAnswer(TelegramMessageDto $messageDto): void
-    {
-        $userEmailInfo = json_decode(
-            Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
-
-        if (($messageDto->callbackData === UserEmailEnum::NAME_ACCEPT->value
-            || $userEmailInfo['edited'] >= AnswerEditAcceptEnum::EDIT_COUNT_ACCEPT->value && !empty($messageDto->answer))
-            && $userEmailInfo['approved'] === 0) {
-
-            Redis::set(
-                $messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value,
-                json_encode([
-                    'current_answer' => $userEmailInfo['current_answer'],
-                    'edited' => $userEmailInfo['edited'],
-                    'approved' => 1
-                ])
-            );
-
-            $messageDto->answer = null;
-        }
-    }
-
-    private function validateEmail(string $email): bool
+    private function validateEmail(?string $email): bool
     {
         $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
-        return (preg_match($pattern, $email)) ? true : false;
+        return (preg_match($pattern, $email ?? '')) ? true : false;
     }
 }

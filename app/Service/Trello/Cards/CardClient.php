@@ -32,7 +32,7 @@ class CardClient extends BaseClient implements CardsApiInterface
         string $idCard, ?string $name = null, ?string $desc = null, ?bool $closed = null, ?string $idMembers = null,
         ?string $idAttachmentCover = null, ?string $idList = null, ?string $idLabels = null, ?string $idBoard = null,
         ?string $position = null, ?string $dueDate = null, ?string $startDate = null, ?bool $dueCompleteDate = null,
-        ?bool $subscribed
+        ?bool $subscribed = null
     ): Response {
         $params = $this->prepareApiTokenParams();
         $params['id'] = $idCard;

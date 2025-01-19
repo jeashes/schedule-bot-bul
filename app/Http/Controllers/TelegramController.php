@@ -11,9 +11,15 @@ use Illuminate\Support\Facades\Log;
 use App\Repository\UserRepository;
 use Longman\TelegramBot\Exception\TelegramException;
 use Longman\TelegramBot\Telegram;
+use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Traits\Telegram\ResetUserAnswers;
+use Longman\TelegramBot\Entities\InlineKeyboard;
+use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class TelegramController extends Controller
 {
+    use ResetUserAnswers;
+
     public function __construct(
         private readonly Telegram $telegram,
         private readonly TelegramMessageManager $telegramMessageManager
@@ -46,10 +52,41 @@ class TelegramController extends Controller
                 $user
             );
 
+            $this->botStartMessage($message);
+
             $this->telegramMessageManager->handleMessages($message);
 
         } catch (TelegramException $e) {
             Log::channel('telegram')->error($e->getMessage());
+        }
+    }
+
+    private function botStartMessage(TelegramMessageDto $messageDto): void
+    {
+        $userId = $messageDto->user->getId();
+        if ($messageDto->answer === '/start') {
+
+            $this->resetUserAnswers($userId);
+            $keyboard = new InlineKeyboard([
+                [
+                    'text' => 'LET\'S GOOO',
+                    'callback_data' => $userId . '_' . SubjectStudiesEnum::QUESTION->value
+                ]
+            ]);
+
+            $messageDto->answer = null;
+
+            TelegramBotRequest::sendMessage([
+                'chat_id' => $messageDto->user->getChatId(),
+                'reply_markup' => $keyboard,
+                'text' => __(
+                    'bot_messages.welcome', [
+                        'name' => $messageDto->user->getFirstName()  . ' '
+                        . $messageDto->user->getLastName()
+                    ]
+                ),
+                'parse_mode' => 'Markdown'
+            ]);
         }
     }
 }
