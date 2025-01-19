@@ -2,6 +2,7 @@
 
 namespace App\Traits\Telegram;
 
+use App\Enums\Telegram\ChatStateEnum;
 use Illuminate\Support\Facades\Redis;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Enums\Telegram\ScheduleEnum;
@@ -45,6 +46,13 @@ trait ResetUserAnswers
                 'approved' => null
             ])
         );
+
+        Redis::set(
+            $userId . '_' . ChatStateEnum::class,
+            json_encode([
+                'value' => 0
+            ])
+        );
     }
 
     private function removeOldAnswers(string $userId): void
@@ -53,5 +61,11 @@ trait ResetUserAnswers
         Redis::del($userId . '_' . HoursOnStudyEnum::QUESTION->value);
         Redis::del($userId . '_' . ScheduleEnum::QUESTION->value);
         Redis::del($userId . '_' . UserEmailEnum::QUESTION->value);
+        Redis::del($userId . '_' . ChatStateEnum::class);
+    }
+
+    private function updateChatState(string $userId, int $chatState): void
+    {
+        Redis::set($userId . '_' . ChatStateEnum::class, json_encode([ 'value' => $chatState]));
     }
 }
