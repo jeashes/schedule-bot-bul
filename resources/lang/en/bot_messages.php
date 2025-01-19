@@ -26,4 +26,6 @@ return [
     'wrong_email' => 'The :email has wrong format, please enter correct one 🚫',
 
     'wrong_hours' => 'The :hours hours has wrong format, please enter correct one 🚫',
+
+    'workspace_created' => 'You alredy have study worskpace: :url'
 ];
