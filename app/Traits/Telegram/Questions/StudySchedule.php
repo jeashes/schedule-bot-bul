@@ -8,7 +8,6 @@ use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
 use App\Enums\Telegram\ScheduleEnum;
-use Illuminate\Support\Facades\Log;
 
 trait StudySchedule
 {
@@ -57,15 +56,16 @@ trait StudySchedule
         }
     }
 
-    public function acceptScheduleAnswer(TelegramMessageDto $messageDto): void
+    public function acceptScheduleAnswer(TelegramMessageDto $messageDto): bool
     {
-        Log::channel('telegram')->info('shedule answer accept' . $messageDto->callbackData);
+        $userId = $messageDto->user->getId();
+
         if (in_array(
             $messageDto->callbackData,
             array_column(WorkspaceSchedule::cases(), 'value')
         )) {
             Redis::set(
-                $messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value,
+                $userId . '_' . ScheduleEnum::QUESTION->value,
                 json_encode(['current_answer' => $messageDto->callbackData, 'approved' => 1])
             );
 
@@ -75,6 +75,10 @@ trait StudySchedule
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => 'Schedule was sucessufylly save✅',
             ]);
+
+            return true;
         }
+
+        return false;
     }
 }

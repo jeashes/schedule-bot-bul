@@ -16,7 +16,7 @@ trait StudySubject
 
             Redis::set(
                 $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode([ 'current_answer' => '', 'approved' => 0])
+                json_encode(['current_answer' => '', 'approved' => 0])
             );
 
             $messageDto->answer = null;
@@ -29,12 +29,14 @@ trait StudySubject
         }
     }
 
-    public function acceptSubjectAnswer(TelegramMessageDto $messageDto): void
+    public function acceptSubjectAnswer(TelegramMessageDto $messageDto): bool
     {
+        $userId = $messageDto->user->getId();
+
         if (TelegramHelper::notEmptyNotApprovedMessage($messageDto, SubjectStudiesEnum::QUESTION->value)) {
 
             Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
+                $userId . '_' . SubjectStudiesEnum::QUESTION->value,
                 json_encode(['current_answer' => $messageDto->answer, 'approved' => 1])
             );
 
@@ -44,6 +46,10 @@ trait StudySubject
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => 'Your title of object studies was save✅'
             ]);
+
+            return true;
         }
+
+        return false;
     }
 }
