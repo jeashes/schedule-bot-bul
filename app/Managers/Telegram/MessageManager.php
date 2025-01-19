@@ -3,21 +3,19 @@
 namespace App\Managers\Telegram;
 
 use App\Dto\TelegramMessageDto;
-use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Dto\UserWorkspaceDto;
+use App\Enums\Telegram\ChatStateEnum;
 use App\Enums\Telegram\UserEmailEnum;
 use App\Jobs\CreateUserTrelloWorkspace;
 use Throwable;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
-use App\Traits\Telegram\AnswerApprovedValidate;
 use App\Traits\Telegram\Questions\HoursOnStudy;
 use App\Traits\Telegram\Questions\StudySchedule;
 use App\Traits\Telegram\Questions\StudySubject;
 use App\Traits\Telegram\Questions\UserEmail;
-use App\Traits\Telegram\ResetUserAnswers;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
-use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Helpers\WeekDayDates;
 use App\Service\Trello\Boards\BoardClient;
@@ -25,12 +23,12 @@ use App\Repository\Trello\BoardRepository;
 use App\Repository\Trello\CardRepository;
 use App\Repository\Trello\ListRepository;
 use App\Service\Trello\Cards\CardClient;
+use App\Traits\Telegram\ResetUserAnswers;
 
 class MessageManager
 {
-    use AnswerApprovedValidate;
-    use ResetUserAnswers;
     use StudySubject;
+    use ResetUserAnswers;
     use HoursOnStudy;
     use StudySchedule;
     use UserEmail;
@@ -48,57 +46,13 @@ class MessageManager
 
     public function handleMessages(TelegramMessageDto $messageDto): void
     {
+        $userId = $messageDto->user->getId();
+        if ($this->boardRepository->userBoardWasCreated($userId)) {
+            $this->updateChatState($userId, ChatStateEnum::USER_HAS_WORKSPACE->value);
+        }
+
         try {
-            $this->botStartMessage($messageDto);
-
-            $this->sendSubjectQuestion($messageDto);
-            $this->acceptSubjectAnswer($messageDto);
-
-            $userId = $messageDto->user->getId();
-
-            if ($this->isSubjectStudyApproved($userId)) {
-                $this->sendHoursQuestion($messageDto);
-                $this->validateHoursAnswer($messageDto);
-                $this->acceptHoursAnswer($messageDto);
-            }
-
-            if ($this->isHoursForStudyApproved($userId)) {
-                $this->sendScheduleQuestion($messageDto);
-                $this->acceptScheduleAnswer($messageDto);
-            }
-
-            if ($this->isScheduleApproved($userId)) {
-                $this->sendEmailQuestion($messageDto);
-                $this->validateEmailAnswer($messageDto);
-                $this->acceptEmailAnswer($messageDto);
-            }
-
-            if ($this->isUserEmailApproved($userId) && !$this->userBoardWasNotCreated($userId)) {
-                $userEmailInfo = json_decode(
-                    Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
-
-                $workspaceParams = $this->trelloWorkSpaceRepository->getWorkspaceParamsFromRedis($userId);
-                $workspace = $this->trelloWorkSpaceRepository->createWorkspaceByUserId(
-                    $workspaceParams,
-                    $userId
-                );
-
-                $user = $this->userRepository->findById($userId);
-                $user->update(['email' => $userEmailInfo['current_answer']]);
-
-                dispatch(new CreateUserTrelloWorkspace($workspace, $user));
-
-                TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
-                    'text' => __(
-                        'bot_messages.trello_workspace_created', [
-                            'name' => $messageDto->user->getFirstName()  . ' '
-                            . $messageDto->user->getLastName()
-                        ]
-                    ),
-                    'parse_mode' => 'Markdown'
-                ]);
-            }
+            $this->handleChatState($messageDto, $userId);
         } catch (Throwable $e) {
             Log::channel('telegram')->error('Something went wrong: ' . $e->getMessage());
             TelegramBotRequest::sendMessage([
@@ -109,30 +63,83 @@ class MessageManager
         }
     }
 
-    private function botStartMessage(TelegramMessageDto $messageDto): void
+    private function handleChatState(TelegramMessageDto $messageDto, string $userId): void
     {
-        if ($messageDto->answer === '/start') {
-            $this->resetUserAnswers($messageDto->user->getId());
-            $keyboard = new InlineKeyboard([
-                [
-                    'text' => 'LET\'S GOOO',
-                    'callback_data' => $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value
-                ]
-            ]);
+        $chatState = $this->getChatState($userId);
 
-            $messageDto->answer = null;
+        switch ($chatState) {
+            case ChatStateEnum::START->value:
+                $this->updateChatState($userId, ChatStateEnum::SUBJECT_STUDY->value);
+                $chatState = ChatStateEnum::SUBJECT_STUDY->value;
+            case ChatStateEnum::SUBJECT_STUDY->value:
+                $this->sendSubjectQuestion($messageDto);
+                if ($this->acceptSubjectAnswer($messageDto)) {
+                    $this->updateChatState($userId, ChatStateEnum::HOURS->value);
+                    $this->sendHoursQuestion($messageDto);
+                }
 
-            TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
-                'reply_markup' => $keyboard,
-                'text' => __(
-                    'bot_messages.welcome', [
-                        'name' => $messageDto->user->getFirstName()  . ' '
-                        . $messageDto->user->getLastName()
-                    ]
-                ),
-                'parse_mode' => 'Markdown'
-            ]);
+                break;
+            case ChatStateEnum::HOURS->value:
+                if ($this->acceptHoursAnswer($messageDto)) {
+                    $this->updateChatState($userId, ChatStateEnum::SCHEDULE->value);
+                    $this->sendScheduleQuestion($messageDto);
+                }
+                break;
+            case ChatStateEnum::SCHEDULE->value:
+                if ($this->acceptScheduleAnswer($messageDto)) {
+                    $this->updateChatState($userId, ChatStateEnum::EMAIL->value);
+                    $this->sendEmailQuestion($messageDto);
+                }
+                break;
+            case ChatStateEnum::EMAIL->value:
+                if ($this->acceptEmailAnswer($messageDto)) {
+                    $this->updateChatState($userId, ChatStateEnum::FINISHED->value);
+
+                    $dto = $this->prepareUserWorkspaceForCreating($userId);
+                    dispatch(new CreateUserTrelloWorkspace($dto->workspace, $dto->user));
+
+                    TelegramBotRequest::sendMessage([
+                        'chat_id' => $messageDto->user->getChatId(),
+                        'text' => __(
+                            'bot_messages.trello_workspace_created', [
+                                'name' => $messageDto->user->getFirstName()  . ' '
+                                . $messageDto->user->getLastName()
+                            ]
+                        ),
+                        'parse_mode' => 'Markdown'
+                    ]);
+                }
+                break;
+            case ChatStateEnum::USER_HAS_WORKSPACE->value:
+                $trelloBoard = $this->boardRepository->getBoardByUserId($userId);
+                TelegramBotRequest::sendMessage([
+                    'chat_id' => $messageDto->user->getChatId(),
+                    'text' => __('bot_messages.workspace_created', ['url' => $trelloBoard->url]),
+                    'parse_mode' => 'Markdown'
+                ]);
+                break;
         }
+    }
+
+    public function getChatState(string $userId): int
+    {
+        return json_decode(Redis::get($userId . '_' . ChatStateEnum::class), true)['value'];
+    }
+
+    private function prepareUserWorkspaceForCreating(string $userId): UserWorkspaceDto
+    {
+        $userEmailInfo = json_decode(
+            Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
+
+        $workspaceParams = $this->trelloWorkSpaceRepository->getWorkspaceParamsFromRedis($userId);
+        $workspace = $this->trelloWorkSpaceRepository->createWorkspaceByUserId(
+            $workspaceParams,
+            $userId
+        );
+
+        $user = $this->userRepository->findById($userId);
+        $user->update(['email' => $userEmailInfo['current_answer']]);
+
+        return new UserWorkspaceDto($workspace, $user);
     }
 }
