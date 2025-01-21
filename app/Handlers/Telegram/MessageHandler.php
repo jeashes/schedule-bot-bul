@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Helpers\WeekDayDates;
+use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\Trello\Boards\BoardClient;
 use App\Repository\Trello\BoardRepository;
 use App\Repository\Trello\CardRepository;
@@ -42,6 +43,7 @@ class MessageHandler
         private readonly CardClient $cardClient,
         private readonly ListRepository $listRepository,
         private readonly WeekDayDates $weekDayDates,
+        private readonly QuestionsRedisManager $questionsRedisManager
     ) {}
 
     public function handleMessages(TelegramMessageDto $messageDto): void

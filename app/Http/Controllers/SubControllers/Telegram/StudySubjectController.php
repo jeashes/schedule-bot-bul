@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\SubControllers\Telegram;
 
-use App\Dto\TelegramMessageDto;
-use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Http\Requests\TelegramMessageRequest;
+use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Http\Client\Response;
 use App\Helpers\TelegramHelper;
 use Illuminate\Http\JsonResponse;
@@ -14,19 +14,17 @@ use Symfony\Component\Routing\Attribute\Route;
 class StudySubjectController
 {
     #[Route('POST', '/subject/send-question')]
-    public function sendSubjectQuestion(TelegramMessageDto $messageDto): Response
+    public function sendSubjectQuestion(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): Response
     {
-        if ($messageDto->callbackData === $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value) {
+        $data = $request->validated();
+        $userId = $data['user']['_id'];
 
-            Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode(['current_answer' => '', 'approved' => 0])
-            );
+        if ($data['callbackData'] === $userId . '_' . SubjectStudiesEnum::QUESTION->value) {
 
-            $messageDto->answer = null;
+            $questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, '', 0);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $data['user']['chat_id'],
                 'text' => __('bot_messages.subject_of_studies'),
                 'parse_mode' => 'Markdown'
             ]);
@@ -38,21 +36,17 @@ class StudySubjectController
     }
 
     #[Route('POST', '/subject/accept-answer')]
-    public function acceptSubjectAnswer(TelegramMessageDto $messageDto): JsonResponse
+    public function acceptSubjectAnswer(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): JsonResponse
     {
-        $userId = $messageDto->user->getId();
+        $data = $request->validated();
+        $userId = $data['user']['_id'];
 
-        if (TelegramHelper::notEmptyNotApprovedMessage($messageDto, SubjectStudiesEnum::QUESTION->value)) {
+        if (TelegramHelper::notEmptyNotApprovedMessage($data, SubjectStudiesEnum::QUESTION->value)) {
 
-            Redis::set(
-                $userId . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode(['current_answer' => $messageDto->answer, 'approved' => 1])
-            );
-
-            $messageDto->answer = null;
+            $questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, $data['answer'], 1);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $data['user']['chat_id'],
                 'text' => 'Your title of object studies was save✅'
             ]);
 

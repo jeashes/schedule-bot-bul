@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\SubControllers\Telegram;
 
-use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
+use App\Http\Requests\TelegramMessageRequest;
+use App\Managers\Telegram\QuestionsRedisManager;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
 use Illuminate\Http\Client\Response;
 use App\Enums\Telegram\ScheduleEnum;
@@ -15,15 +16,15 @@ use Symfony\Component\Routing\Attribute\Route;
 class StudyScheduleController
 {
     #[Route('POST', '/schedule/send-question')]
-    public function sendScheduleQuestion(TelegramMessageDto $messageDto): Response
+    public function sendScheduleQuestion(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): Response
     {
-        $scheduleInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value), true);
+        $data = $request->validated();
+        $userId = $data['user']['_id'];
+        $scheduleInfo = json_decode(Redis::get($userId . '_' . ScheduleEnum::QUESTION->value), true);
 
         if (is_null($scheduleInfo['current_answer'])) {
-            Redis::set(
-                $messageDto->user->getId() . '_' . ScheduleEnum::QUESTION->value,
-                json_encode(['current_answer' => '', 'approved' => 0])
-            );
+
+            $questionsRedisManager->setAnswerForQuestion($userId, ScheduleEnum::QUESTION->value, '', 0);
 
             $keyboard = new InlineKeyboard(
             [
@@ -52,7 +53,7 @@ class StudyScheduleController
             ]);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $data['user']['chat_id'],
                 'reply_markup' => $keyboard,
                 'text' => __('bot_messages.schedule'),
                 'parse_mode' => 'Markdown'
@@ -65,23 +66,17 @@ class StudyScheduleController
     }
 
     #[Route('POST', '/schedule/accept-answer')]
-    public function acceptScheduleAnswer(TelegramMessageDto $messageDto): JsonResponse
+    public function acceptScheduleAnswer(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): JsonResponse
     {
-        $userId = $messageDto->user->getId();
+        $data = $request->validated();
+        $userId = $data['user']['_id'];
 
-        if (in_array(
-            $messageDto->callbackData,
-            array_column(WorkspaceSchedule::cases(), 'value')
-        )) {
-            Redis::set(
-                $userId . '_' . ScheduleEnum::QUESTION->value,
-                json_encode(['current_answer' => $messageDto->callbackData, 'approved' => 1])
-            );
+        if (in_array($data['callbackData'], array_column(WorkspaceSchedule::cases(), 'value'))) {
 
-            $messageDto->callbackData = null;
+            $questionsRedisManager->setAnswerForQuestion($userId, ScheduleEnum::QUESTION->value, $data['callbackData'], 1);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $data['user']['chat_id'],
                 'text' => 'Schedule was sucessufylly save✅',
             ]);
 

@@ -2,31 +2,29 @@
 
 namespace App\Http\Controllers\SubControllers\Telegram;
 
-use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\UserEmailEnum;
-use Illuminate\Http\Client\Response;
+use App\Http\Requests\TelegramMessageRequest;
 use Illuminate\Http\JsonResponse;
+use App\Managers\Telegram\QuestionsRedisManager;
 use Symfony\Component\Routing\Attribute\Route;
 
 class UserEmailController
 {
     #[Route('POST', '/email/send-question')]
-    public function sendEmailQuestion(TelegramMessageDto $messageDto): Response
+    public function sendEmailQuestion(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): Response
     {
-        $userEmailInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
+        $data = $request->validated();
+        $userId = $data['user']['_id'];
+        $userEmailInfo = json_decode(Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
 
         if (is_null($userEmailInfo['current_answer'])) {
-            Redis::set(
-                $messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value,
-                json_encode(['current_answer' => '', 'approved' => 0])
-            );
 
-            $messageDto->answer = null;
+            $questionsRedisManager->setAnswerForQuestion($userId, UserEmailEnum::QUESTION->value, '', 0);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $data['user']['data'],
                 'text' => __(
                     'bot_messages.ask_email',
                     ['triesCount' => 3]
@@ -41,28 +39,26 @@ class UserEmailController
     }
 
     #[Route('POST', '/email/accept-answer')]
-    public function acceptEmailAnswer(TelegramMessageDto $messageDto): JsonResponse
+    public function acceptEmailAnswer(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): JsonResponse
     {
-        $userId = $messageDto->user->getId();
-        $validatedEmail = $this->validateEmail($messageDto->answer);
+        $data = $request->validated();
+        $userId = $data['user']['_id'];
+        $validatedEmail = $this->validateEmail($data['answer']);
 
         switch ($validatedEmail) {
             case true:
-                Redis::set(
-                    $userId . '_' . UserEmailEnum::QUESTION->value,
-                    json_encode(['current_answer' => $messageDto->answer, 'approved' => 1])
-                );
+                $questionsRedisManager->setAnswerForQuestion($userId, UserEmailEnum::QUESTION->value, $data['answer'], 1);
 
-                $messageDto->answer = null;
                 return response()->json(['success' => $validatedEmail]);
             case false:
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $data['user']['chat_id'],
                     'text' => __(
                         'bot_messages.wrong_email',
-                        ['email' => $messageDto->answer]
+                        ['email' => $data['answer']]
                     ),
                 ]);
+
                 return response()->json(['success' => $validatedEmail]);
         }
 

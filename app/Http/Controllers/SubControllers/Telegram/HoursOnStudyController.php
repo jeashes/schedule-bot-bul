@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\SubControllers\Telegram;
 
-use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\HoursOnStudyEnum;
+use App\Managers\Telegram\QuestionsRedisManager;
+use App\Http\Requests\TelegramMessageRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -13,20 +14,19 @@ use Symfony\Component\Routing\Attribute\Route;
 class HourOnStudyController
 {
     #[Route('POST', '/hours/send-question')]
-    public function sendHoursQuestion(TelegramMessageDto $messageDto): Response
+    public function sendHoursQuestion(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): Response
     {
-        $hoursOnStudyInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value), true);
+        $data = $request->validated();
+        $userId = $data['user']['_id'];
+
+        $hoursOnStudyInfo = json_decode(Redis::get($userId . '_' . HoursOnStudyEnum::QUESTION->value), true);
 
         if (is_null($hoursOnStudyInfo['current_answer'])) {
-            Redis::set(
-                $messageDto->user->getId() . '_' . HoursOnStudyEnum::QUESTION->value,
-                json_encode(['current_answer' => '','approved' => 0])
-            );
 
-            $messageDto->answer = null;
+            $questionsRedisManager->setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value, '', 0);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $data['user']['chat_id'],
                 'text' => __('bot_messages.total_hours_on_study')
             ]);
 
@@ -37,31 +37,30 @@ class HourOnStudyController
     }
 
     #[Route('POST', '/hours/accept-answer')]
-    public function acceptHoursAnswer(TelegramMessageDto $messageDto): JsonResponse
+    public function acceptHoursAnswer(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): JsonResponse
     {
-        $userId = $messageDto->user->getId();
-        $validateHours = $this->validateHours($messageDto->answer);
+        $data = $request->validated();
+        $userId = $data['user']['id'];
+
+        $validateHours = $this->validateHours($data['answer']);
 
         switch ($validateHours) {
             case true:
-                Redis::set(
-                    $userId . '_' . HoursOnStudyEnum::QUESTION->value,
-                    json_encode(['current_answer' =>  $messageDto->answer, 'approved' => 1])
-                );
 
-                $messageDto->answer = null;
+                $questionsRedisManager->setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value, $data['answer'], 1);
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $userId,
                     'text' => 'Hours on studying was sucessufully save✅'
                 ]);
+
                 return response()->json(['success' => $validateHours]);
             case false:
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $data['user']['chat_id'],
                     'text' => __(
                         'bot_messages.wrong_hours',
-                        ['hours' => $messageDto->answer]
+                        ['hours' => $data['answer']]
                     ),
                 ]);
                 return response()->json(['success' => $validateHours]);
