@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 use Longman\TelegramBot\Telegram;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
+use App\Service\Trello\BaseClient;
 use Illuminate\Support\Carbon;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,6 +26,13 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(WeekDayDates::class, function($app) {
             return new WeekDayDates(Carbon::now());
+        });
+
+        $this->app->singleton(BaseClient::class, function($app) {
+            $apiKey = config('trello.api_key');
+            $apiToken = config('trello.api_token');
+
+            return new BaseClient($apiKey, $apiToken);
         });
 
         $this->app->singleton(TrelloWorkSpaceRepository::class);

@@ -4,15 +4,15 @@ namespace App\Service\Trello;
 
 class BaseClient
 {
-    protected string $apiKey;
-    protected string $apiToken;
+    protected readonly string $apiKey;
+    protected readonly string $apiToken;
 
     protected const API_TOKEN_QUERY = 'key={key}&token={token}';
 
-    public function __construct()
+    public function __construct(string $apiKey, string $apiToken)
     {
-        $this->apiKey = config('trello.api_key');
-        $this->apiToken = config('trello.api_token');
+        $this->apiKey = $apiKey;
+        $this->apiToken = $apiToken;
     }
 
     protected function prepareHeaders(): array
