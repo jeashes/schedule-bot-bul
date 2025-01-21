@@ -18,5 +18,3 @@ use App\Http\Controllers\TelegramController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-Route::post('/webhook', [TelegramController::class, 'handleWebhook']);
