@@ -23,7 +23,7 @@ class HourOnStudyController
 
         if (is_null($hoursOnStudyInfo['current_answer'])) {
 
-            $questionsRedisManager->setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value, '', 0);
+            $questionsRedisManager->setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $data['user']['chat_id'],

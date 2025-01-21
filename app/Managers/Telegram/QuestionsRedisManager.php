@@ -45,7 +45,7 @@ class QuestionsRedisManager
         Redis::set($userId . '_' . $question, json_encode(['current_answer' => null,'approved' => null]));
     }
 
-    public function setAnswerForQuestion(string $userId, string $question, string $answer, int $approved): void
+    public function setAnswerForQuestion(string $userId, string $question, string $answer = '', int $approved = 0): void
     {
         Redis::set($userId . '_' . $question, json_encode(['current_answer' => $answer,'approved' => $approved]));
     }

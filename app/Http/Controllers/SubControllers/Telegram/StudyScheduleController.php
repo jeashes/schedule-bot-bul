@@ -24,7 +24,7 @@ class StudyScheduleController
 
         if (is_null($scheduleInfo['current_answer'])) {
 
-            $questionsRedisManager->setAnswerForQuestion($userId, ScheduleEnum::QUESTION->value, '', 0);
+            $questionsRedisManager->setAnswerForQuestion($userId, ScheduleEnum::QUESTION->value);
 
             $keyboard = new InlineKeyboard(
             [

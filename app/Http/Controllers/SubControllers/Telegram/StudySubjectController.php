@@ -21,7 +21,7 @@ class StudySubjectController
 
         if ($data['callbackData'] === $userId . '_' . SubjectStudiesEnum::QUESTION->value) {
 
-            $questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, '', 0);
+            $questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $data['user']['chat_id'],

@@ -22,7 +22,7 @@ class UserEmailController
 
         if (is_null($userEmailInfo['current_answer'])) {
 
-            $questionsRedisManager->setAnswerForQuestion($userId, UserEmailEnum::QUESTION->value, '', 0);
+            $questionsRedisManager->setAnswerForQuestion($userId, UserEmailEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $data['user']['data'],
