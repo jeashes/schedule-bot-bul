@@ -23,7 +23,7 @@ class QuestionsRedisManager
 
         $this->resetUserAnswer($userId, UserEmailEnum::QUESTION->value);
 
-        $this->updateChatState($userId, ChatStateEnum::START->value)
+        $this->updateChatState($userId, ChatStateEnum::START->value);
     }
 
     private function removeOldAnswers(string $userId): void
@@ -47,6 +47,6 @@ class QuestionsRedisManager
 
     public function setAnswerForQuestion(string $userId, string $question, string $answer, int $approved): void
     {
-        Redis::set($userId . '_' . $question, json_encode(['current_answer' => answer,'approved' => $approved]));
+        Redis::set($userId . '_' . $question, json_encode(['current_answer' => $answer,'approved' => $approved]));
     }
 }

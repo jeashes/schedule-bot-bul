@@ -7,7 +7,7 @@ use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Http\Requests\TelegramMessageRequest;
-use Illuminate\Http\Client\Response;
+use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 

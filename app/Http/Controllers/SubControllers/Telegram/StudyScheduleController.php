@@ -8,7 +8,7 @@ use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Http\Requests\TelegramMessageRequest;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
-use Illuminate\Http\Client\Response;
+use Illuminate\Http\Response;
 use App\Enums\Telegram\ScheduleEnum;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
