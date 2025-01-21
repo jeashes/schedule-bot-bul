@@ -1,15 +1,19 @@
 <?php
 
-namespace App\Traits\Telegram\Questions;
+namespace App\Http\Controllers\SubControllers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\UserEmailEnum;
+use Illuminate\Http\Client\Response;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\Routing\Attribute\Route;
 
-trait UserEmail
+class UserEmailController
 {
-    public function sendEmailQuestion(TelegramMessageDto $messageDto): void
+    #[Route('POST', '/email/send-question')]
+    public function sendEmailQuestion(TelegramMessageDto $messageDto): Response
     {
         $userEmailInfo = json_decode(Redis::get($messageDto->user->getId() . '_' . UserEmailEnum::QUESTION->value), true);
 
@@ -29,10 +33,15 @@ trait UserEmail
                 ),
                 'parse_mode' => 'Markdown'
             ]);
+
+            return response()->noContent();
         }
+
+        return response()->noContent();
     }
 
-    public function acceptEmailAnswer(TelegramMessageDto $messageDto): bool
+    #[Route('POST', '/email/accept-answer')]
+    public function acceptEmailAnswer(TelegramMessageDto $messageDto): JsonResponse
     {
         $userId = $messageDto->user->getId();
         $validatedEmail = $this->validateEmail($messageDto->answer);
@@ -45,7 +54,7 @@ trait UserEmail
                 );
 
                 $messageDto->answer = null;
-                return $validatedEmail;
+                return response()->json(['success' => $validatedEmail]);
             case false:
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
@@ -54,10 +63,10 @@ trait UserEmail
                         ['email' => $messageDto->answer]
                     ),
                 ]);
-                return $validatedEmail;
+                return response()->json(['success' => $validatedEmail]);
         }
 
-        return false;
+        return response()->json(['success' => false]);
     }
 
     private function validateEmail(?string $email): bool
