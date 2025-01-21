@@ -121,7 +121,7 @@ class MessageHandler
         }
     }
 
-    public function getChatState(string $userId): int
+    private function getChatState(string $userId): int
     {
         return json_decode(Redis::get($userId . '_' . ChatStateEnum::class), true)['value'];
     }
