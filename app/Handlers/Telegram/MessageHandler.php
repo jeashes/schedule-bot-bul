@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Managers\Telegram;
+namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use App\Dto\UserWorkspaceDto;
@@ -25,7 +25,7 @@ use App\Repository\Trello\ListRepository;
 use App\Service\Trello\Cards\CardClient;
 use App\Traits\Telegram\ResetUserAnswers;
 
-class MessageManager
+class MessageHandler
 {
     use StudySubject;
     use ResetUserAnswers;

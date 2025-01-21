@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Dto\TelegramMessageDto;
 use App\Dto\UserDto;
-use App\Managers\Telegram\MessageManager as TelegramMessageManager;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
@@ -12,6 +11,7 @@ use App\Repository\UserRepository;
 use Longman\TelegramBot\Exception\TelegramException;
 use Longman\TelegramBot\Telegram;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Handlers\Telegram\MessageHandler;
 use App\Traits\Telegram\ResetUserAnswers;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
@@ -22,7 +22,7 @@ class TelegramController extends Controller
 
     public function __construct(
         private readonly Telegram $telegram,
-        private readonly TelegramMessageManager $telegramMessageManager
+        private readonly MessageHandler $messageHandler
     ) {
 
     }
@@ -54,7 +54,7 @@ class TelegramController extends Controller
 
             $this->botStartMessage($message);
 
-            $this->telegramMessageManager->handleMessages($message);
+            $this->messageHandler->handleMessages($message);
 
         } catch (TelegramException $e) {
             Log::channel('telegram')->error($e->getMessage());
