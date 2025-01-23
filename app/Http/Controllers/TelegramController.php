@@ -12,18 +12,17 @@ use Longman\TelegramBot\Exception\TelegramException;
 use Longman\TelegramBot\Telegram;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Handlers\Telegram\MessageHandler;
-use App\Traits\Telegram\ResetUserAnswers;
+use App\Managers\Telegram\QuestionsRedisManager;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use Symfony\Component\Routing\Attribute\Route;
 
 class TelegramController extends Controller
 {
-    use ResetUserAnswers;
-
     public function __construct(
         private readonly Telegram $telegram,
-        private readonly MessageHandler $messageHandler
+        private readonly MessageHandler $messageHandler,
+        private readonly QuestionsRedisManager $questionsRedisManager,
     ) {
 
     }
@@ -68,7 +67,7 @@ class TelegramController extends Controller
         $userId = $messageDto->user->getId();
         if ($messageDto->answer === '/start') {
 
-            $this->resetUserAnswers($userId);
+            $this->questionsRedisManager->resetUserAnswers($userId);
             $keyboard = new InlineKeyboard([
                 [
                     'text' => 'LET\'S GOOO',
