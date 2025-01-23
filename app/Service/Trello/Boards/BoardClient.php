@@ -4,6 +4,7 @@ namespace App\Service\Trello\Boards;
 
 use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\BoardsApiInterface;
+use App\Service\Trello\TrelloConfig;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
@@ -13,9 +14,9 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
     private const DEFAULT_FIELDS_VALUE = 'name,desc,descData,closed,idOrganization,pinned,shortUrl,prefs,labelNames';
 
-    public function __construct()
+    public function __construct(TrelloConfig $config)
     {
-        parent::__construct();
+        parent::__construct($config->apiKey, $config->apiToken);
     }
 
     public function getMemberships(

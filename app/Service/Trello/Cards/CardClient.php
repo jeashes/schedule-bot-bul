@@ -5,15 +5,16 @@ namespace App\Service\Trello\Cards;
 use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\CardsApiInterface;
 use Illuminate\Http\Client\Response;
+use App\Service\Trello\TrelloConfig;
 use Illuminate\Support\Facades\Http;
 
 class CardClient extends BaseClient implements CardsApiInterface
 {
     private const CARDS_URI = 'https://api.trello.com/1/cards';
 
-    public function __construct()
+    public function __construct(TrelloConfig $config)
     {
-        parent::__construct();
+        parent::__construct($config->apiKey, $config->apiToken);
     }
 
     public function getCard(string $idCard): Response

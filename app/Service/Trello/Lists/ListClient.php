@@ -5,15 +5,16 @@ namespace App\Service\Trello\Lists;
 use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\ListsApiInterface;
 use Illuminate\Http\Client\Response;
+use App\Service\Trello\TrelloConfig;
 use Illuminate\Support\Facades\Http;
 
 class ListClient extends BaseClient implements ListsApiInterface
 {
     private const LISTS_URI = 'https://api.trello.com/1/lists';
 
-    public function __construct()
+    public function __construct(TrelloConfig $config)
     {
-        parent::__construct();
+        parent::__construct($config->apiKey, $config->apiToken);
     }
 
     public function createNewList(
