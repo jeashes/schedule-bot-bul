@@ -39,7 +39,7 @@ class TelegramWebhookUpdateCommand extends Command
                 ]
             ]);
 
-            Log::channel('telegram')->info('Webhook for bot was successfully updated');
+            $this->info('Webhook for bot was successfully updated');
         } catch (RequestException $e) {
             Log::channel('telegram')->error(
                 'Something went wrong during updating webhook for bot',
