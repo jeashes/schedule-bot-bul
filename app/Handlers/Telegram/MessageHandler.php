@@ -24,7 +24,6 @@ use App\Repository\Trello\BoardRepository;
 use App\Repository\Trello\CardRepository;
 use App\Repository\Trello\ListRepository;
 use App\Service\Trello\Cards\CardClient;
-use Illuminate\Support\Facades\Http;
 
 class MessageHandler
 {
@@ -47,10 +46,22 @@ class MessageHandler
             $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::USER_HAS_WORKSPACE->value);
         }
 
+        $state = $this->getChatState($userId);
+
+        if (!$this->boardRepository->userBoardWasCreated($userId) && $state === ChatStateEnum::USER_HAS_WORKSPACE->value) {
+            $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::START->value);
+        }
+
         try {
             $this->handleChatState($messageDto, $userId);
         } catch (Throwable $e) {
-            Log::channel('telegram')->error('Something went wrong: ' . $e->getMessage());
+            Log::channel('telegram')->error('Something went wrong: ' . $e->getMessage(), [
+                'chat_state' => $state,
+                'user_id' => $userId,
+                'chat_id' => $messageDto->user->getChatId(),
+                'user_has_workspace' => $this->boardRepository->userBoardWasCreated($userId)
+
+            ]);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => __('bot_messages.error'),
