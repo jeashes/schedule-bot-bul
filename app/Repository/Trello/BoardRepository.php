@@ -7,7 +7,7 @@ use App\Models\Mongo\TrelloBoard;
 use App\Models\Mongo\User;
 use App\Models\Mongo\Workspace;
 use App\Service\Trello\Boards\BoardClient;
-use Throwable;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BoardRepository
 {
@@ -52,7 +52,7 @@ class BoardRepository
         try {
             TrelloBoard::query()->where(['user_id' => $userId])->firstOrFail();
             return true;
-        } catch (Throwable) {
+        } catch (ModelNotFoundException) {
             return false;
         }
     }
