@@ -9,11 +9,11 @@ use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Http\Response;
 use App\Helpers\TelegramHelper;
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\Routing\Attribute\Route;
+use Spatie\RouteAttributes\Attributes\Post;
 
 class StudySubjectController
 {
-    #[Route('POST', '/subject/send-question')]
+    #[Post('/subject/send-question')]
     public function sendSubjectQuestion(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): Response
     {
         $data = $request->validated();
@@ -35,7 +35,7 @@ class StudySubjectController
         return response()->noContent();
     }
 
-    #[Route('POST', '/subject/accept-answer')]
+    #[Post('/subject/accept-answer')]
     public function acceptSubjectAnswer(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): JsonResponse
     {
         $data = $request->validated();

@@ -35,7 +35,7 @@ class TelegramWebhookUpdateCommand extends Command
         try {
             $client->request('GET', "/bot$botToken/setWebhook", [
                 'query' => [
-                    'url' => $botWebhook
+                    'url' => $botWebhook . '/api/webhook'
                 ]
             ]);
 

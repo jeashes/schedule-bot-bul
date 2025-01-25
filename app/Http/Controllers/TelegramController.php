@@ -15,7 +15,7 @@ use App\Handlers\Telegram\MessageHandler;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
-use Symfony\Component\Routing\Attribute\Route;
+use Spatie\RouteAttributes\Attributes\Post;
 
 class TelegramController extends Controller
 {
@@ -27,7 +27,7 @@ class TelegramController extends Controller
 
     }
 
-    #[Route(method: 'POST', path: '/', middleware: 'api', name: 'telegram-webhook')]
+    #[Post('/webhook')]
     public function handleWebhook(Request $request, UserRepository $userRepository): void
     {
         Log::channel('telegram')->debug(json_encode($request->all()));

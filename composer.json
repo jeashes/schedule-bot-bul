@@ -13,6 +13,7 @@
         "longman/telegram-bot": "^0.83.1",
         "mongodb/laravel-mongodb": "^5.1",
         "predis/predis": "^2.3",
+        "spatie/laravel-route-attributes": "^1.25",
         "symfony/event-dispatcher": "^6.4"
     },
     "require-dev": {

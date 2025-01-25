@@ -11,11 +11,11 @@ use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
 use Illuminate\Http\Response;
 use App\Enums\Telegram\ScheduleEnum;
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\Routing\Attribute\Route;
+use Spatie\RouteAttributes\Attributes\Post;
 
 class StudyScheduleController
 {
-    #[Route('POST', '/schedule/send-question')]
+    #[Post('/schedule/send-question')]
     public function sendScheduleQuestion(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): Response
     {
         $data = $request->validated();
@@ -65,7 +65,7 @@ class StudyScheduleController
         return response()->noContent();
     }
 
-    #[Route('POST', '/schedule/accept-answer')]
+    #[Post('/schedule/accept-answer')]
     public function acceptScheduleAnswer(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): JsonResponse
     {
         $data = $request->validated();

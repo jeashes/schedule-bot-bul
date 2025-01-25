@@ -8,12 +8,12 @@ use App\Enums\Telegram\UserEmailEnum;
 use App\Http\Requests\TelegramMessageRequest;
 use Illuminate\Http\JsonResponse;
 use App\Managers\Telegram\QuestionsRedisManager;
-use Symfony\Component\Routing\Attribute\Route;
+use Spatie\RouteAttributes\Attributes\Post;
 use Illuminate\Http\Response;
 
 class UserEmailController
 {
-    #[Route('POST', '/email/send-question')]
+    #[Post('/email/send-question')]
     public function sendEmailQuestion(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): Response
     {
         $data = $request->validated();
@@ -39,7 +39,7 @@ class UserEmailController
         return response()->noContent();
     }
 
-    #[Route('POST', '/email/accept-answer')]
+    #[Post('/email/accept-answer')]
     public function acceptEmailAnswer(TelegramMessageRequest $request, QuestionsRedisManager $questionsRedisManager): JsonResponse
     {
         $data = $request->validated();
