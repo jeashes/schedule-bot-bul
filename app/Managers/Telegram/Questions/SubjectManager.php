@@ -9,7 +9,7 @@ class SubjectManager
 {
     static public function sendSubjectQuestion(TelegramMessageDto $messageDto): void
     {
-        Http::post('/subject/send-question', [
+        Http::post('api/subject/send-question', [
             'answer' => $messageDto->answer,
             'callbackData' => $messageDto->callbackData,
             'user' => $messageDto->user->toArray()
@@ -19,7 +19,7 @@ class SubjectManager
 
     static public function acceptSubjectQuestion(TelegramMessageDto $messageDto): bool
     {
-        $response = Http::post('/subject/accept-answer', [
+        $response = Http::post('api/subject/accept-answer', [
             'answer' => $messageDto->answer,
             'callbackData' => $messageDto->callbackData,
             'user' => $messageDto->user->toArray()

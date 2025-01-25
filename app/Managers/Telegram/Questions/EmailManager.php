@@ -9,7 +9,7 @@ class EmailManager
 {
     static public function sendEmailQuestion(TelegramMessageDto $messageDto): void
     {
-        Http::post('/email/send-question', [
+        Http::post('api/email/send-question', [
             'answer' => $messageDto->answer,
             'callbackData' => $messageDto->callbackData,
             'user' => $messageDto->user->toArray()
@@ -19,7 +19,7 @@ class EmailManager
 
     static public function acceptEmailQuestion(TelegramMessageDto $messageDto): bool
     {
-        $response = Http::post('/email/accept-answer', [
+        $response = Http::post('api/email/accept-answer', [
             'answer' => $messageDto->answer,
             'callbackData' => $messageDto->callbackData,
             'user' => $messageDto->user->toArray()
