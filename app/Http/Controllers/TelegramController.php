@@ -27,7 +27,7 @@ class TelegramController extends Controller
 
     }
 
-    #[Route('POST', '/webhook')]
+    #[Route(method: 'POST', path: '/', middleware: 'api', name: 'telegram-webhook')]
     public function handleWebhook(Request $request, UserRepository $userRepository): void
     {
         Log::channel('telegram')->debug(json_encode($request->all()));
