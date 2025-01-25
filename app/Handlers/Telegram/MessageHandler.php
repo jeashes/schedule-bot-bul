@@ -10,10 +10,6 @@ use App\Jobs\CreateUserTrelloWorkspace;
 use Throwable;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
-use App\Managers\Telegram\Questions\EmailManager;
-use App\Managers\Telegram\Questions\HoursManager;
-use App\Managers\Telegram\Questions\SubjectManager;
-use App\Managers\Telegram\Questions\ScheduleManager;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
@@ -80,30 +76,30 @@ class MessageHandler
 
                 $chatState = ChatStateEnum::SUBJECT_STUDY->value;
             case ChatStateEnum::SUBJECT_STUDY->value:
-                SubjectManager::sendSubjectQuestion($messageDto);
+                SubjectStateHandler::sendSubjectQuestion($messageDto);
 
-                if (SubjectManager::acceptSubjectQuestion($messageDto)) {
+                if (SubjectStateHandler::acceptSubjectAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::HOURS->value);
 
-                    HoursManager::sendHoursQuestion($messageDto);
+                    HoursStateHandler::sendHoursQuestion($messageDto);
                 }
                 break;
             case ChatStateEnum::HOURS->value:
-                if (HoursManager::acceptHoursQuestion($messageDto)) {
+                if (HoursStateHandler::acceptHoursAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::SCHEDULE->value);
 
-                    ScheduleManager::sendScheduleQuestion($messageDto);
+                    ScheduleStateHandler::sendScheduleQuestion($messageDto);
                 }
                 break;
             case ChatStateEnum::SCHEDULE->value:
-                if (ScheduleManager::acceptScheduleQuestion($messageDto)) {
+                if (ScheduleStateHandler::acceptScheduleAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::EMAIL->value);
 
-                    EmailManager::sendEmailQuestion($messageDto);
+                    EmailStateHandler::sendEmailQuestion($messageDto);
                 }
                 break;
             case ChatStateEnum::EMAIL->value:
-                if (EmailManager::acceptEmailQuestion($messageDto)) {
+                if (EmailStateHandler::acceptEmailAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::FINISHED->value);
 
                     $dto = $this->prepareUserWorkspaceForCreating($userId);
