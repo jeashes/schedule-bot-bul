@@ -5,15 +5,16 @@ namespace App\Service\Trello\Organizations;
 use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\OrganizationApiInterface;
 use Illuminate\Support\Facades\Http;
+use App\Service\Trello\TrelloConfig;
 use Illuminate\Http\Client\Response;
 
 class OrganizationClient extends BaseClient implements OrganizationApiInterface
 {
     private const ORGANIZATION_URI = 'https://api.trello.com/1/organizations';
 
-    public function __construct()
+    public function __construct(TrelloConfig $config)
     {
-        parent::__construct();
+        parent::__construct($config->apiKey, $config->apiToken);
     }
 
     public function create(string $displayName, ?string $description = null, ?string $name = null): Response

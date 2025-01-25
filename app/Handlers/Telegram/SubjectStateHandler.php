@@ -1,25 +1,22 @@
 <?php
 
-namespace App\Traits\Telegram\Questions;
+namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
-use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Managers\Telegram\QuestionsRedisManager;
 use App\Helpers\TelegramHelper;
 
-trait StudySubject
+class SubjectStateHandler
 {
-    public function sendSubjectQuestion(TelegramMessageDto $messageDto): void
+    static public function sendSubjectQuestion(TelegramMessageDto $messageDto): void
     {
-        if ($messageDto->callbackData === $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value) {
+        $userId = $messageDto->user->getId();
 
-            Redis::set(
-                $messageDto->user->getId() . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode(['current_answer' => '', 'approved' => 0])
-            );
+        if ($messageDto->callbackData === $userId . '_' . SubjectStudiesEnum::QUESTION->value) {
 
-            $messageDto->answer = null;
+            QuestionsRedisManager::setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
@@ -29,18 +26,13 @@ trait StudySubject
         }
     }
 
-    public function acceptSubjectAnswer(TelegramMessageDto $messageDto): bool
+    static public function acceptSubjectAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
 
         if (TelegramHelper::notEmptyNotApprovedMessage($messageDto, SubjectStudiesEnum::QUESTION->value)) {
 
-            Redis::set(
-                $userId . '_' . SubjectStudiesEnum::QUESTION->value,
-                json_encode(['current_answer' => $messageDto->answer, 'approved' => 1])
-            );
-
-            $messageDto->answer = null;
+            QuestionsRedisManager::setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, $messageDto->answer, 1);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),

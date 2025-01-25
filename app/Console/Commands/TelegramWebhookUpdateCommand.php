@@ -35,11 +35,11 @@ class TelegramWebhookUpdateCommand extends Command
         try {
             $client->request('GET', "/bot$botToken/setWebhook", [
                 'query' => [
-                    'url' => $botWebhook
+                    'url' => $botWebhook . '/api/webhook'
                 ]
             ]);
 
-            Log::channel('telegram')->info('Webhook for bot was successfully updated');
+            $this->info('Webhook for bot was successfully updated');
         } catch (RequestException $e) {
             Log::channel('telegram')->error(
                 'Something went wrong during updating webhook for bot',
