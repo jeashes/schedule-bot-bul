@@ -32,6 +32,10 @@ class MessageHandler
         private readonly CardClient $cardClient,
         private readonly ListRepository $listRepository,
         private readonly WeekDayDates $weekDayDates,
+        private readonly SubjectStateHandler $subjectStateHandler,
+        private readonly ScheduleStateHandler $scheduleStateHandler,
+        private readonly HoursStateHandler $hoursStateHandler,
+        private readonly EmailStateHandler $emailStateHandler,
         private readonly QuestionsRedisManager $questionsRedisManager
     ) {}
 
@@ -76,30 +80,30 @@ class MessageHandler
 
                 $chatState = ChatStateEnum::SUBJECT_STUDY->value;
             case ChatStateEnum::SUBJECT_STUDY->value:
-                SubjectStateHandler::sendSubjectQuestion($messageDto);
+                $this->subjectStateHandler->sendSubjectQuestion($messageDto);
 
                 if (SubjectStateHandler::acceptSubjectAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::HOURS->value);
 
-                    HoursStateHandler::sendHoursQuestion($messageDto);
+                    $this->hoursStateHandler->sendHoursQuestion($messageDto);
                 }
                 break;
             case ChatStateEnum::HOURS->value:
-                if (HoursStateHandler::acceptHoursAnswer($messageDto)) {
+                if ($this->hoursStateHandler->acceptHoursAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::SCHEDULE->value);
 
-                    ScheduleStateHandler::sendScheduleQuestion($messageDto);
+                    $this->scheduleStateHandler->sendScheduleQuestion($messageDto);
                 }
                 break;
             case ChatStateEnum::SCHEDULE->value:
-                if (ScheduleStateHandler::acceptScheduleAnswer($messageDto)) {
+                if ($this->scheduleStateHandler->acceptScheduleAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::EMAIL->value);
 
-                    EmailStateHandler::sendEmailQuestion($messageDto);
+                    $this->emailStateHandler->sendEmailQuestion($messageDto);
                 }
                 break;
             case ChatStateEnum::EMAIL->value:
-                if (EmailStateHandler::acceptEmailAnswer($messageDto)) {
+                if ($this->emailStateHandler->acceptEmailAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::FINISHED->value);
 
                     $dto = $this->prepareUserWorkspaceForCreating($userId);

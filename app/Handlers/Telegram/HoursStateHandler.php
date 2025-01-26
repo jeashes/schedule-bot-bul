@@ -10,7 +10,12 @@ use App\Managers\Telegram\QuestionsRedisManager;
 
 class HoursStateHandler
 {
-    static public function sendHoursQuestion(TelegramMessageDto $messagDto): void
+    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager)
+    {
+
+    }
+
+    public function sendHoursQuestion(TelegramMessageDto $messagDto): void
     {
         $userId = $messagDto->user->getId();
 
@@ -18,7 +23,7 @@ class HoursStateHandler
 
         if (is_null($hoursOnStudyInfo['current_answer'])) {
 
-            QuestionsRedisManager::setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value);
+            $this->questionsRedisManager->setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messagDto->user->getChatId(),
@@ -27,7 +32,7 @@ class HoursStateHandler
         }
     }
 
-    static public function acceptHoursAnswer(TelegramMessageDto $messageDto): bool
+    public function acceptHoursAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
 
@@ -36,7 +41,7 @@ class HoursStateHandler
         switch ($validateHours) {
             case true:
 
-                QuestionsRedisManager::setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value, $messageDto->answer, 1);
+                $this->questionsRedisManager->setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value, $messageDto->answer, 1);
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $userId,
@@ -58,7 +63,7 @@ class HoursStateHandler
         return false;
     }
 
-    static private function validateHours(?string $hours): bool
+    private function validateHours(?string $hours): bool
     {
         $pattern = "/^(0|[1-9]\d*)(\.\d+)?$/";
         return preg_match($pattern, $hours ?? '') ? true: false;

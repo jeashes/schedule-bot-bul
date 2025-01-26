@@ -10,14 +10,19 @@ use App\Managers\Telegram\QuestionsRedisManager;
 
 class EmailStateHandler
 {
-    static public function sendEmailQuestion(TelegramMessageDto $messageDto): void
+    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager)
+    {
+
+    }
+
+    public function sendEmailQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
         $userEmailInfo = json_decode(Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
 
         if (is_null($userEmailInfo['current_answer'])) {
 
-            QuestionsRedisManager::setAnswerForQuestion($userId, UserEmailEnum::QUESTION->value);
+            $this->questionsRedisManager->setAnswerForQuestion($userId, UserEmailEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
@@ -30,14 +35,14 @@ class EmailStateHandler
         }
     }
 
-    static public function acceptEmailAnswer(TelegramMessageDto $messageDto): bool
+    public function acceptEmailAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
-        $validatedEmail = self::validateEmail($messageDto->answer);
+        $validatedEmail = $this->validateEmail($messageDto->answer);
 
         switch ($validatedEmail) {
             case true:
-                QuestionsRedisManager::setAnswerForQuestion($userId, UserEmailEnum::QUESTION->value, $messageDto->answer, 1);
+                $this->questionsRedisManager->setAnswerForQuestion($userId, UserEmailEnum::QUESTION->value, $messageDto->answer, 1);
 
                 return $validatedEmail;
             case false:
@@ -55,7 +60,7 @@ class EmailStateHandler
         return false;
     }
 
-    static private function validateEmail(?string $email): bool
+    private function validateEmail(?string $email): bool
     {
         $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
         return (preg_match($pattern, $email ?? '')) ? true : false;
