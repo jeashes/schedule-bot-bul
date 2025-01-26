@@ -12,14 +12,19 @@ use App\Enums\Telegram\ScheduleEnum;
 
 class ScheduleStateHandler
 {
-    static public function sendScheduleQuestion(TelegramMessageDto $messageDto): void
+    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager)
+    {
+
+    }
+
+    public function sendScheduleQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
         $scheduleInfo = json_decode(Redis::get($userId . '_' . ScheduleEnum::QUESTION->value), true);
 
         if (is_null($scheduleInfo['current_answer'])) {
 
-            QuestionsRedisManager::setAnswerForQuestion($userId, ScheduleEnum::QUESTION->value);
+            $this->questionsRedisManager->setAnswerForQuestion($userId, ScheduleEnum::QUESTION->value);
 
             $keyboard = new InlineKeyboard(
             [
@@ -56,13 +61,13 @@ class ScheduleStateHandler
         }
     }
 
-    static public function acceptScheduleAnswer(TelegramMessageDto $messageDto): bool
+    public function acceptScheduleAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
 
         if (in_array($messageDto->callbackData, array_column(WorkspaceSchedule::cases(), 'value'))) {
 
-            QuestionsRedisManager::setAnswerForQuestion($userId, ScheduleEnum::QUESTION->value, $messageDto->callbackData, 1);
+            $this->questionsRedisManager->setAnswerForQuestion($userId, ScheduleEnum::QUESTION->value, $messageDto->callbackData, 1);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),

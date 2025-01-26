@@ -35,17 +35,17 @@ class QuestionsRedisManager
         Redis::del($userId . '_' . ChatStateEnum::class);
     }
 
-    static public function updateChatState(string $userId, int $chatState): void
+    public function updateChatState(string $userId, int $chatState): void
     {
         Redis::set($userId . '_' . ChatStateEnum::class, json_encode(['value' => $chatState]));
     }
 
-    static public function resetUserAnswer(string $userId, string $question): void
+    public function resetUserAnswer(string $userId, string $question): void
     {
         Redis::set($userId . '_' . $question, json_encode(['current_answer' => null,'approved' => null]));
     }
 
-    static public function setAnswerForQuestion(string $userId, string $question, string $answer = '', int $approved = 0): void
+    public function setAnswerForQuestion(string $userId, string $question, string $answer = '', int $approved = 0): void
     {
         Redis::set($userId . '_' . $question, json_encode(['current_answer' => $answer,'approved' => $approved]));
     }

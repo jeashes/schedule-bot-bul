@@ -10,13 +10,18 @@ use App\Helpers\TelegramHelper;
 
 class SubjectStateHandler
 {
-    static public function sendSubjectQuestion(TelegramMessageDto $messageDto): void
+    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager)
+    {
+
+    }
+
+    public function sendSubjectQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
 
         if ($messageDto->callbackData === $userId . '_' . SubjectStudiesEnum::QUESTION->value) {
 
-            QuestionsRedisManager::setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value);
+            $this->questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
@@ -26,13 +31,13 @@ class SubjectStateHandler
         }
     }
 
-    static public function acceptSubjectAnswer(TelegramMessageDto $messageDto): bool
+    public function acceptSubjectAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
 
         if (TelegramHelper::notEmptyNotApprovedMessage($messageDto, SubjectStudiesEnum::QUESTION->value)) {
 
-            QuestionsRedisManager::setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, $messageDto->answer, 1);
+            $this->questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, $messageDto->answer, 1);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
