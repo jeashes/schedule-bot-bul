@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(WeekDayDates::class, function($app) {
-            return new WeekDayDates(Carbon::now());
+            return new WeekDayDates(Carbon::now()->addWeek()->startOfWeek(Carbon::MONDAY));
         });
 
         $this->app->singleton(TrelloConfig::class, function($app) {
