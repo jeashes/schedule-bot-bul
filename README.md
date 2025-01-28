@@ -42,8 +42,7 @@ npm install</code></pre>
     <pre><code>TELEGRAM_BOT_API_TOKEN=your_telegram_bot_token 
 TELEGRAM_BOT_WEBHOOK=your_telegram_bot_webhook
 TELEGRAM_BOT_USERNAME=your_telegram_bot_username 
-
-
+<hr>
 TRELLO_API_KEY=your_trello_api_key
 TRELLO_API_SECRET=your_trello_secret
 TRELLO_API_TOKEN=your_api_token
