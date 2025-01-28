@@ -44,17 +44,10 @@ TELEGRAM_BOT_WEBHOOK=your_telegram_bot_webhook
 TELEGRAM_BOT_USERNAME=your_telegram_bot_username 
 
 
-<pre><code>TRELLO_API_KEY=your_trello_api_key
+TRELLO_API_KEY=your_trello_api_key
 TRELLO_API_SECRET=your_trello_secret
 TRELLO_API_TOKEN=your_api_token
-TRELLO_ORGANIZATION_ID=your_organization_id
-
-DB_CONNECTION=mysql  
-DB_HOST=127.0.0.1  
-DB_PORT=3306  
-DB_DATABASE=schedule_bot  
-DB_USERNAME=root  
-DB_PASSWORD=your_database_password</code></pre>
+TRELLO_ORGANIZATION_ID=your_organization_id</code></pre>
   </li>
 
   <li>
