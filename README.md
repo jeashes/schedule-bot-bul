@@ -39,8 +39,15 @@ npm install</code></pre>
     <p>Copy the <code>.env.example</code> file to <code>.env</code> and update it with your credentials:</p>
     <pre><code>cp .env.example .env</code></pre>
     <p>Edit the <code>.env</code> file and add the following:</p>
-    <pre><code>TELEGRAM_BOT_TOKEN=your_telegram_bot_token  
-TRELLO_API_KEY=your_trello_api_key  
+    <pre><code>TELEGRAM_BOT_API_TOKEN=your_telegram_bot_token 
+TELEGRAM_BOT_WEBHOOK=your_telegram_bot_webhook
+TELEGRAM_BOT_USERNAME=your_telegram_bot_username 
+
+TRELLO_API_KEY=your_trello_api_key
+TRELLO_API_SECRET=your_trello_secret
+TRELLO_API_TOKEN=your_api_token
+TRELLO_ORGANIZATION_ID=your_organization_id
+
 DB_CONNECTION=mysql  
 DB_HOST=127.0.0.1  
 DB_PORT=3306  
