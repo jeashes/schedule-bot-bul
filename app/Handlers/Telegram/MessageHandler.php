@@ -82,7 +82,7 @@ class MessageHandler
             case ChatStateEnum::SUBJECT_STUDY->value:
                 $this->subjectStateHandler->sendSubjectQuestion($messageDto);
 
-                if (SubjectStateHandler::acceptSubjectAnswer($messageDto)) {
+                if ($this->subjectStateHandler->acceptSubjectAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::HOURS->value);
 
                     $this->hoursStateHandler->sendHoursQuestion($messageDto);
