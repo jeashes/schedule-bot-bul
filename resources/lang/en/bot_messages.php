@@ -27,5 +27,7 @@ return [
 
     'wrong_hours' => 'The :hours hours has wrong format, please enter correct one 🚫',
 
-    'workspace_created' => 'You alredy have study worskpace: :url'
+    'workspace_created' => 'You alredy have study worskpace: :url',
+
+    'wrong_subject_title' => 'Coud please more detailed subject title that you wanna learn 👉🏻👈🏻'
 ];
