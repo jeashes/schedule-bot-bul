@@ -6,7 +6,6 @@ use App\Dto\TelegramMessageDto;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Managers\Telegram\QuestionsRedisManager;
-use App\Helpers\TelegramHelper;
 use App\Service\OpenAi\SubjectValidator;
 
 class SubjectStateHandler
@@ -37,7 +36,7 @@ class SubjectStateHandler
     public function acceptSubjectAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
-        $validateSubject =  $this->subjectValidator->validateSubjectTitle($messageDto->answer ?? '');
+        $validateSubject = $this->subjectValidator->validateSubjectTitle($messageDto->answer ?? '');
 
         switch ($validateSubject) {
             case true:
@@ -51,11 +50,15 @@ class SubjectStateHandler
                 return $validateSubject;
 
             case false;
+                if (is_null($messageDto->answer)) {
+                    return $validateSubject;
+                }
+
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $data['user']['chat_id'],
+                    'chat_id' => $messageDto->user->getChatId(),
                     'text' => __(
                         'bot_messages.wrong_subject_title',
-                        ['email' => $data['answer']]
+                        ['email' => $messageDto->answer]
                     ),
                 ]);
 

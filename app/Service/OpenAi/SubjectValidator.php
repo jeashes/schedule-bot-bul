@@ -9,7 +9,7 @@ class SubjectValidator
 
     }
 
-    public function validateSubjectTitle(string $title): bool
+    public function validateSubjectTitle(string $title): int
     {
         $systemPrompt = 'Act as an AI assistant for a teacher. Your task is to find relevant information about a given subject and validate the accuracy of the subject title. Follow these steps:
 
@@ -26,6 +26,6 @@ class SubjectValidator
 
         $data = json_decode($this->dataCreator->aiAnalyze($systemPrompt, $body), true);
 
-        return $data;
+        return $data['found'] ?? 0;
     }
 }
