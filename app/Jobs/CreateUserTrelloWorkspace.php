@@ -91,7 +91,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
             TelegramBotRequest::initialize($telegram);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $this->user->getChatId(),
-                'text' => 'Your tasks on next two weeks were successfully created!',
+                'text' => "Your tasks on next two weeks were successfully created!\nYour board:{$board->url}",
             ]);
         } catch (Throwable $e) {
             Log::channel('trello')->error($e->getMessage(), ['backtrace' => $e->getTraceAsString()]);
