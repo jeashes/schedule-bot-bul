@@ -16,52 +16,113 @@ class WeekDayDates
 
     public function getMonWenFriDates(): array
     {
-        return [
-            'monday' => $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
-            'wednesday' => $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
-            'friday' => $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
+        $this->setCurrentDateByDefault();
+
+        $week1 = [
+            $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
         ];
+
+        $this->currentDay->addWeek();
+
+        $week2 = [
+            $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
+        ];
+
+        return array_merge($week1, $week2);
     }
 
     public function getTueThuSatDates(): array
     {
-        return [
-            'tuesday' => $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
-            'thursday' => $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
-            'saturday' => $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String()
+        $this->setCurrentDateByDefault();
+
+        $week1 = [
+            $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String()
         ];
+
+        $this->currentDay->addWeek();
+
+        $week2 = [
+            $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String()
+        ];
+
+        return array_merge($week1, $week2);
     }
 
     public function getSatSunDates(): array
     {
-        return [
-            'saturday' => $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
-            'sunday' => $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
+        $this->setCurrentDateByDefault();
+
+        $week1 = [
+            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
         ];
+
+        $week2 = [
+            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
+        ];
+
+        return array_merge($week1, $week2);
     }
 
     public function getAllWeekDaysDates(): array
     {
-        return [
-            'monday' => $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
-            'tuesday' => $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
-            'wednesday' => $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
-            'thursday' => $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
-            'friday' => $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
+        $this->setCurrentDateByDefault();
+
+        $week1 = [
+            $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
         ];
+
+        $this->currentDay->addWeek();
+
+        $week2 = [
+            $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
+        ];
+
+        return array_merge($week1, $week2);
     }
 
     public function getEveryDayDates(): array
     {
-        return [
-            'monday' => $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
-            'tuesday' => $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
-            'wednesday' => $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
-            'thursday' => $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
-            'friday' => $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
-            'saturday' => $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
-            'sunday' => $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
+        $this->setCurrentDateByDefault();
+
+        $week1 = [
+            $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
         ];
+
+        $week2 = [
+            $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
+            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
+        ];
+
+        return array_merge($week1, $week2);
     }
 
     public function getDatesBySchedule(int $scheduleType): array
@@ -82,8 +143,8 @@ class WeekDayDates
         }
     }
 
-    public function setNewCurrentDate(Carbon $date): void
+    private function setCurrentDateByDefault(): void
     {
-        $this->currentDay = $date;
+        $this->currentDay = Carbon::now()->addWeek()->startOfWeek(Carbon::MONDAY);
     }
 }
