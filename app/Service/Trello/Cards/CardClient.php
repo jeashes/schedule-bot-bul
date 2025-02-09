@@ -146,6 +146,19 @@ class CardClient extends BaseClient implements CardsApiInterface
 
     }
 
+    public function createCheckItem(string $idCard, string $idCheckList, string $name): Response
+    {
+        $params = $this->prepareApiTokenParams();
+        $params['id'] = $idCard;
+        $params['idCheckList'] = $idCheckList;
+        $params['name'] = $name;
+
+        $query = '{+endpoint}/{id}/checklists/{idCheckList}/checkItems?name={name}&';
+        return Http::withUrlParameters($params)
+            ->withHeaders($this->prepareHeaders())
+            ->post($query . self::API_TOKEN_QUERY);
+    }
+
     public function createNewCard(
         string $idList, ?string $name = null, ?string $desc = null, ?string $position = null, ?string $dueDate = null,
         ?string $startDate = null, ?bool $dueCompleteDate = null, ?string $idMembers = null, ?string $idLabels = null,

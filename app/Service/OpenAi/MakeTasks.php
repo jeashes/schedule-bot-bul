@@ -2,6 +2,8 @@
 
 namespace App\Service\OpenAi;
 
+use Illuminate\Support\Facades\Log;
+
 class MakeTasks
 {
     public function __construct(
@@ -45,9 +47,9 @@ class MakeTasks
           \"{
             \"0\": {
                 \"Lesson\": {
-                    \"Learning Objectives\": {},
-                    \"Context Info\": {}
-                    \"Tiny Task\": {}
+                    \"Learning Objectives\": 'VALUE SHOULD BE STRING AS SINGLE CHUNK, IT CAN BE MANY SENTENCES',
+                    \"Context Info\": 'VALUE SHOULD BE STRING AS SINGLE CHUNK, IT CAN BE MANY SENTENCES',
+                    \"Tiny Task\": 'VALUE SHOULD BE STRING AS SINGLE CHUNK, IT CAN BE MANY SENTENCES',
                     \"Time\": float value
                 }
             ...
@@ -56,11 +58,13 @@ class MakeTasks
         P.S: Tiny task need to consolidate the material covered and response should be without word 'json' before {}
         P.S: P.S: Your structured course should building on clear info, without using videod, courses and platforms. It can be look like tutorial.
 
-        DONT PASS ANY MENTION OF FORMULA SESSION DURATION TIME IN RESPONSE, YOU SHOULD USE THIS VALUE FOR CREATING LESSON WITH RELATED SCOPE
+        DONT PASS ANY MENTION OF FORMULA SESSION DURATION TIME IN RESPONSE, YOU SHOULD USE THIS VALUE FOR CREATING LESSON WITH RELATED SCOPE.
         ";
 
         $body = "What user want to start learn: $topic, how many hours user has on 2 weeks: $hours, how many session user has in this weeks: $scheduleDaysCount";
-        $tasks = json_decode($this->dataCreator->aiAnalyze($systemPrompt, $body), true);
+        $response = $this->dataCreator->aiAnalyze($systemPrompt, $body);
+        Log::channel('trello')->info('Respons from Make Tasks: ' . json_encode($response));
+        $tasks = json_decode($response, true);
         return $tasks;
     }
 }
