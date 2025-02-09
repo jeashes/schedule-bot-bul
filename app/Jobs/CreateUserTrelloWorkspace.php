@@ -12,6 +12,7 @@ use App\Models\Mongo\Workspace;
 use App\Repository\Trello\BoardRepository;
 use App\Repository\Trello\CardRepository;
 use App\Repository\Trello\ListRepository;
+use App\Service\OpenAi\MakeTasks;
 use App\Service\Trello\Cards\CardClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -43,6 +44,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
         ListRepository $listRepository,
         CardRepository $cardRepository,
         WeekDayDates $weekDayDates,
+        MakeTasks $makeTasks
     ): void {
         try {
             $userId = $this->user->getId();
@@ -56,19 +58,23 @@ class CreateUserTrelloWorkspace implements ShouldQueue
             $toDoList = $listRepository->getToDoList($userId);
 
             $scheduleDays = $weekDayDates->getDatesBySchedule($this->workspace->getSchedule());
+            $tasks = $makeTasks->genTasksByAi($this->workspace->getName(), count($scheduleDays), $this->workspace->getTimeOnSchedule());
 
             try {
-                foreach ($scheduleDays as $scheduleDay) {
+                for ($i = 0; $i <= count($tasks); $i) {
                     sleep(0.5);
                     $response = $cardClient->createNewCard(
                         idList: $toDoList->trello_id,
-                        name: "Empty name of lesson",
-                        dueDate: $scheduleDay
+                        name: $scheduleDays[$i]['Lesson']['Learning Objectives'],
+                        desc: $scheduleDays[$i]['Lesson']['Context Info'],
+                        dueDate: $scheduleDays[$i]
                     );
 
                     $data = json_decode($response, true);
 
                     $card = $cardRepository->saveCard($userId, new CardDto($data));
+
+                    $cardClient->createCheckList($card->getId(), $card->getId(), $scheduleDays[$i]['Lesson']['Tiny Task']);
 
                     $this->workspace->addTaskId($card->getId());
                 }
