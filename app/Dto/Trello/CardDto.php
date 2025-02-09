@@ -9,6 +9,8 @@ class CardDto
     public readonly string $idList;
     public readonly array $idMembers;
     public readonly array $idLabels;
+    public readonly string $idCheckList;
+    public readonly array $checkItems;
     public readonly array $attachments;
     public readonly string $name;
     public readonly int $pos;
@@ -26,6 +28,8 @@ class CardDto
         $this->idList = $data['idList'];
         $this->idMembers = $data['idMembers'];
         $this->idLabels = $data['idLabels'];
+        $this->idCheckList = $data['idCheckList'];
+        $this->checkItems = $data['checkItems'];
         $this->attachments = $data['attachments'];
         $this->name = $data['name'];
         $this->pos = $data['pos'];
@@ -45,6 +49,8 @@ class CardDto
             'idList' => $this->idList,
             'idMembers' => $this->idMembers,
             'idLabels' => $this->idLabels,
+            'idCheckList' => $this->idCheckList,
+            'checkItems' => $this->checkItems,
             'attachments' => $this->attachments,
             'name' => $this->name,
             'pos' => $this->pos,
