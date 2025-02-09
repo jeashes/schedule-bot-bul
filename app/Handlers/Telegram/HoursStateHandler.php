@@ -15,9 +15,9 @@ class HoursStateHandler
 
     }
 
-    public function sendHoursQuestion(TelegramMessageDto $messagDto): void
+    public function sendHoursQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messagDto->user->getId();
+        $userId = $messageDto->user->getId();
 
         $hoursOnStudyInfo = json_decode(Redis::get($userId . '_' . HoursOnStudyEnum::QUESTION->value), true);
 
@@ -26,7 +26,7 @@ class HoursStateHandler
             $this->questionsRedisManager->setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messagDto->user->getChatId(),
+                'chat_id' => $messageDto->user->getChatId(),
                 'text' => __('bot_messages.total_hours_on_study')
             ]);
         }
@@ -36,7 +36,7 @@ class HoursStateHandler
     {
         $userId = $messageDto->user->getId();
 
-        $validateHours = self::validateHours($messageDto->answer);
+        $validateHours = $this->validateHours($messageDto->answer);
 
         switch ($validateHours) {
             case true:
@@ -51,10 +51,10 @@ class HoursStateHandler
                 return $validateHours;
             case false:
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $data['user']['chat_id'],
+                    'chat_id' => $messageDto->user->getChatId(),
                     'text' => __(
                         'bot_messages.wrong_hours',
-                        ['hours' => $data['answer']]
+                        ['hours' => $messageDto->answer]
                     ),
                 ]);
                 return $validateHours;

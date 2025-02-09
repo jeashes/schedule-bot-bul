@@ -27,7 +27,7 @@ class TrelloWorkSpaceRepository
 
         return [
             'name' => $subjectStudiesInfo['current_answer'],
-            'time_on_scedule' => (int)$hoursOnStudyInfo['current_answer'],
+            'time_on_schedule' => (float)$hoursOnStudyInfo['current_answer'],
             'schedule' => $scheduleInfo['current_answer'],
             'task_ids' => []
         ];

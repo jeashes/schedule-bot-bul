@@ -9,10 +9,13 @@ use App\Service\Trello\Boards\BoardClient;
 use App\Models\Mongo\User;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Models\Mongo\Workspace;
+use Longman\TelegramBot\Telegram;
 use App\Repository\Trello\BoardRepository;
 use App\Repository\Trello\CardRepository;
 use App\Repository\Trello\ListRepository;
+use App\Service\OpenAi\MakeTasks;
 use App\Service\Trello\Cards\CardClient;
+use App\Service\Trello\CheckLists\CheckListClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -40,9 +43,12 @@ class CreateUserTrelloWorkspace implements ShouldQueue
         BoardRepository $boardRepository,
         BoardClient $boardClient,
         CardClient $cardClient,
+        CheckListClient $checkListClient,
         ListRepository $listRepository,
         CardRepository $cardRepository,
         WeekDayDates $weekDayDates,
+        MakeTasks $makeTasks,
+        Telegram $telegram,
     ): void {
         try {
             $userId = $this->user->getId();
@@ -56,32 +62,39 @@ class CreateUserTrelloWorkspace implements ShouldQueue
             $toDoList = $listRepository->getToDoList($userId);
 
             $scheduleDays = $weekDayDates->getDatesBySchedule($this->workspace->getSchedule());
+            $tasks = $makeTasks->genTasksByAi($this->workspace->getName(), count($scheduleDays), $this->workspace->getTimeOnSchedule());
 
-            try {
-                foreach ($scheduleDays as $scheduleDay) {
-                    sleep(0.5);
-                    $response = $cardClient->createNewCard(
-                        idList: $toDoList->trello_id,
-                        name: "Empty name of lesson",
-                        dueDate: $scheduleDay
-                    );
+            for ($i = 0; $i < count($tasks); $i++) {
+                sleep(0.5);
+                $cardResponse = $cardClient->createNewCard(
+                    idList: $toDoList->trello_id,
+                    name: $tasks[$i]['Lesson']['Learning Objectives'],
+                    desc: $tasks[$i]['Lesson']['Context Info'],
+                    dueDate: $scheduleDays[$i]
+                );
+                $cardData = json_decode($cardResponse, true);
 
-                    $data = json_decode($response, true);
+                $checkListResponse = $cardClient->createCheckList($cardData['id'], 'Tasks');
+                $checkListData = json_decode($checkListResponse, true);
+                $cardData['idCheckList'] = $checkListData['id'];
+                $cardData['checkItems'] = $checkListData['checkItems'];
 
-                    $card = $cardRepository->saveCard($userId, new CardDto($data));
+                $checkItemResponse = $checkListClient->createCheckItem($cardData['idCheckList'], $tasks[$i]['Lesson']['Tiny Task']);
+                $checkItemData = json_decode($checkItemResponse, true);
 
-                    $this->workspace->addTaskId($card->getId());
-                }
-            } catch (Throwable $e) {
-                Log::error($e->getMessage());
+                $cardData['checkItems'][] = $checkItemData['id'];
+                $card = $cardRepository->saveCard($userId, new CardDto($cardData));
+
+                $this->workspace->addTaskId($card->getId());
             }
 
+            TelegramBotRequest::initialize($telegram);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $this->user->getChatId(),
                 'text' => 'Your tasks on next two weeks were successfully created!',
             ]);
         } catch (Throwable $e) {
-            Log::error($e->getMessage());
+            Log::channel('trello')->error($e->getMessage(), ['backtrace' => $e->getTraceAsString()]);
         }
     }
 }

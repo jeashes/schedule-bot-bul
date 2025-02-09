@@ -47,10 +47,10 @@ class EmailStateHandler
                 return $validatedEmail;
             case false:
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $data['user']['chat_id'],
+                    'chat_id' => $messageDto->user->getChatId(),
                     'text' => __(
                         'bot_messages.wrong_email',
-                        ['email' => $data['answer']]
+                        ['email' => $messageDto->answer]
                     ),
                 ]);
 

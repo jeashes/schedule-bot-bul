@@ -6,12 +6,14 @@ use App\Dto\TelegramMessageDto;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Managers\Telegram\QuestionsRedisManager;
-use App\Helpers\TelegramHelper;
+use App\Service\OpenAi\SubjectValidator;
 
 class SubjectStateHandler
 {
-    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager)
-    {
+    public function __construct(
+        private readonly QuestionsRedisManager $questionsRedisManager,
+        private readonly SubjectValidator $subjectValidator,
+    ) {
 
     }
 
@@ -34,19 +36,33 @@ class SubjectStateHandler
     public function acceptSubjectAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
+        $validateSubject = $this->subjectValidator->validateSubjectTitle($messageDto->answer ?? '');
 
-        if (TelegramHelper::notEmptyNotApprovedMessage($messageDto, SubjectStudiesEnum::QUESTION->value)) {
+        switch ($validateSubject) {
+            case true:
+                $this->questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, $messageDto->answer, 1);
 
-            $this->questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, $messageDto->answer, 1);
+                TelegramBotRequest::sendMessage([
+                    'chat_id' => $messageDto->user->getChatId(),
+                    'text' => 'Your title of object studies was save✅'
+                ]);
 
-            TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
-                'text' => 'Your title of object studies was save✅'
-            ]);
+                return $validateSubject;
 
-            return true;
+            case false;
+                if (is_null($messageDto->answer)) {
+                    return $validateSubject;
+                }
+
+                TelegramBotRequest::sendMessage([
+                    'chat_id' => $messageDto->user->getChatId(),
+                    'text' => __(
+                        'bot_messages.wrong_subject_title',
+                        ['email' => $messageDto->answer]
+                    ),
+                ]);
+
+                return $validateSubject;
         }
-
-        return false;
     }
 }
