@@ -43,15 +43,13 @@ class MakeTasks
           RESPONSE FORMAT:
 
           \"{
-            \"Week 1\": {
-                \"Session 1\": {
-                    \"Lesson\": {
-                        \"Learning Objectives\": {},
-                        \"Context Info\": {}
-                        \"Tiny Task\": {}
-                        \"Time\": float value
-                    }
-                },
+            \"0\": {
+                \"Lesson\": {
+                    \"Learning Objectives\": {},
+                    \"Context Info\": {}
+                    \"Tiny Task\": {}
+                    \"Time\": float value
+                }
             ...
           }\"
 
