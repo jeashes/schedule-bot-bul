@@ -52,4 +52,12 @@ class ListRepository
             'name' => DefaultListNameEnum::TODO->value
         ])->first();
     }
+
+    public function getInProgressList(string $userId): TrelloList
+    {
+        return TrelloList::where([
+            'user_id' => $userId,
+            'name' => DefaultListNameEnum::DOING->value
+        ])->first();
+    }
 }
