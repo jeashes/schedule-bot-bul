@@ -53,9 +53,6 @@ class CreateUserTrelloWorkspace implements ShouldQueue
         try {
             $userId = $this->user->getId();
             $board = $boardRepository->createAndStoreBoard($this->workspace, $this->user);
-            $boardClient->inviteMemberViaEmail(
-                $board->trello_id, $this->user->getEmail(), InviteTypeEnum::NORMAL->value
-            );
 
             $lists = json_decode($boardClient->getLists($board->trello_id), true);
             $listRepository->saveDefaultLists($userId, $lists);
@@ -88,10 +85,14 @@ class CreateUserTrelloWorkspace implements ShouldQueue
                 $this->workspace->addTaskId($card->getId());
             }
 
+            $boardClient->inviteMemberViaEmail(
+                $board->trello_id, $this->user->getEmail(), InviteTypeEnum::NORMAL->value
+            );
+
             TelegramBotRequest::initialize($telegram);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $this->user->getChatId(),
-                'text' => "Your tasks on next two weeks were successfully created!\nYour board: {$board->url}",
+                'text' => "Check your mail, tasks on next two weeks were successfully created!\nYour board: {$board->url}",
             ]);
         } catch (Throwable $e) {
             Log::channel('trello')->error($e->getMessage(), ['backtrace' => $e->getTraceAsString()]);
