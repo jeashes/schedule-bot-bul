@@ -15,7 +15,7 @@ use App\Repository\Trello\CardRepository;
 use App\Repository\Trello\ListRepository;
 use App\Service\OpenAi\MakeTasks;
 use App\Service\Trello\Cards\CardClient;
-use App\Service\Trello\CheckLists\CheckListClient;
+use App\Service\Trello\CheckLists\ChecklistClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -43,7 +43,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
         BoardRepository $boardRepository,
         BoardClient $boardClient,
         CardClient $cardClient,
-        CheckListClient $checkListClient,
+        ChecklistClient $checklistClient,
         ListRepository $listRepository,
         CardRepository $cardRepository,
         WeekDayDates $weekDayDates,
@@ -53,9 +53,6 @@ class CreateUserTrelloWorkspace implements ShouldQueue
         try {
             $userId = $this->user->getId();
             $board = $boardRepository->createAndStoreBoard($this->workspace, $this->user);
-            $boardClient->inviteMemberViaEmail(
-                $board->trello_id, $this->user->getEmail(), InviteTypeEnum::NORMAL->value
-            );
 
             $lists = json_decode($boardClient->getLists($board->trello_id), true);
             $listRepository->saveDefaultLists($userId, $lists);
@@ -79,7 +76,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
                 $cardData['idCheckList'] = $checkListData['id'];
                 $cardData['checkItems'] = $checkListData['checkItems'];
 
-                $checkItemResponse = $checkListClient->createCheckItem($cardData['idCheckList'], $tasks[$i]['Lesson']['Tiny Task']);
+                $checkItemResponse = $checklistClient->createCheckItem($cardData['idCheckList'], $tasks[$i]['Lesson']['Tiny Task']);
                 $checkItemData = json_decode($checkItemResponse, true);
 
                 $cardData['checkItems'][] = $checkItemData['id'];
@@ -88,10 +85,14 @@ class CreateUserTrelloWorkspace implements ShouldQueue
                 $this->workspace->addTaskId($card->getId());
             }
 
+            $boardClient->inviteMemberViaEmail(
+                $board->trello_id, $this->user->getEmail(), InviteTypeEnum::NORMAL->value
+            );
+
             TelegramBotRequest::initialize($telegram);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $this->user->getChatId(),
-                'text' => "Your tasks on next two weeks were successfully created!\nYour board: {$board->url}",
+                'text' => "Check your mail, tasks on next two weeks were successfully created!\nYour board: {$board->url}",
             ]);
         } catch (Throwable $e) {
             Log::channel('trello')->error($e->getMessage(), ['backtrace' => $e->getTraceAsString()]);
