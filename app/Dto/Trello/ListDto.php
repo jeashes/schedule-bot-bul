@@ -5,8 +5,11 @@ namespace App\Dto\Trello;
 class ListDto
 {
     public readonly string $id;
+
     public readonly string $idBoard;
+
     public readonly string $name;
+
     public readonly bool $closed;
 
     public function __construct(array $data)

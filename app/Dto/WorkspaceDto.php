@@ -9,6 +9,5 @@ class WorkspaceDto
         public readonly float $timeOnSchedule,
         public readonly int $schedule,
         public readonly array $taskIds
-    ) {
-    }
+    ) {}
 }

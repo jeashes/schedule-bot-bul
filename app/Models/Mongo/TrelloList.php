@@ -14,13 +14,13 @@ class TrelloList extends Model
         'trello_id',
         'user_id',
         'board_id',
-        'name'
+        'name',
     ];
 
     protected function casts(): array
     {
         return [
-            '_id' => 'string'
+            '_id' => 'string',
         ];
     }
 }

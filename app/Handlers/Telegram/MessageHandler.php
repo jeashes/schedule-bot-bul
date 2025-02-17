@@ -6,20 +6,20 @@ use App\Dto\TelegramMessageDto;
 use App\Dto\UserWorkspaceDto;
 use App\Enums\Telegram\ChatStateEnum;
 use App\Enums\Telegram\UserEmailEnum;
-use App\Jobs\CreateUserTrelloWorkspace;
-use Throwable;
-use App\Repository\TrelloWorkSpaceRepository;
-use App\Repository\UserRepository;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
-use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Helpers\WeekDayDates;
+use App\Jobs\CreateUserTrelloWorkspace;
 use App\Managers\Telegram\QuestionsRedisManager;
-use App\Service\Trello\Boards\BoardClient;
 use App\Repository\Trello\BoardRepository;
 use App\Repository\Trello\CardRepository;
 use App\Repository\Trello\ListRepository;
+use App\Repository\TrelloWorkSpaceRepository;
+use App\Repository\UserRepository;
+use App\Service\Trello\Boards\BoardClient;
 use App\Service\Trello\Cards\CardClient;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
+use Longman\TelegramBot\Request as TelegramBotRequest;
+use Throwable;
 
 class MessageHandler
 {
@@ -48,24 +48,24 @@ class MessageHandler
 
         $state = $this->getChatState($userId);
 
-        if (!$this->boardRepository->userBoardWasCreated($userId) && $state === ChatStateEnum::USER_HAS_WORKSPACE->value) {
+        if (! $this->boardRepository->userBoardWasCreated($userId) && $state === ChatStateEnum::USER_HAS_WORKSPACE->value) {
             $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::START->value);
         }
 
         try {
             $this->handleChatState($messageDto, $userId);
         } catch (Throwable $e) {
-            Log::channel('telegram')->error('Something went wrong: ' . $e->getMessage(), [
+            Log::channel('telegram')->error('Something went wrong: '.$e->getMessage(), [
                 'chat_state' => $state,
                 'user_id' => $userId,
                 'chat_id' => $messageDto->user->getChatId(),
-                'user_has_workspace' => $this->boardRepository->userBoardWasCreated($userId)
+                'user_has_workspace' => $this->boardRepository->userBoardWasCreated($userId),
 
             ]);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => __('bot_messages.error'),
-                'parse_mode' => 'Markdown'
+                'parse_mode' => 'Markdown',
             ]);
         }
     }
@@ -113,11 +113,11 @@ class MessageHandler
                         'chat_id' => $messageDto->user->getChatId(),
                         'text' => __(
                             'bot_messages.trello_workspace_created', [
-                                'name' => $messageDto->user->getFirstName()  . ' '
-                                . $messageDto->user->getLastName()
+                                'name' => $messageDto->user->getFirstName().' '
+                                .$messageDto->user->getLastName(),
                             ]
                         ),
-                        'parse_mode' => 'Markdown'
+                        'parse_mode' => 'Markdown',
                     ]);
                 }
                 break;
@@ -126,7 +126,7 @@ class MessageHandler
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
                     'text' => __('bot_messages.workspace_created', ['url' => $trelloBoard->url]),
-                    'parse_mode' => 'Markdown'
+                    'parse_mode' => 'Markdown',
                 ]);
                 break;
         }
@@ -134,13 +134,13 @@ class MessageHandler
 
     private function getChatState(string $userId): int
     {
-        return json_decode(Redis::get($userId . '_' . ChatStateEnum::class), true)['value'];
+        return json_decode(Redis::get($userId.'_'.ChatStateEnum::class), true)['value'];
     }
 
     private function prepareUserWorkspaceForCreating(string $userId): UserWorkspaceDto
     {
         $userEmailInfo = json_decode(
-            Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
+            Redis::get($userId.'_'.UserEmailEnum::QUESTION->value), true);
 
         $workspaceParams = $this->trelloWorkSpaceRepository->getWorkspaceParamsFromRedis($userId);
         $workspace = $this->trelloWorkSpaceRepository->createWorkspaceByUserId(

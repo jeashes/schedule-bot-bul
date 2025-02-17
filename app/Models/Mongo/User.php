@@ -7,6 +7,8 @@ use MongoDB\Laravel\Eloquent\Model;
 
 class User extends Model
 {
+    public $timestamps = true;
+
     protected $connection = 'mongodb';
 
     protected $collection = 'users';
@@ -20,10 +22,8 @@ class User extends Model
         'language_code',
         'email',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
-
-    public $timestamps = true;
 
     public function getId(): string
     {

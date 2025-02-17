@@ -2,11 +2,11 @@
 
 namespace App\Service\Trello\Organizations;
 
-use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\OrganizationApiInterface;
-use Illuminate\Support\Facades\Http;
+use App\Service\Trello\BaseClient;
 use App\Service\Trello\TrelloConfig;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 
 class OrganizationClient extends BaseClient implements OrganizationApiInterface
 {
@@ -24,19 +24,19 @@ class OrganizationClient extends BaseClient implements OrganizationApiInterface
 
         $query = '{+endpoint}?displayName={displayName}&';
 
-        if (!empty($description)) {
+        if (! empty($description)) {
             $params['description'] = $description;
             $query .= 'description={description}&';
         }
 
-        if (!empty($name)) {
+        if (! empty($name)) {
             $params['name'] = $name;
             $query .= 'name={name}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function get(string $id): Response
@@ -48,7 +48,7 @@ class OrganizationClient extends BaseClient implements OrganizationApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function update(string $id): Response
@@ -60,7 +60,7 @@ class OrganizationClient extends BaseClient implements OrganizationApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function delete(string $id): Response
@@ -72,7 +72,7 @@ class OrganizationClient extends BaseClient implements OrganizationApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete($query . self::API_TOKEN_QUERY);
+            ->delete($query.self::API_TOKEN_QUERY);
     }
 
     private function prepareApiTokenParams(): array

@@ -4,10 +4,11 @@ namespace App\Service\Trello;
 
 class BaseClient
 {
-    protected readonly string $apiKey;
-    protected readonly string $apiToken;
-
     protected const API_TOKEN_QUERY = 'key={key}&token={token}';
+
+    protected readonly string $apiKey;
+
+    protected readonly string $apiToken;
 
     public function __construct(string $apiKey, string $apiToken)
     {

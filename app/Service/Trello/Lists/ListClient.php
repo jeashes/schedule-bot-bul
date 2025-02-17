@@ -2,10 +2,10 @@
 
 namespace App\Service\Trello\Lists;
 
-use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\ListsApiInterface;
-use Illuminate\Http\Client\Response;
+use App\Service\Trello\BaseClient;
 use App\Service\Trello\TrelloConfig;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class ListClient extends BaseClient implements ListsApiInterface
@@ -27,19 +27,19 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         $query = '{+endpoint}?name={name}&idBoard={idBoard}&';
 
-        if (!empty($idListSource)) {
+        if (! empty($idListSource)) {
             $params['idListSource'] = $idListSource;
             $query .= 'idListSource={idListSource}&';
         }
 
-        if (!empty($position)) {
+        if (! empty($position)) {
             $params['pos'] = $position;
             $query .= 'pos={pos}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query  . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function getList(string $idList): Response
@@ -51,7 +51,7 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query  . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function updateList(
@@ -64,34 +64,34 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         $query = '{+endpoint}/{id}?';
 
-        if (!empty($name)) {
+        if (! empty($name)) {
             $params['name'] = $name;
             $query .= 'name={name}&';
         }
 
-        if (!empty($closed)) {
+        if (! empty($closed)) {
             $params['closed'] = $closed;
             $query .= 'closed={closed}&';
         }
 
-        if (!empty($idBoard)) {
+        if (! empty($idBoard)) {
             $params['idBoard'] = $idBoard;
             $query .= 'idBoard={idBoard}&';
         }
 
-        if (!empty($position)) {
+        if (! empty($position)) {
             $params['pos'] = $position;
             $query .= 'pos={pos}&';
         }
 
-        if (!empty($subscribed)) {
+        if (! empty($subscribed)) {
             $params['subscribed'] = $subscribed;
             $query .= 'subscribed={subscribed}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query  . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function archiveAllCards(string $idList): Response
@@ -103,7 +103,7 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query  . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function moveAllCards(string $idList, string $idBoard, string $toIdList): Response
@@ -117,7 +117,7 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query  . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function archiveOrUnarchiveList(string $idList, bool $value): Response
@@ -129,7 +129,7 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query  . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function moveListToBoard(string $idList, string $idBoard): Response
@@ -142,7 +142,7 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query  . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function updateFieldAtList(string $idList, string $field): Response
@@ -155,7 +155,7 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query  . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function getBoardOfList(string $idList): Response
@@ -167,7 +167,7 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query  . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function getCardsInList(string $idList): Response
@@ -179,7 +179,7 @@ class ListClient extends BaseClient implements ListsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query  . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     private function prepareApiTokenParams(): array

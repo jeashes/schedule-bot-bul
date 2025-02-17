@@ -9,10 +9,7 @@ use App\Service\Trello\Lists\ListClient;
 
 class ListRepository
 {
-    public function __construct(private readonly ListClient $client)
-    {
-
-    }
+    public function __construct(private readonly ListClient $client) {}
 
     public function saveDefaultLists(string $userId, array $data): void
     {
@@ -40,7 +37,7 @@ class ListRepository
                 'board_id' => $dto->idBoard,
             ],
             [
-                'name' => $dto->name
+                'name' => $dto->name,
             ]
         );
     }
@@ -49,7 +46,7 @@ class ListRepository
     {
         return TrelloList::where([
             'user_id' => $userId,
-            'name' => DefaultListNameEnum::TODO->value
+            'name' => DefaultListNameEnum::TODO->value,
         ])->first();
     }
 
@@ -57,7 +54,7 @@ class ListRepository
     {
         return TrelloList::where([
             'user_id' => $userId,
-            'name' => DefaultListNameEnum::DOING->value
+            'name' => DefaultListNameEnum::DOING->value,
         ])->first();
     }
 }

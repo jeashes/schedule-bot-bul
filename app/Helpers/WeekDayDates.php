@@ -21,7 +21,7 @@ class WeekDayDates
         $week1 = [
             $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
         ];
 
         $this->currentDay->addWeek();
@@ -29,7 +29,7 @@ class WeekDayDates
         $week2 = [
             $this->currentDay->weekday(Carbon::MONDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
         ];
 
         return array_merge($week1, $week2);
@@ -42,7 +42,7 @@ class WeekDayDates
         $week1 = [
             $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String()
+            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
         ];
 
         $this->currentDay->addWeek();
@@ -50,7 +50,7 @@ class WeekDayDates
         $week2 = [
             $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String()
+            $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
         ];
 
         return array_merge($week1, $week2);
@@ -62,12 +62,12 @@ class WeekDayDates
 
         $week1 = [
             $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
+            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String(),
         ];
 
         $week2 = [
             $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
+            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String(),
         ];
 
         return array_merge($week1, $week2);
@@ -82,7 +82,7 @@ class WeekDayDates
             $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
         ];
 
         $this->currentDay->addWeek();
@@ -92,7 +92,7 @@ class WeekDayDates
             $this->currentDay->weekday(Carbon::TUESDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::WEDNESDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String()
+            $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
         ];
 
         return array_merge($week1, $week2);
@@ -109,7 +109,7 @@ class WeekDayDates
             $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
+            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String(),
         ];
 
         $week2 = [
@@ -119,7 +119,7 @@ class WeekDayDates
             $this->currentDay->weekday(Carbon::THURSDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::FRIDAY)->toIso8601String(),
             $this->currentDay->weekday(Carbon::SATURDAY)->toIso8601String(),
-            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String()
+            $this->currentDay->weekday(Carbon::SATURDAY)->addDay()->toIso8601String(),
         ];
 
         return array_merge($week1, $week2);

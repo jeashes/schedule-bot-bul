@@ -3,32 +3,30 @@
 namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
-use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\OpenAi\SubjectValidator;
+use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class SubjectStateHandler
 {
     public function __construct(
         private readonly QuestionsRedisManager $questionsRedisManager,
         private readonly SubjectValidator $subjectValidator,
-    ) {
-
-    }
+    ) {}
 
     public function sendSubjectQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
 
-        if ($messageDto->callbackData === $userId . '_' . SubjectStudiesEnum::QUESTION->value) {
+        if ($messageDto->callbackData === $userId.'_'.SubjectStudiesEnum::QUESTION->value) {
 
             $this->questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => __('bot_messages.subject_of_studies'),
-                'parse_mode' => 'Markdown'
+                'parse_mode' => 'Markdown',
             ]);
         }
     }
@@ -44,12 +42,12 @@ class SubjectStateHandler
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
-                    'text' => 'Your title of object studies was save✅'
+                    'text' => 'Your title of object studies was save✅',
                 ]);
 
                 return $validateSubject;
 
-            case false;
+            case false:
                 if (is_null($messageDto->answer)) {
                     return $validateSubject;
                 }

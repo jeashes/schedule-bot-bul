@@ -11,10 +11,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BoardRepository
 {
-    public function __construct(private readonly BoardClient $client)
-    {
+    public function __construct(private readonly BoardClient $client) {}
 
-    }
     public function createAndStoreBoard(Workspace $workspace, User $user): TrelloBoard
     {
         $response = $this->client->createBoard(
@@ -51,6 +49,7 @@ class BoardRepository
     {
         try {
             TrelloBoard::query()->where(['user_id' => $userId])->firstOrFail();
+
             return true;
         } catch (ModelNotFoundException) {
             return false;

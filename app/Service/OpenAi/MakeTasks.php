@@ -8,8 +8,7 @@ class MakeTasks
 {
     public function __construct(
         private readonly DataCreator $dataCreator,
-    ) {
-    }
+    ) {}
 
     public function genTasksByAi(string $topic, int $scheduleDaysCount, float $hours): array
     {
@@ -63,8 +62,9 @@ class MakeTasks
 
         $body = "What user want to start learn: $topic, how many hours user has on 2 weeks: $hours, how many session user has in this weeks: $scheduleDaysCount";
         $response = $this->dataCreator->aiAnalyze($systemPrompt, $body);
-        Log::channel('trello')->info('Respons from Make Tasks: ' . json_encode($response));
+        Log::channel('trello')->info('Respons from Make Tasks: '.json_encode($response));
         $tasks = json_decode($response, true);
+
         return $tasks;
     }
 }

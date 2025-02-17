@@ -4,11 +4,11 @@ namespace App\Service\Trello\CheckLists;
 
 use App\Interfaces\Trello\ChecklistsApiInterface;
 use App\Service\Trello\BaseClient;
-use Illuminate\Http\Client\Response;
 use App\Service\Trello\TrelloConfig;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class ChecklistClient extends BaseClient implements ChecklistsApiInterface
+class CheckListClient extends BaseClient implements ChecklistsApiInterface
 {
     private const CARDS_URI = 'https://api.trello.com/1/checklists';
 
@@ -27,7 +27,7 @@ class ChecklistClient extends BaseClient implements ChecklistsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function createChecklist(
@@ -38,24 +38,24 @@ class ChecklistClient extends BaseClient implements ChecklistsApiInterface
         $params['idCard'] = $idCard;
         $query = '{+endpoint}?idCard={idCard}&';
 
-        if (!empty($name)) {
+        if (! empty($name)) {
             $params['name'] = $name;
             $query .= 'name={name}&';
         }
 
-        if (!empty($pos)) {
+        if (! empty($pos)) {
             $params['pos'] = $pos;
             $query .= 'pos={post}&';
         }
 
-        if (!empty($idChecklistSource)) {
+        if (! empty($idChecklistSource)) {
             $params['idChecklistSource'] = $idChecklistSource;
             $query .= 'idChecklistSource={idChecklistSource}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function getChecklist(
@@ -67,29 +67,29 @@ class ChecklistClient extends BaseClient implements ChecklistsApiInterface
         $params['id'] = $idChecklist;
         $query = '{+endpoint}/{id}?';
 
-        if (!empty($cards)) {
+        if (! empty($cards)) {
             $params['cards'] = $cards;
             $query .= 'cards={cards}&';
         }
 
-        if (!empty($checkItems)) {
+        if (! empty($checkItems)) {
             $params['checkItems'] = $checkItems;
             $query .= 'checkItems={checkItems}&';
         }
 
-        if (!empty($checkItemsFields)) {
+        if (! empty($checkItemsFields)) {
             $params['checkItemsFields'] = $checkItemsFields;
             $query .= 'checkItemsFields={checkItemsFields}&';
         }
 
-        if (!empty($fields)) {
+        if (! empty($fields)) {
             $params['fields'] = $fields;
             $query .= 'fields={fields}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function deleteChecklist(string $idChecklist): Response
@@ -100,7 +100,7 @@ class ChecklistClient extends BaseClient implements ChecklistsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete($query . self::API_TOKEN_QUERY);
+            ->delete($query.self::API_TOKEN_QUERY);
     }
 
     public function getCheckItem(string $idChecklist, string $idCheckItem, ?string $fields = null): Response
@@ -110,14 +110,14 @@ class ChecklistClient extends BaseClient implements ChecklistsApiInterface
         $params['idCheckItem'] = $idCheckItem;
         $query = '{+endpoint}/{id}/checkItems/{idCheckItem}?';
 
-        if (!empty($fields)) {
+        if (! empty($fields)) {
             $params['fields'] = $fields;
             $query .= 'fields={fields}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function deteleteCheckItem(string $idChecklist, string $idCheckItem): Response
@@ -129,7 +129,7 @@ class ChecklistClient extends BaseClient implements ChecklistsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete($query . self::API_TOKEN_QUERY);
+            ->delete($query.self::API_TOKEN_QUERY);
     }
 
     public function updateChecklist(string $idCheklist, ?string $name = null, ?string $pos = null): Response
@@ -138,21 +138,20 @@ class ChecklistClient extends BaseClient implements ChecklistsApiInterface
         $params['idCard'] = $idCheklist;
         $query = '{+endpoint}/{id}?';
 
-        if (!empty($name)) {
+        if (! empty($name)) {
             $params['name'] = $name;
             $query .= 'name={name}&';
         }
 
-        if (!empty($pos)) {
+        if (! empty($pos)) {
             $params['pos'] = $pos;
             $query .= 'pos={post}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
-
 
     private function prepareApiTokenParams(): array
     {

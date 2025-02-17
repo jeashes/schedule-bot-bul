@@ -6,17 +6,17 @@ use MongoDB\Laravel\Eloquent\Model;
 
 class Workspace extends Model
 {
+    public $timestamps = true;
+
     protected $connection = 'mongodb';
 
     protected $collection = 'workspace';
-
-    public $timestamps = true;
 
     protected $fillable = [
         'name',
         'time_on_schedule',
         'schedule',
-        'task_ids'
+        'task_ids',
     ];
 
     public function getId(): string
@@ -59,18 +59,18 @@ class Workspace extends Model
         return $this->getAttribute('task_ids');
     }
 
-    private function setTaskIds(array $value): void
-    {
-        $this->setAttribute('task_ids', $value);
-    }
-
     public function addTaskId(string $value): void
     {
         $currentTasks = $this->task_ids ?? [];
-        if (!in_array((string)$value, array_map('strval', $currentTasks))) {
+        if (! in_array((string) $value, array_map('strval', $currentTasks))) {
             $currentTasks[] = $value;
             $this->setTaskIds($currentTasks);
             $this->save();
         }
+    }
+
+    private function setTaskIds(array $value): void
+    {
+        $this->setAttribute('task_ids', $value);
     }
 }

@@ -17,7 +17,7 @@ class CardRepository
                 'url' => $dto->url,
                 'due' => $dto->closed,
                 'dueComplete' => $dto->dueComplete,
-                'email' => $dto->email
+                'email' => $dto->email,
             ],
             [
                 'name' => $dto->name,

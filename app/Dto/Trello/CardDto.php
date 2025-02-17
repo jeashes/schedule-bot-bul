@@ -5,21 +5,36 @@ namespace App\Dto\Trello;
 class CardDto
 {
     public readonly string $id;
+
     public readonly string $idBoard;
+
     public readonly string $idList;
+
     public readonly array $idMembers;
+
     public readonly array $idLabels;
+
     public readonly string $idCheckList;
+
     public readonly array $checkItems;
+
     public readonly array $attachments;
+
     public readonly string $name;
+
     public readonly int $pos;
+
     public readonly string $url;
+
     public readonly bool|string $desc;
+
     public readonly bool $closed;
-    public readonly null|string $due;
+
+    public readonly ?string $due;
+
     public readonly bool|string $dueComplete;
-    public readonly null|string $email;
+
+    public readonly ?string $email;
 
     public function __construct(array $data)
     {
