@@ -105,14 +105,16 @@ class MemberClient extends BaseClient implements MembersApiInterface
         $params = $this->prepareApiTokenParams();
         $params['id'] = $idMember;
         $params['file'] = $file;
-        $query = '{+endpoint}/{id}/boardBackgrounds?file={file}&';
 
+        $query = '{+endpoint}/{id}/boardBackgrounds?';
         return Http::withUrlParameters($params)
+            ->asMultipart()
+            ->attach('file', file_get_contents(public_path('images/' . $file)), basename($file))
             ->withHeaders($this->prepareHeaders())
             ->post($query  . self::API_TOKEN_QUERY);
     }
 
-    public function getBoardBackground(string $idMember, string $idBackground, ?string $fields): Response
+    public function getBoardBackground(string $idMember, string $idBackground, ?string $fields = null): Response
     {
         $params = $this->prepareApiTokenParams();
         $params['id'] = $idMember;
@@ -124,7 +126,7 @@ class MemberClient extends BaseClient implements MembersApiInterface
             ->get($query  . self::API_TOKEN_QUERY);
     }
 
-    public function updateMemberBoardBackground(string $idMember, string $idBackground, ?string $brightness, ?string $title): Response
+    public function updateMemberBoardBackground(string $idMember, string $idBackground, ?string $brightness = null, ?string $title = null): Response
     {
         $params = $this->prepareApiTokenParams();
         $params['id'] = $idMember;
@@ -166,11 +168,13 @@ class MemberClient extends BaseClient implements MembersApiInterface
         $query = '{+endpoint}/{id}/customBoardBackgrounds?file={file}&';
 
         return Http::withUrlParameters($params)
+            ->asMultipart()
+            ->attach('file', file_get_contents(public_path('images/' . $file)), basename($file))
             ->withHeaders($this->prepareHeaders())
             ->post($query  . self::API_TOKEN_QUERY);
     }
 
-    public function updateCustomBoardBackground(string $idMember, string $idBackground, ?string $brightness, ?string $title): Response
+    public function updateCustomBoardBackground(string $idMember, string $idBackground, ?string $brightness = null, ?string $title = null): Response
     {
         $params = $this->prepareApiTokenParams();
         $params['id'] = $idMember;
