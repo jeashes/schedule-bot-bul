@@ -61,6 +61,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
     // reimplement function
     public function updateBoard(
         string $boardId,
+        ?string $idBackground = null,
         ?string $name = null,
         ?string $desc = null,
         ?bool $closed = null,
@@ -71,6 +72,11 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         $params['id'] = $boardId;
         $query = '{+endpoint}/{id}?';
+
+        if (!empty($idBackground)) {
+            $params['idBackground'] = $idBackground;
+            $query .= 'prefs/background={idBackground}&';
+        }
 
         if (!empty($name)) {
             $params['name'] = $name;

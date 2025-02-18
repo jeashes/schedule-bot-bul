@@ -16,6 +16,7 @@ use App\Repository\Trello\ListRepository;
 use App\Service\OpenAi\MakeTasks;
 use App\Service\Trello\Cards\CardClient;
 use App\Service\Trello\CheckLists\ChecklistClient;
+use App\Service\Trello\Members\MemberClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -42,6 +43,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
     public function handle(
         BoardRepository $boardRepository,
         BoardClient $boardClient,
+        MemberClient $memberClient,
         CardClient $cardClient,
         ChecklistClient $checklistClient,
         ListRepository $listRepository,
@@ -53,6 +55,8 @@ class CreateUserTrelloWorkspace implements ShouldQueue
         try {
             $userId = $this->user->getId();
             $board = $boardRepository->createAndStoreBoard($this->workspace, $this->user);
+
+            $this->uploadAndUpdateBackground($board->trello_id, $boardClient, $memberClient);
 
             $lists = json_decode($boardClient->getLists($board->trello_id), true);
             $listRepository->saveDefaultLists($userId, $lists);
@@ -97,5 +101,15 @@ class CreateUserTrelloWorkspace implements ShouldQueue
         } catch (Throwable $e) {
             Log::channel('trello')->error($e->getMessage(), ['backtrace' => $e->getTraceAsString()]);
         }
+    }
+
+    private function uploadAndUpdateBackground(string $boardTrelloId, BoardClient $boardClient, MemberClient $memberClient): void
+    {
+        $adminMemberId = json_decode($boardClient->getMembers($boardTrelloId), true)[1]['id'];
+        Log::channel('trello')->debug('Admin member id was got: ' . $adminMemberId);
+        $backgroundTrelloId = json_decode($memberClient->uploadMemberNewBoardBackground($adminMemberId, 'default_background.jpeg'), true)['id'];
+        Log::channel('trello')->debug('Background was uploaded and id was got: ' . $backgroundTrelloId);
+        $boardClient->updateBoard($boardTrelloId, $backgroundTrelloId);
+        Log::channel('trello')->debug('Successfully update background for board: ' . $boardTrelloId);
     }
 }

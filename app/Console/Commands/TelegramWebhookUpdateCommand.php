@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class TelegramWebhookUpdateCommand extends Command
@@ -30,16 +30,19 @@ class TelegramWebhookUpdateCommand extends Command
     {
         $botToken = config('telegram.bot_api_token');
         $botWebhook = config('telegram.bot_webhook');
+        $queryParams = [
+            'url' => "{$botWebhook}/api/webhook",
+        ];
 
-        $client = new Client(['base_uri' => 'https://api.telegram.org']);
         try {
-            $client->request('GET', "/bot$botToken/setWebhook", [
-                'query' => [
-                    'url' => $botWebhook . '/api/webhook'
-                ]
-            ]);
+            $response = Http::baseUrl('https://api.telegram.org')->get("/bot$botToken/setWebhook", $queryParams);
 
-            $this->info('Webhook for bot was successfully updated');
+            if ($response->successful()) {
+                $this->info('Webhook for bot was successfully updated');
+            } else {
+                $this->error('Telegram webhook was not updated, something went wrong');
+            }
+
         } catch (RequestException $e) {
             Log::channel('telegram')->error(
                 'Something went wrong during updating webhook for bot',
