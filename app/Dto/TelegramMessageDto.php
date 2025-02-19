@@ -10,6 +10,5 @@ class TelegramMessageDto
         public ?string $answer,
         public ?string $callbackData,
         public readonly MongoUser $user
-    ) {
-    }
+    ) {}
 }

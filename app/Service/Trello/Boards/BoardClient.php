@@ -2,8 +2,8 @@
 
 namespace App\Service\Trello\Boards;
 
-use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\BoardsApiInterface;
+use App\Service\Trello\BaseClient;
 use App\Service\Trello\TrelloConfig;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -35,7 +35,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function getBoard(
@@ -54,7 +54,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     // TODO implement query params: permission level, invitations, comments, calendar feed enabled, label names
@@ -73,39 +73,39 @@ class BoardClient extends BaseClient implements BoardsApiInterface
         $params['id'] = $boardId;
         $query = '{+endpoint}/{id}?';
 
-        if (!empty($idBackground)) {
+        if (! empty($idBackground)) {
             $params['idBackground'] = $idBackground;
             $query .= 'prefs/background={idBackground}&';
         }
 
-        if (!empty($name)) {
+        if (! empty($name)) {
             $params['name'] = $name;
             $query .= 'name={name}&';
         }
 
-        if (!empty($desc)) {
+        if (! empty($desc)) {
             $params['desc'] = $desc;
             $query .= 'desc={desc}&';
         }
 
-        if (!empty($closed)) {
+        if (! empty($closed)) {
             $params['closed'] = $closed;
             $query .= 'closed={closed}&';
         }
 
-        if (!empty($closed)) {
+        if (! empty($closed)) {
             $params['subscribed'] = $subscribed;
             $query .= 'subscribed={subscribed}&';
         }
 
-        if (!empty($closed)) {
+        if (! empty($closed)) {
             $params['idOrganization'] = $idOrganization;
             $query .= 'idOrganization={idOrganization}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query  . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function deleteBoard(string $boardId): Response
@@ -117,7 +117,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete($query . self::API_TOKEN_QUERY);
+            ->delete($query.self::API_TOKEN_QUERY);
     }
 
     public function getMembers(string $boardId): Response
@@ -129,7 +129,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function inviteMemberViaEmail(string $boardId, string $email, string $type): Response
@@ -143,7 +143,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function addMemberToBoard(string $boardId, string $idMember, string $type): Response
@@ -157,7 +157,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function removeMember(string $boardId, string $idMember): Response
@@ -170,7 +170,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete($query . self::API_TOKEN_QUERY);
+            ->delete($query.self::API_TOKEN_QUERY);
     }
 
     public function createBoard(
@@ -186,19 +186,14 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         $query = '{+endpoint}/?name={name}&desc={desc}&idOrganization={idOrganization}&';
 
-        if (!empty($idBoardSource)) {
+        if (! empty($idBoardSource)) {
             $params['idBoardSource'] = $idBoardSource;
             $query .= 'idBoardSource={idBoardSource}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
-    }
-
-    private function prepareApiTokenParams(): array
-    {
-        return ['key' => $this->apiKey, 'token' => $this->apiToken, 'endpoint' => self::BOARDS_URI];
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function getCards(string $boardId): Response
@@ -210,7 +205,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function getFilteredCards(string $boardId, string $filter): Response
@@ -223,7 +218,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function getLabels(string $boardId): Response
@@ -235,7 +230,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function createLabel(string $boardId, string $name, string $color): Response
@@ -249,7 +244,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function getLists(string $boardId): Response
@@ -261,6 +256,11 @@ class BoardClient extends BaseClient implements BoardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
+    }
+
+    private function prepareApiTokenParams(): array
+    {
+        return ['key' => $this->apiKey, 'token' => $this->apiToken, 'endpoint' => self::BOARDS_URI];
     }
 }

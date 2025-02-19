@@ -17,13 +17,13 @@ class TrelloBoard extends Model
         'desc',
         'closed',
         'url',
-        'permission_level'
+        'permission_level',
     ];
 
     protected function casts(): array
     {
         return [
-            '_id' => 'string'
+            '_id' => 'string',
         ];
     }
 }

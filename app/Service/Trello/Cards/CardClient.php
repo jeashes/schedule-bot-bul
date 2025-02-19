@@ -2,10 +2,10 @@
 
 namespace App\Service\Trello\Cards;
 
-use App\Service\Trello\BaseClient;
 use App\Interfaces\Trello\CardsApiInterface;
-use Illuminate\Http\Client\Response;
+use App\Service\Trello\BaseClient;
 use App\Service\Trello\TrelloConfig;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class CardClient extends BaseClient implements CardsApiInterface
@@ -26,7 +26,7 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function updateCard(
@@ -40,74 +40,74 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         $query = '{+endpoint}/{id}?';
 
-        if (!empty($name)) {
+        if (! empty($name)) {
             $params['name'] = $name;
             $query .= 'name={name}&';
         }
 
-        if (!empty($desc)) {
+        if (! empty($desc)) {
             $params['desc'] = $desc;
             $query .= 'desc={desc}&';
         }
 
-        if (!empty($closed)) {
+        if (! empty($closed)) {
             $params['closed'] = $desc;
             $query .= 'closed={closed}&';
         }
 
-        if (!empty($idMembers)) {
+        if (! empty($idMembers)) {
             $params['idMembers'] = $idMembers;
             $query .= 'idMembers={idMembers}&';
         }
 
-        if (!empty($idAttachmentCover)) {
+        if (! empty($idAttachmentCover)) {
             $params['idMembers'] = $idMembers;
             $query .= 'idMembers={idMembers}&';
         }
 
-        if (!empty($idList)) {
+        if (! empty($idList)) {
             $params['idList'] = $idList;
             $query .= 'idList={idList}&';
         }
 
-        if (!empty($idLabels)) {
+        if (! empty($idLabels)) {
             $params['idLabels'] = $idLabels;
             $query .= 'idLabels={idLabels}&';
         }
 
-        if (!empty($idBoard)) {
+        if (! empty($idBoard)) {
             $params['idBoard'] = $idBoard;
             $query .= 'idBoard={idBoard}&';
         }
 
-        if (!empty($position)) {
+        if (! empty($position)) {
             $params['position'] = $position;
             $query .= 'pos={position}&';
         }
 
-        if (!empty($dueDate)) {
+        if (! empty($dueDate)) {
             $params['due'] = $dueDate;
             $query .= 'due={due}&';
         }
 
-        if (!empty($startDate)) {
+        if (! empty($startDate)) {
             $params['start'] = $dueDate;
             $query .= 'start={start}&';
         }
 
-        if (!empty($dueCompleteDate)) {
+        if (! empty($dueCompleteDate)) {
             $params['dueComplete'] = $dueCompleteDate;
             $query .= 'dueComplete={dueComplete}&';
         }
 
-        if (!empty($subscribed)) {
+        if (! empty($subscribed)) {
             $params['subscribed'] = $subscribed;
             $query .= 'subscribed={subscribed}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function deleteCard(string $idCard): Response
@@ -119,7 +119,7 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete($query . self::API_TOKEN_QUERY);
+            ->delete($query.self::API_TOKEN_QUERY);
     }
 
     public function createCheckList(string $idCard, string $name, ?string $idCheckListResource = null, ?string $pos = null): Response
@@ -130,19 +130,19 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         $query = '{+endpoint}/{id}/checklists?name={name}&';
 
-        if (!empty($idCheckListResource)) {
+        if (! empty($idCheckListResource)) {
             $params['idCheckListResource'] = $idCheckListResource;
             $query .= 'idCheckListResource={idCheckListResource}&';
         }
 
-        if (!empty($pos)) {
+        if (! empty($pos)) {
             $params['pos'] = $pos;
             $query .= 'pos={pos}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
 
     }
 
@@ -154,9 +154,10 @@ class CardClient extends BaseClient implements CardsApiInterface
         $params['name'] = $name;
 
         $query = '{+endpoint}/{id}/checklists/{idCheckList}/checkItems?name={name}&';
+
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function createNewCard(
@@ -168,59 +169,59 @@ class CardClient extends BaseClient implements CardsApiInterface
         $params['idList'] = $idList;
         $query = '{+endpoint}?idList={idList}&';
 
-        if (!empty($name)) {
+        if (! empty($name)) {
             $params['name'] = $name;
             $query .= 'name={name}&';
         }
 
-        if (!empty($desc)) {
+        if (! empty($desc)) {
             $params['desc'] = $desc;
             $query .= 'desc={desc}&';
         }
 
-        if (!empty($position)) {
+        if (! empty($position)) {
             $params['position'] = $position;
             $query .= 'pos={position}&';
         }
 
-        if (!empty($dueDate)) {
+        if (! empty($dueDate)) {
             $params['due'] = $dueDate;
             $query .= 'due={due}&';
         }
 
-        if (!empty($startDate)) {
+        if (! empty($startDate)) {
             $params['start'] = $startDate;
             $query .= 'start={start}&';
         }
 
-        if (!empty($dueCompleteDate)) {
+        if (! empty($dueCompleteDate)) {
             $params['dueComplete'] = $dueCompleteDate;
             $query .= 'dueComplete={dueComplete}&';
         }
 
-        if (!empty($idMembers)) {
+        if (! empty($idMembers)) {
             $params['idMembers'] = $idMembers;
             $query .= 'idMembers={idMembers}';
         }
 
-        if (!empty($idLabels)) {
+        if (! empty($idLabels)) {
             $params['idLabels'] = $idMembers;
             $query .= 'idLabels={idLabels}';
         }
 
-        if (!empty($urlSource)) {
+        if (! empty($urlSource)) {
             $params['urlSource'] = $urlSource;
             $query .= 'urlSource={urlSource}';
         }
 
-        if (!empty($idCardSource)) {
+        if (! empty($idCardSource)) {
             $params['idCardSource'] = $idCardSource;
             $query .= 'idCardSource={idCardSources}';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function getBoardOfCard(string $idCard, string $fields): Response
@@ -231,14 +232,14 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         $query = '{+endpoint}/{id}?';
 
-        if (!empty($fields)) {
+        if (! empty($fields)) {
             $params['fields'] = $fields;
             $query .= 'fields={fields}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function addNewCommentToCard(string $idCard, string $text): Response
@@ -251,7 +252,7 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function addLabelToCard(string $idCard, string $idLabel): Response
@@ -264,7 +265,7 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function addMemberToCard(string $idCard, string $idMember): Response
@@ -277,7 +278,7 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function createNewLabel(string $idCard, string $color, ?string $name): Response
@@ -288,14 +289,14 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         $query = '{+endpoint}/{id}/labels?color={color}?';
 
-        if (!empty($name)) {
+        if (! empty($name)) {
             $params['name'] = $name;
             $query .= 'name={name}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function markCardNotificationAsRead(string $idCard): Response
@@ -307,7 +308,7 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->post($query . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function removeLabelFromCard(string $idCard, string $idLabel): Response
@@ -320,7 +321,7 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete($query . self::API_TOKEN_QUERY);
+            ->delete($query.self::API_TOKEN_QUERY);
     }
 
     public function removeMemberFromCard(string $idCard, string $idMember): Response
@@ -333,7 +334,7 @@ class CardClient extends BaseClient implements CardsApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete($query . self::API_TOKEN_QUERY);
+            ->delete($query.self::API_TOKEN_QUERY);
     }
 
     private function prepareApiTokenParams(): array

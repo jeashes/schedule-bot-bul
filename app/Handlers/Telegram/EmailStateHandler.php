@@ -3,22 +3,19 @@
 namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
-use Illuminate\Support\Facades\Redis;
-use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Enums\Telegram\UserEmailEnum;
 use App\Managers\Telegram\QuestionsRedisManager;
+use Illuminate\Support\Facades\Redis;
+use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class EmailStateHandler
 {
-    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager)
-    {
-
-    }
+    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager) {}
 
     public function sendEmailQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
-        $userEmailInfo = json_decode(Redis::get($userId . '_' . UserEmailEnum::QUESTION->value), true);
+        $userEmailInfo = json_decode(Redis::get($userId.'_'.UserEmailEnum::QUESTION->value), true);
 
         if (is_null($userEmailInfo['current_answer'])) {
 
@@ -30,7 +27,7 @@ class EmailStateHandler
                     'bot_messages.ask_email',
                     ['triesCount' => 3]
                 ),
-                'parse_mode' => 'Markdown'
+                'parse_mode' => 'Markdown',
             ]);
         }
     }
@@ -63,6 +60,7 @@ class EmailStateHandler
     private function validateEmail(?string $email): bool
     {
         $pattern = "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i";
+
         return (preg_match($pattern, $email ?? '')) ? true : false;
     }
 }

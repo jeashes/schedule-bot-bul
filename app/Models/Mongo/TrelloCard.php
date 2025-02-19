@@ -19,18 +19,18 @@ class TrelloCard extends Model
         'url',
         'due',
         'dueComplete',
-        'email'
+        'email',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            '_id' => 'string'
-        ];
-    }
 
     public function getId(): string
     {
         return $this->getAttribute('_id');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            '_id' => 'string',
+        ];
     }
 }

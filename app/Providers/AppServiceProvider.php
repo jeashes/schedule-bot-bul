@@ -3,12 +3,12 @@
 namespace App\Providers;
 
 use App\Helpers\WeekDayDates;
-use Illuminate\Support\ServiceProvider;
-use Longman\TelegramBot\Telegram;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
 use App\Service\Trello\TrelloConfig;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\ServiceProvider;
+use Longman\TelegramBot\Telegram;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,15 +17,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(Telegram::class, function($app) {
+        $this->app->singleton(Telegram::class, function ($app) {
             return new Telegram(config('telegram.bot_api_token'), config('telegram.bot_username'));
         });
 
-        $this->app->bind(WeekDayDates::class, function($app) {
+        $this->app->bind(WeekDayDates::class, function ($app) {
             return new WeekDayDates(Carbon::now()->addWeek()->startOfWeek(Carbon::MONDAY));
         });
 
-        $this->app->singleton(TrelloConfig::class, function($app) {
+        $this->app->singleton(TrelloConfig::class, function ($app) {
             return new TrelloConfig(config('trello.api_key'), config('trello.api_token'));
         });
 
@@ -36,8 +36,5 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-
-    }
+    public function boot(): void {}
 }

@@ -4,17 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Dto\TelegramMessageDto;
 use App\Dto\UserDto;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Log;
-use App\Repository\UserRepository;
-use Longman\TelegramBot\Exception\TelegramException;
-use Longman\TelegramBot\Telegram;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Handlers\Telegram\MessageHandler;
 use App\Managers\Telegram\QuestionsRedisManager;
+use App\Repository\UserRepository;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Entities\InlineKeyboard;
+use Longman\TelegramBot\Exception\TelegramException;
 use Longman\TelegramBot\Request as TelegramBotRequest;
+use Longman\TelegramBot\Telegram;
 use Spatie\RouteAttributes\Attributes\Post;
 
 class TelegramController extends Controller
@@ -23,9 +23,7 @@ class TelegramController extends Controller
         private readonly Telegram $telegram,
         private readonly MessageHandler $messageHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
-    ) {
-
-    }
+    ) {}
 
     #[Post('/webhook')]
     public function handleWebhook(Request $request, UserRepository $userRepository): void
@@ -39,9 +37,9 @@ class TelegramController extends Controller
                     ?? $request['my_chat_member']['from'];
 
             $userDto = new UserDto(
-                username: array_key_exists('username', $messageFrom) ? $messageFrom['username']: null,
+                username: array_key_exists('username', $messageFrom) ? $messageFrom['username'] : null,
                 firstName: $messageFrom['first_name'],
-                lastName: array_key_exists('last_name', $messageFrom) ? $messageFrom['last_name']: null,
+                lastName: array_key_exists('last_name', $messageFrom) ? $messageFrom['last_name'] : null,
                 chatId: $messageFrom['id'],
                 languageCode: $messageFrom['language_code'],
             );
@@ -71,8 +69,8 @@ class TelegramController extends Controller
             $keyboard = new InlineKeyboard([
                 [
                     'text' => 'LET\'S GOOO',
-                    'callback_data' => $userId . '_' . SubjectStudiesEnum::QUESTION->value
-                ]
+                    'callback_data' => $userId.'_'.SubjectStudiesEnum::QUESTION->value,
+                ],
             ]);
 
             $messageDto->answer = null;
@@ -82,11 +80,11 @@ class TelegramController extends Controller
                 'reply_markup' => $keyboard,
                 'text' => __(
                     'bot_messages.welcome', [
-                        'name' => $messageDto->user->getFirstName()  . ' '
-                        . $messageDto->user->getLastName()
+                        'name' => $messageDto->user->getFirstName().' '
+                        .$messageDto->user->getLastName(),
                     ]
                 ),
-                'parse_mode' => 'Markdown'
+                'parse_mode' => 'Markdown',
             ]);
         }
     }

@@ -33,7 +33,7 @@ class CreateTrelloOrganizationCommand extends Command
         $desription = 'The organization where creates boards for scheduling';
         if ($this->isTrelloOrgAlreadyCreated(config('trello.organization_id'), $client)) {
             $this->info('Organization id already exist in config/trello');
-            die();
+            exit();
         }
 
         $response = $client->create(
@@ -54,15 +54,18 @@ class CreateTrelloOrganizationCommand extends Command
             $response = $client->get($orgId);
             if ($response->status() === 200) {
                 Log::channel('trello')->info('Organization already created');
+
                 return true;
             }
 
             Log::channel('trello')->info('Needs created Trello Organization and add id from response to config');
+
             return false;
         } catch (Throwable $e) {
             Log::channel('trello')->info('Error during getting organization id from Trello API '
-                . $e->getMessage()
+                .$e->getMessage()
             );
+
             return false;
         }
     }

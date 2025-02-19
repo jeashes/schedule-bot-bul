@@ -14,6 +14,5 @@ class UserDto
         public readonly ?string $lastName = null,
         public readonly ?string $email = null,
         public readonly ?ObjectId $workspaceId = null,
-    ) {
-    }
+    ) {}
 }

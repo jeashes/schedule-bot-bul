@@ -10,7 +10,5 @@ class UserWorkspaceDto
     public function __construct(
         public readonly Workspace $workspace,
         public readonly User $user
-    ) {
-
-    }
+    ) {}
 }

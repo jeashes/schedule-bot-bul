@@ -5,17 +5,15 @@ namespace App\Jobs;
 use App\Dto\Trello\CardDto;
 use App\Enums\Trello\InviteTypeEnum;
 use App\Helpers\WeekDayDates;
-use App\Service\Trello\Boards\BoardClient;
 use App\Models\Mongo\User;
-use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Models\Mongo\Workspace;
-use Longman\TelegramBot\Telegram;
 use App\Repository\Trello\BoardRepository;
 use App\Repository\Trello\CardRepository;
 use App\Repository\Trello\ListRepository;
 use App\Service\OpenAi\MakeTasks;
+use App\Service\Trello\Boards\BoardClient;
 use App\Service\Trello\Cards\CardClient;
-use App\Service\Trello\CheckLists\ChecklistClient;
+use App\Service\Trello\CheckLists\CheckListClient;
 use App\Service\Trello\Members\MemberClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,6 +21,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Longman\TelegramBot\Request as TelegramBotRequest;
+use Longman\TelegramBot\Telegram;
 use Throwable;
 
 class CreateUserTrelloWorkspace implements ShouldQueue
@@ -32,10 +32,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private Workspace $workspace, private User $user)
-    {
-
-    }
+    public function __construct(private Workspace $workspace, private User $user) {}
 
     /**
      * Execute the job.
@@ -45,7 +42,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
         BoardClient $boardClient,
         MemberClient $memberClient,
         CardClient $cardClient,
-        ChecklistClient $checklistClient,
+        CheckListClient $checklistClient,
         ListRepository $listRepository,
         CardRepository $cardRepository,
         WeekDayDates $weekDayDates,
@@ -106,10 +103,10 @@ class CreateUserTrelloWorkspace implements ShouldQueue
     private function uploadAndUpdateBackground(string $boardTrelloId, BoardClient $boardClient, MemberClient $memberClient): void
     {
         $adminMemberId = json_decode($boardClient->getMembers($boardTrelloId), true)[1]['id'];
-        Log::channel('trello')->debug('Admin member id was got: ' . $adminMemberId);
+        Log::channel('trello')->debug('Admin member id was got: '.$adminMemberId);
         $backgroundTrelloId = json_decode($memberClient->uploadMemberNewBoardBackground($adminMemberId, 'default_background.jpeg'), true)['id'];
-        Log::channel('trello')->debug('Background was uploaded and id was got: ' . $backgroundTrelloId);
+        Log::channel('trello')->debug('Background was uploaded and id was got: '.$backgroundTrelloId);
         $boardClient->updateBoard($boardTrelloId, $backgroundTrelloId);
-        Log::channel('trello')->debug('Successfully update background for board: ' . $boardTrelloId);
+        Log::channel('trello')->debug('Successfully update background for board: '.$boardTrelloId);
     }
 }

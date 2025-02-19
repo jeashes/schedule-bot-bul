@@ -5,11 +5,17 @@ namespace App\Dto\Trello;
 class BoardDto
 {
     public readonly string $id;
+
     public readonly string $name;
+
     public readonly string $desc;
+
     public readonly bool $closed;
+
     public readonly string $idOrganization;
+
     public readonly string $url;
+
     public readonly string $permissionLevel;
 
     public function __construct(array $data)

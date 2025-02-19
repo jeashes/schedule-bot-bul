@@ -26,44 +26,44 @@ class MemberClient extends BaseClient implements MembersApiInterface
         $params['id'] = $idMember;
         $query = '{+endpoint}/{id}&';
 
-        if (!empty($actions)) {
+        if (! empty($actions)) {
             $params['actions'] = $actions;
             $query .= 'actions={actions}&';
         }
 
-        if (!empty($boards)) {
+        if (! empty($boards)) {
             $params['boards'] = $boards;
             $query .= 'boards={boards}&';
         }
 
-        if (!empty($boardBackgrounds)) {
+        if (! empty($boardBackgrounds)) {
             $params['boardBackgrounds'] = $boards;
             $query .= 'boardBackgrounds={boardBackgrounds}&';
         }
 
-        if (!empty($boardsInvited)) {
+        if (! empty($boardsInvited)) {
             $params['boardsInvited'] = $boardsInvited;
             $query .= 'boardsInvited={boardsInvited}&';
         }
 
-        if (!empty($boardsInvitedFields)) {
+        if (! empty($boardsInvitedFields)) {
             $params['boardsInvitedFields'] = $boardsInvitedFields;
             $query .= 'boardsInvited_fields={boardsInvitedFields}&';
         }
 
-        if (!empty($cards)) {
+        if (! empty($cards)) {
             $params['cards'] = $cards;
             $query .= 'cards={cards}&';
         }
 
-        if (!empty($customBoardBackgrounds)) {
+        if (! empty($customBoardBackgrounds)) {
             $params['customBoardBackgrounds'] = $customBoardBackgrounds;
             $query .= 'customBoardBackgrounds={customBoardBackgrounds}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query  . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function updateMember(
@@ -75,29 +75,29 @@ class MemberClient extends BaseClient implements MembersApiInterface
         $params['id'] = $idMember;
         $query = '{+endpoint}/{id}&';
 
-        if (!empty($fullName)) {
+        if (! empty($fullName)) {
             $params['fullName'] = $fullName;
             $query .= 'fullName={fullName}&';
         }
 
-        if (!empty($initials)) {
+        if (! empty($initials)) {
             $params['initials'] = $fullName;
             $query .= 'initials={initials}&';
         }
 
-        if (!empty($username)) {
+        if (! empty($username)) {
             $params['username'] = $username;
             $query .= 'username={username}&';
         }
 
-        if (!empty($bio)) {
+        if (! empty($bio)) {
             $params['bio'] = $username;
             $query .= 'bio={bio}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query  . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function uploadMemberNewBoardBackground(string $idMember, string $file): Response
@@ -107,11 +107,12 @@ class MemberClient extends BaseClient implements MembersApiInterface
         $params['file'] = $file;
 
         $query = '{+endpoint}/{id}/boardBackgrounds?';
+
         return Http::withUrlParameters($params)
             ->asMultipart()
-            ->attach('file', file_get_contents(public_path('images/' . $file)), basename($file))
+            ->attach('file', file_get_contents(public_path('images/'.$file)), basename($file))
             ->withHeaders($this->prepareHeaders())
-            ->post($query  . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function getBoardBackground(string $idMember, string $idBackground, ?string $fields = null): Response
@@ -123,7 +124,7 @@ class MemberClient extends BaseClient implements MembersApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->get($query  . self::API_TOKEN_QUERY);
+            ->get($query.self::API_TOKEN_QUERY);
     }
 
     public function updateMemberBoardBackground(string $idMember, string $idBackground, ?string $brightness = null, ?string $title = null): Response
@@ -133,19 +134,19 @@ class MemberClient extends BaseClient implements MembersApiInterface
         $params['idBackground'] = $idBackground;
         $query = '{+endpoint}/{id}/boardBackgrounds/{idBackground}?';
 
-        if (!empty($brightness)) {
+        if (! empty($brightness)) {
             $params['brightness'] = $brightness;
             $query .= 'brightness={brightness}&';
         }
 
-        if (!empty($title)) {
+        if (! empty($title)) {
             $params['title'] = $title;
             $query .= 'title={title}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query  . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function deleteMemberBoardBackground(string $idMember, string $idBackground): Response
@@ -157,7 +158,7 @@ class MemberClient extends BaseClient implements MembersApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->delete($query  . self::API_TOKEN_QUERY);
+            ->delete($query.self::API_TOKEN_QUERY);
     }
 
     public function createNewCustomBoardBackground(string $idMember, string $file): Response
@@ -169,9 +170,9 @@ class MemberClient extends BaseClient implements MembersApiInterface
 
         return Http::withUrlParameters($params)
             ->asMultipart()
-            ->attach('file', file_get_contents(public_path('images/' . $file)), basename($file))
+            ->attach('file', file_get_contents(public_path('images/'.$file)), basename($file))
             ->withHeaders($this->prepareHeaders())
-            ->post($query  . self::API_TOKEN_QUERY);
+            ->post($query.self::API_TOKEN_QUERY);
     }
 
     public function updateCustomBoardBackground(string $idMember, string $idBackground, ?string $brightness = null, ?string $title = null): Response
@@ -181,19 +182,19 @@ class MemberClient extends BaseClient implements MembersApiInterface
         $params['idBackground'] = $idBackground;
         $query = '{+endpoint}/{id}/customBoardBackgrounds/{idBackground}?';
 
-        if (!empty($brightness)) {
+        if (! empty($brightness)) {
             $params['brightness'] = $brightness;
             $query .= 'brightness={brightness}&';
         }
 
-        if (!empty($title)) {
+        if (! empty($title)) {
             $params['title'] = $title;
             $query .= 'title={title}&';
         }
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query  . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     public function deleteCustomBoardBackground(string $idMember, string $idBackground): Response
@@ -205,7 +206,7 @@ class MemberClient extends BaseClient implements MembersApiInterface
 
         return Http::withUrlParameters($params)
             ->withHeaders($this->prepareHeaders())
-            ->put($query  . self::API_TOKEN_QUERY);
+            ->put($query.self::API_TOKEN_QUERY);
     }
 
     private function prepareApiTokenParams(): array
