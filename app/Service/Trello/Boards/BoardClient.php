@@ -73,7 +73,7 @@ class BoardClient extends BaseClient implements BoardsApiInterface
         $params['id'] = $boardId;
         $query = '{+endpoint}/{id}?';
 
-        if (!empty($idBackground)) {
+        if (! empty($idBackground)) {
             $params['idBackground'] = $idBackground;
             $query .= 'prefs/background={idBackground}&';
         }
