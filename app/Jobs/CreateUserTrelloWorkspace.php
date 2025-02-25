@@ -102,7 +102,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
 
     private function uploadAndUpdateBackground(string $boardTrelloId, BoardClient $boardClient, MemberClient $memberClient): void
     {
-        $adminMemberId = json_decode($boardClient->getMembers($boardTrelloId), true)[1]['id'];
+        $adminMemberId = json_decode($boardClient->getMembers($boardTrelloId), true)[0]['id'];
         Log::channel('trello')->debug('Admin member id was got: '.$adminMemberId);
         $backgroundTrelloId = json_decode($memberClient->uploadMemberNewBoardBackground($adminMemberId, 'default_background.jpeg'), true)['id'];
         Log::channel('trello')->debug('Background was uploaded and id was got: '.$backgroundTrelloId);
