@@ -6,6 +6,7 @@ use App\Dto\TelegramMessageDto;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use App\Enums\Telegram\GoalEnum;
+use App\Enums\Telegram\SubjectStudiesEnum;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Service\OpenAi\GoalValidator;
 
@@ -36,7 +37,8 @@ class GoalStateStateHandler
     public function acceptGoalAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
-        $validateGoal = $this->goalValidator->validateLearnGoal($messageDto->answer ?? '');
+        $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
+        $validateGoal = $this->goalValidator->validateLearnGoal($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
 
         switch ($validateGoal) {
             case true:

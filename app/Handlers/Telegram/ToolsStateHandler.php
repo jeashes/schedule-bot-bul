@@ -3,6 +3,7 @@
 namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
+use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use App\Enums\Telegram\ToolsEnum;
@@ -36,7 +37,8 @@ class ToolsStateHandler
     public function acceptToolsAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
-        $$toolsLevel = $this->subjectToolsValidator->validateToolsForStudy($messageDto->answer ?? '');
+        $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
+        $$toolsLevel = $this->subjectToolsValidator->validateToolsForStudy($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
 
         switch ($$toolsLevel) {
             case true:

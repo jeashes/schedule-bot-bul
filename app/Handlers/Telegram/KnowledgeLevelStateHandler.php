@@ -6,6 +6,7 @@ use App\Dto\TelegramMessageDto;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use App\Enums\Telegram\KnowledgeLevelEnum;
+use App\Enums\Telegram\SubjectStudiesEnum;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use App\Service\OpenAi\KnowledgeLevelValidator;
 
@@ -36,7 +37,8 @@ class KnowledgeLevelStateHandler
     public function acceptKnowledgeLevelAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
-        $validateKnowledgeLevel = $this->knowledgeLevelValidator->validateKnowledgeLevel($messageDto->answer ?? '');
+        $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
+        $validateKnowledgeLevel = $this->knowledgeLevelValidator->validateKnowledgeLevel($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
 
         switch ($validateKnowledgeLevel) {
             case true:
