@@ -21,6 +21,10 @@ class User extends Model
         'chat_id',
         'language_code',
         'email',
+        'goal',
+        'knowledge_level',
+        'course_type',
+        'tools',
         'created_at',
         'updated_at',
     ];
@@ -88,6 +92,46 @@ class User extends Model
     public function setEmail(string $value): void
     {
         $this->setAttribute('email', $value);
+    }
+
+    public function getGoal(): string
+    {
+        return $this->getAttribute('goal');
+    }
+
+    public function setGoal(string $value): void
+    {
+        $this->setAttribute('goal', $value);
+    }
+
+    public function getKnowledgeLevel(): string
+    {
+        return $this->getAttribute('knowledge_level');
+    }
+
+    public function setKnowledgeLevel(string $value): void
+    {
+        $this->setAttribute('knowledge_level', $value);
+    }
+
+    public function getCourseType(): int
+    {
+        return $this->getAttribute('course_type');
+    }
+
+    public function setCourseType(int $value): void
+    {
+        $this->setAttribute('course_type', $value);
+    }
+
+    public function getTools(): string
+    {
+        return $this->getAttribute('tools');
+    }
+
+    public function setTools(string $value): void
+    {
+        $this->setAttribute('tools', $value);
     }
 
     public function workspace(): HasOne
