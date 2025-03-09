@@ -33,6 +33,10 @@ class MessageHandler
         private readonly ListRepository $listRepository,
         private readonly WeekDayDates $weekDayDates,
         private readonly SubjectStateHandler $subjectStateHandler,
+        private readonly GoalStateStateHandler $goalStateHandler,
+        private readonly KnowledgeLevelStateHandler $knowledgeLevelStateHandler,
+        private readonly ToolsStateHandler $toolsStateHandler,
+        private readonly CourseTypeStateHandler $courseTypeStateHandler,
         private readonly ScheduleStateHandler $scheduleStateHandler,
         private readonly HoursStateHandler $hoursStateHandler,
         private readonly EmailStateHandler $emailStateHandler,
@@ -83,6 +87,34 @@ class MessageHandler
                 $this->subjectStateHandler->sendSubjectQuestion($messageDto);
 
                 if ($this->subjectStateHandler->acceptSubjectAnswer($messageDto)) {
+                    $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::GOAL->value);
+
+                    $this->goalStateHandler->sendGoalQuestion($messageDto);
+                }
+                break;
+            case ChatStateEnum::GOAL->value:
+                if ($this->goalStateHandler->acceptGoalAnswer($messageDto)) {
+                    $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::KNOWLEDGE_LEVEL->value);
+
+                    $this->knowledgeLevelStateHandler->sendKnowledgeLevelQuestion($messageDto);
+                }
+                break;
+            case ChatStateEnum::KNOWLEDGE_LEVEL->value:
+                if ($this->knowledgeLevelStateHandler->acceptKnowledgeLevelAnswer($messageDto)) {
+                    $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::TOOLS->value);
+
+                    $this->toolsStateHandler->sendToolsQuestion($messageDto);
+                }
+                break;
+            case ChatStateEnum::TOOLS->value:
+                if ($this->toolsStateHandler->acceptToolsAnswer($messageDto)) {
+                    $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::COURSE_TYPE->value);
+
+                    $this->courseTypeStateHandler->sendCourseTypeQuestion($messageDto);
+                }
+                break;
+                case ChatStateEnum::COURSE_TYPE->value:
+                if ($this->courseTypeStateHandler->acceptCourseTypeAnswer($messageDto)) {
                     $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::HOURS->value);
 
                     $this->hoursStateHandler->sendHoursQuestion($messageDto);
