@@ -17,9 +17,9 @@ class CourseTypeStateHandler
     public function sendCourseTypeQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
-        $scheduleInfo = json_decode(Redis::get($userId.'_'.CourseTypeEnum::QUESTION->value), true);
+        $courseTypeInfo = json_decode(Redis::get($userId.'_'.CourseTypeEnum::QUESTION->value), true);
 
-        if (is_null($scheduleInfo['current_answer'])) {
+        if (is_null($courseTypeInfo['current_answer'])) {
 
             $this->questionsRedisManager->setAnswerForQuestion($userId, CourseTypeEnum::QUESTION->value);
 
@@ -48,7 +48,7 @@ class CourseTypeStateHandler
         }
     }
 
-    public function acceptScheduleAnswer(TelegramMessageDto $messageDto): bool
+    public function acceptCourseTypeAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
 
