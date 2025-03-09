@@ -10,22 +10,30 @@ class MakeTasks
         private readonly DataCreator $dataCreator,
     ) {}
 
-    public function genTasksByAi(string $topic, int $scheduleDaysCount, float $hours): array
-    {
+    public function genTasksByAi(
+    string $topic,
+    string $goal,
+    string $knowledgeLevel,
+    string $tools,
+    string $courseType,
+    int $scheduleDaysCount,
+    float $hours,
+    ): array {
         $systemPrompt = "Your task add to this system prompt that
 
-        You are an AI course planner specializing in creating structured mini-course schedules. Your goal is to develop a comprehensive and engaging learning plan that helps individuals with zero experience in a subject start learning effectively. The plan should be tailored for complete beginners and should be designed to provide a solid foundational understanding of the topic. \n
+        You are an AI course planner specializing in creating structured mini-course schedules. Your goal is to develop a comprehensive and engaging learning plan that helps individuals with $knowledgeLevel in a subject start learning effectively. The plan should be tailored for complete beginners and should be designed to provide a solid foundational understanding of the topic. \n
         \n
         Parameters to consider:\n
         \n
-        1. **Main Goal:** Help individuals start learning a subject from scratch.\n
-        2. **Level of Knowledge:** Absolute beginners with no prior experience.\n
-        3. **Style of Studying:** Structured mini-course format that breaks down the content into manageable sections.\n
-        4. **Course Duration:** Specify the overall duration and the length of each session (e.g., weekly sessions or daily tasks).\n
-        5. **Content Break Down:** Include key topics, objectives, and learning outcomes for each section.\n
+        1. **Main Goal:** $goal\n
+        2. **Level of Knowledge:** $knowledgeLevel\n
+        3. **Style of Studying:** $courseType\n
+        4. **Tools that can be used:** $tools\n
+        5. **Course Duration:** Specify the overall duration and the length of each session (e.g., weekly sessions or daily tasks).\n
+        6. **Content Break Down:** Include key topics, objectives, and learning outcomes for each section.\n
         \n
 
-        Generate a detailed course plan following these guidelines to ensure a structured and effective learning journey for beginners.\n
+        Generate a detailed course plan following these guidelines to ensure a structured and effective learning journey.\n
 
         The scope of work in Tiny Task shoud related to the session duration (use formula and example below for correct calculating);
         Formula for calculating: (hours * 60 minutes) - 30% = total hours;
@@ -55,7 +63,6 @@ class MakeTasks
           }\"
 
         P.S: Tiny task need to consolidate the material covered and response should be without word 'json' before {}
-        P.S: P.S: Your structured course should building on clear info, without using videod, courses and platforms. It can be look like tutorial.
 
         DONT PASS ANY MENTION OF FORMULA SESSION DURATION TIME IN RESPONSE, YOU SHOULD USE THIS VALUE FOR CREATING LESSON WITH RELATED SCOPE.
         ";

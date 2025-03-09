@@ -62,7 +62,15 @@ class CreateUserTrelloWorkspace implements ShouldQueue
             $toDoList = $listRepository->getToDoList($userId);
 
             $scheduleDays = $weekDayDates->getDatesBySchedule($this->workspace->getSchedule());
-            $tasks = $makeTasks->genTasksByAi($this->workspace->getName(), count($scheduleDays), $this->workspace->getTimeOnSchedule());
+            $tasks = $makeTasks->genTasksByAi(
+                $this->workspace->getName(),
+                $this->workspace->getGoal(),
+                $this->workspace->getKnowledgeLevel(),
+                $this->workspace->getTools(),
+                $this->workspace->getCourseType(),
+                count($scheduleDays),
+                $this->workspace->getTimeOnSchedule()
+            );
 
             for ($i = 0; $i < count($tasks); $i++) {
                 sleep(0.5);
