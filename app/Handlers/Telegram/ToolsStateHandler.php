@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Handlers\Telegram;
+
+use App\Dto\TelegramMessageDto;
+use App\Managers\Telegram\QuestionsRedisManager;
+use Illuminate\Support\Facades\Redis;
+use App\Enums\Telegram\ToolsEnum;
+use App\Service\OpenAi\SubjectToolsValidator;
+use Longman\TelegramBot\Request as TelegramBotRequest;
+
+class ToolsStateHandler
+{
+    public function __construct(
+        private readonly QuestionsRedisManager $questionsRedisManager,
+        private readonly SubjectToolsValidator $subjectToolsValidator
+    ) {}
+
+    public function sendToolsQuestion(TelegramMessageDto $messageDto): void
+    {
+        $userId = $messageDto->user->getId();
+        $toolsInfo = json_decode(Redis::get($userId.'_'.ToolsEnum::QUESTION->value), true);
+
+        if (is_null($toolsInfo['current_answer'])) {
+
+            $this->questionsRedisManager->setAnswerForQuestion($userId, ToolsEnum::QUESTION->value);
+
+            TelegramBotRequest::sendMessage([
+                'chat_id' => $messageDto->user->getChatId(),
+                'text' => __('bot_messages.tools_for_study'),
+                'parse_mode' => 'Markdown',
+            ]);
+        }
+    }
+
+    public function acceptToolsAnswer(TelegramMessageDto $messageDto): bool
+    {
+        $userId = $messageDto->user->getId();
+        $$toolsLevel = $this->subjectToolsValidator->validateToolsForStudy($messageDto->answer ?? '');
+
+        switch ($$toolsLevel) {
+            case true:
+                $this->questionsRedisManager->setAnswerForQuestion($userId, ToolsEnum::QUESTION->value, $messageDto->answer, 1);
+
+                TelegramBotRequest::sendMessage([
+                    'chat_id' => $messageDto->user->getChatId(),
+                    'text' => 'Your description of tools was save✅',
+                ]);
+
+                return $$toolsLevel;
+
+            case false:
+                if (is_null($messageDto->answer)) {
+                    return $$toolsLevel;
+                }
+
+                TelegramBotRequest::sendMessage([
+                    'chat_id' => $messageDto->user->getChatId(),
+                    'text' => __('bot_messages.wrong_tools_for_study'),
+                ]);
+
+                return $$toolsLevel;
+        }
+    }
+}
