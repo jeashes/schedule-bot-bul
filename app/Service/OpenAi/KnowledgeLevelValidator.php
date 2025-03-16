@@ -2,23 +2,37 @@
 
 namespace App\Service\OpenAi;
 
+use Illuminate\Support\Facades\Log;
+
 class KnowledgeLevelValidator
 {
     public function __construct(private readonly DataCreator $dataCreator) {}
 
     public function validateKnowledgeLevel(string $title, string $knowledgeLevel): int
     {
-        $systemPrompt = "Act as an AI evaluator of $knowledgeLevel for subject - $title. Your task is to assess and validate a user's knowledge level in a specific subject $title based on their provided response. Follow these steps:
+        $systemPrompt = 'You are an expert evaluator for educational levels in various technical subjects. Your task is to check whether the provided level of expertise correctly matches the subject area that the learner intends to study.
 
-        1. Evaluate Depth of Understanding: Analyze the response for completeness, accuracy, and depth of content.
-        2. Determine Knowledge Level: Classify the user's knowledge into one of the following categories: Beginner, Intermediate, or Advanced.
-        3. Provide Feedback: Offer a concise summary of the evaluation, highlighting strengths and areas for improvement.
-        4. Recommend Next Steps: Suggest further study or practice materials appropriate for the assessed level.";
+                        For instance, consider the following examples:
+                        - Subject: "GOF design patterns in PHP"
+                        Correct Level: "strong junior backend dev"
+                        - Subject: "GOF design patterns in PHP"
+                        Incorrect Level: "avkhawsvhsomething nonsense"
 
-        $body = "Try validate knowledge level - $knowledgeLevel of subject $title on info that you can find in your data."
-        .'If you cannot find anything or something strange that has not relate to knowledge level of subject'
-        .'YOU SHOULD RETURN ANSWER IN JSON FORMAT: {"found": 0}. In another case YOU SHOULD RETURN IN FORMAT {"found": 1}';
+                        When given a subject and a proposed knowledge level:
+                        1. Validate if the level description is meaningful, follows professional standards, and is appropriate for the subject area.
+                        2. If the level is valid and properly correlates with the subject, reply with a confirmation that the level is acceptable.
+                        3. If the level is not appropriate or appears to be invalid, provide a clear message stating that the level description does not meet the criteria, and suggest checking the input.
 
+                        Example Input:
+                        Subject: "GOF design patterns in PHP"
+                        Proposed Level: "strong junior backend dev"
+
+                        Expected Output:
+                        JSON FORMAT: {"found": 1} - when knowledge level validated and correct. In another case YOU SHOULD RETURN IN FORMAT {"found": 0}';
+
+        $body = "Title: $title, knowledge level on validation: $knowledgeLevel";
+
+        Log::channel('telegram')->debug('KNOWLEDGE_LEVEL: ' . $this->dataCreator->aiAnalyze($systemPrompt, $body));
         $data = json_decode($this->dataCreator->aiAnalyze($systemPrompt, $body), true);
 
         return $data['found'] ?? 0;
