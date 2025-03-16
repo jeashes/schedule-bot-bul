@@ -38,9 +38,9 @@ class ToolsStateHandler
     {
         $userId = $messageDto->user->getId();
         $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
-        $$toolsLevel = $this->subjectToolsValidator->validateToolsForStudy($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
+        $tools = $this->subjectToolsValidator->validateToolsForStudy($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
 
-        switch ($$toolsLevel) {
+        switch ($tools) {
             case true:
                 $this->questionsRedisManager->setAnswerForQuestion($userId, ToolsEnum::QUESTION->value, $messageDto->answer, 1);
 
@@ -49,11 +49,11 @@ class ToolsStateHandler
                     'text' => 'Your description of tools was save✅',
                 ]);
 
-                return $$toolsLevel;
+                return $tools;
 
             case false:
                 if (is_null($messageDto->answer)) {
-                    return $$toolsLevel;
+                    return $tools;
                 }
 
                 TelegramBotRequest::sendMessage([
@@ -61,7 +61,7 @@ class ToolsStateHandler
                     'text' => __('bot_messages.wrong_tools_for_study'),
                 ]);
 
-                return $$toolsLevel;
+                return $tools;
         }
     }
 }
