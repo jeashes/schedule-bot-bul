@@ -3,9 +3,13 @@
 namespace App\Managers\Telegram;
 
 use App\Enums\Telegram\ChatStateEnum;
+use App\Enums\Telegram\CourseTypeEnum;
+use App\Enums\Telegram\GoalEnum;
 use App\Enums\Telegram\HoursOnStudyEnum;
+use App\Enums\Telegram\KnowledgeLevelEnum;
 use App\Enums\Telegram\ScheduleEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Enums\Telegram\ToolsEnum;
 use App\Enums\Telegram\UserEmailEnum;
 use Illuminate\Support\Facades\Redis;
 
@@ -16,6 +20,14 @@ class QuestionsRedisManager
         $this->removeOldAnswers($userId);
 
         $this->resetUserAnswer($userId, SubjectStudiesEnum::QUESTION->value);
+        
+        $this->resetUserAnswer($userId, GoalEnum::QUESTION->value);
+
+        $this->resetUserAnswer($userId, KnowledgeLevelEnum::QUESTION->value);
+
+        $this->resetUserAnswer($userId, ToolsEnum::QUESTION->value);
+
+        $this->resetUserAnswer($userId, CourseTypeEnum::QUESTION->value);
 
         $this->resetUserAnswer($userId, HoursOnStudyEnum::QUESTION->value);
 
@@ -44,6 +56,10 @@ class QuestionsRedisManager
     private function removeOldAnswers(string $userId): void
     {
         Redis::del($userId.'_'.SubjectStudiesEnum::QUESTION->value);
+        Redis::del($userId.'_'.GoalEnum::QUESTION->value);
+        Redis::del($userId.'_'.KnowledgeLevelEnum::QUESTION->value);
+        Redis::del($userId.'_'.ToolsEnum::QUESTION->value);
+        Redis::del($userId.'_'.CourseTypeEnum::QUESTION->value);
         Redis::del($userId.'_'.HoursOnStudyEnum::QUESTION->value);
         Redis::del($userId.'_'.ScheduleEnum::QUESTION->value);
         Redis::del($userId.'_'.UserEmailEnum::QUESTION->value);
