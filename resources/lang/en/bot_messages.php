@@ -9,7 +9,7 @@ return [
 
     'subject_of_studies' => 'Please tell me the name of your study subject!',
 
-    'knowledge_level_question' => "What level of knowledge do you have know?\nYou can have a massive answer, for example: beginner, advance, ULTRA HIGHT SENIOR",
+    'knowledge_level_question' => "What level of knowledge do you have now?\nYou can have a massive answer, for example: beginner, advance, ULTRA HIGHT SENIOR",
 
     'total_hours_on_study' => 'How many hours do you give yourself during these 2 weeks?' .
                             "\nPlease think about it as carefully as you can",
