@@ -45,7 +45,7 @@ class MakeTasks
         - Week 1: Introduction to the Subject  \n
           - Lesson 1: Basic Concepts  \n
           - Context Info: Info that need user to make the 'Tiny Task', theere is should detailed and clear as possible \n
-          - Learning Objectives: Understand the foundational terminology and principles. It is the title on card, LIMIT ON WORDS = 9  \n
+          - Learning Objectives: Understand the foundational terminology and principles. It is the title on card, LIMIT ON WORDS = NOT  \n
           - Tiny Task: It should MAXIMUM CLEAR TASK WITHOUT ABSTRACTION \n
           - Time: Expected time in minutes on completing lesson in float value
 
@@ -55,8 +55,8 @@ class MakeTasks
             \"0\": {
                 \"Lesson\": {
                     \"Learning Objectives\": 'VALUE SHOULD BE STRING AS SINGLE CHUNK, IT IS A TITLE ON CARD, LIMIT ON WORDS = 9',
-                    \"Context Info\": 'VALUE SHOULD BE STRING AS SINGLE CHUNK, IT CAN BE MANY SENTENCES',
-                    \"Tiny Task\": 'VALUE SHOULD BE STRING AS SINGLE CHUNK, IT CAN BE MANY SENTENCES',
+                    \"Context Info\": '...',
+                    \"Tiny Task\": '...',
                     \"Time\": float value
                 }
             ...
