@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Dto\TelegramMessageDto;
 use App\Dto\UserDto;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Exceptions\ChatIdNotFoundException;
 use App\Handlers\Telegram\MessageHandler;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Repository\UserRepository;
@@ -33,15 +34,23 @@ class TelegramController extends Controller
         try {
             $this->telegram->handle();
 
-            $messageFrom = ($request['message']['from'] ?? $request['callback_query']['from'])
-                    ?? $request['my_chat_member']['from'];
+            $requestData = $request->toArray();
+
+            $messageFrom = $this->getMessageFrom($requestData, ['my_chat_member', 'chat'])
+            ?? $this->getMessageFrom($requestData, ['my_chat_member', 'from'])
+            ?? $this->getMessageFrom($requestData, ['message', 'from'])
+            ?? $this->getMessageFrom($requestData, ['callback_query', 'from']);
+
+            if (!$messageFrom) {
+                throw new ChatIdNotFoundException('Chat id not foundm check telegram logs and message structure');
+            }
 
             $userDto = new UserDto(
                 username: array_key_exists('username', $messageFrom) ? $messageFrom['username'] : null,
-                firstName: $messageFrom['first_name'],
+                firstName: $messageFrom['first_name'] ?? '#####',
                 lastName: array_key_exists('last_name', $messageFrom) ? $messageFrom['last_name'] : null,
                 chatId: $messageFrom['id'],
-                languageCode: $messageFrom['language_code'],
+                languageCode: $messageFrom['language_code'] ?? 'en',
             );
 
             $user = $userRepository->findByChatIdOrCreate($userDto);
@@ -56,7 +65,9 @@ class TelegramController extends Controller
             $this->messageHandler->handleMessages($message);
 
         } catch (TelegramException $e) {
-            Log::channel('telegram')->error($e->getMessage());
+            Log::channel('telegram')->error($e->getMessage() . ' ' . json_encode($request), [
+                'request' => json_encode($request),
+            ]);
         }
     }
 
@@ -87,5 +98,18 @@ class TelegramController extends Controller
                 'parse_mode' => 'Markdown',
             ]);
         }
+    }
+
+    private function getMessageFrom(array $data, array $keys): ?array
+    {
+        foreach($keys as $key) {
+            if (array_key_exists($key, $data)) {
+                $data = $data[$key];
+            } else {
+                return null;
+            }
+        }
+        
+        return $data;
     }
 }
