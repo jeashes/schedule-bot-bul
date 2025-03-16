@@ -34,8 +34,7 @@ return [
 
     'wrong_knowledge_level' => 'Something wrong with your knowledge level 🚫',
 
-    'wrong_tools_for_study' => "Something wrong with your tools, maybe there are not exist or something else.\n
-                                Please give others 👉🏻👈🏻",
+    'wrong_tools_for_study' => "Something wrong with your tools, maybe there are not exist or something else.\nPlease give others 👉🏻👈🏻",
 
     'course_type' => 'What form of study process do you want?',
 
