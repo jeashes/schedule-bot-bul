@@ -6,7 +6,7 @@ use OpenAI\Laravel\Facades\OpenAI;
 
 class DataCreator
 {
-    private const MODEL = 'o1';
+    private const MODEL = 'o3-mini';
 
     public function aiAnalyze(string $systemPrompt, string $body): ?string
     {
