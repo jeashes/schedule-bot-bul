@@ -59,12 +59,12 @@ class MessageHandler
         try {
             $this->handleChatState($messageDto, $userId);
         } catch (Throwable $e) {
-            Log::channel('telegram')->error('Something went wrong: '.$e->getMessage(), [
+            Log::channel('telegram')->error('Something went wrong: '.$e->getMessage().','.$e->getLine(), [
                 'chat_state' => $state,
                 'user_id' => $userId,
                 'chat_id' => $messageDto->user->getChatId(),
                 'user_has_workspace' => $this->boardRepository->userBoardWasCreated($userId),
-
+                'stacktrace' => $e->getTraceAsString(),
             ]);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
