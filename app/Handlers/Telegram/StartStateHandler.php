@@ -21,7 +21,7 @@ class StartStateHandler implements StateHandlerInterface
 
             $this->nextHandler->handle($messageDto, ChatStateEnum::SUBJECT_STUDY->value);
         } else {
-            $this->nextHandler->handle($messageDto, ChatStateEnum::SUBJECT_STUDY->value);
+            $this->nextHandler->handle($messageDto, $chatState);
         }
     }
 }

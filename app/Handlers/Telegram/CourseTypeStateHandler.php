@@ -10,6 +10,7 @@ use App\Enums\Workspace\CourseTypeEnum as WorkspaceCourseTypeEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
@@ -27,13 +28,17 @@ class CourseTypeStateHandler implements StateHandlerInterface
 
         if ($chatState === ChatStateEnum::COURSE_TYPE->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
+            Log::channel('telegram')->info('Current course state: ' . $chatState);
             if ($this->acceptAnswer($messageDto)) {
+                $messageDto->answer = null;
+                $messageDto->callbackData = null;
                 $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::HOURS->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::HOURS->value);
             }
         } else {
-            $this->nextHandler->handle($messageDto, ChatStateEnum::HOURS->value);
+            Log::channel('telegram')->info('Go course hours state: ' . $chatState);
+            $this->nextHandler->handle($messageDto, $chatState);
         }
     }
 
@@ -73,6 +78,10 @@ class CourseTypeStateHandler implements StateHandlerInterface
 
     private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
+        if (empty($messageDto->callbackData)) {
+            return false;
+        }
+
         $userId = $messageDto->user->getId();
 
         if (in_array($messageDto->callbackData, array_column(WorkspaceCourseTypeEnum::cases(), 'value'))) {

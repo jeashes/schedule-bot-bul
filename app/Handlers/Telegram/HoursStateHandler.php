@@ -9,6 +9,7 @@ use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class HoursStateHandler implements StateHandlerInterface
@@ -25,13 +26,17 @@ class HoursStateHandler implements StateHandlerInterface
 
         if ($chatState === ChatStateEnum::HOURS->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
+            Log::channel('telegram')->info('Current hours state: ' . $chatState);
             if ($this->acceptAnswer($messageDto)) {
+                $messageDto->answer = null;
+                $messageDto->callbackData = null;
                 $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::SCHEDULE->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::SCHEDULE->value);
             }
         } else {
-            $this->nextHandler->handle($messageDto, ChatStateEnum::SCHEDULE->value);
+            Log::channel('telegram')->info('Go to schedule handler: ' . $chatState);
+            $this->nextHandler->handle($messageDto, $chatState);
         }
     }
 
@@ -54,6 +59,10 @@ class HoursStateHandler implements StateHandlerInterface
 
     private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
+        if (empty($messageDto->answer)) {
+            return false;
+        }
+
         $userId = $messageDto->user->getId();
 
         $validateHours = $this->validateHours($messageDto->answer);
@@ -80,8 +89,6 @@ class HoursStateHandler implements StateHandlerInterface
 
                 return $validateHours;
         }
-
-        return false;
     }
 
     private function validateHours(?string $hours): bool

@@ -11,6 +11,7 @@ use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\OpenAi\SubjectToolsValidator;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class ToolsStateHandler implements StateHandlerInterface
@@ -28,13 +29,17 @@ class ToolsStateHandler implements StateHandlerInterface
 
         if ($chatState === ChatStateEnum::TOOLS->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
+            Log::channel('telegram')->info('Current tools state: ' . $chatState);
             if ($this->acceptAnswer($messageDto)) {
+                $messageDto->answer = null;
+                $messageDto->callbackData = null;
                 $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::COURSE_TYPE->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::COURSE_TYPE->value);
             }
         } else {
-            $this->nextHandler->handle($messageDto, ChatStateEnum::COURSE_TYPE->value);
+            Log::channel('telegram')->info('Go to course type handler: ' . $chatState);
+            $this->nextHandler->handle($messageDto, $chatState);
         }
     }
 
@@ -57,6 +62,10 @@ class ToolsStateHandler implements StateHandlerInterface
 
     private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
+        if (empty($messageDto->answer)) {
+            return false;
+        }
+        
         $userId = $messageDto->user->getId();
         $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
         $tools = $this->subjectToolsValidator->validateToolsForStudy($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');

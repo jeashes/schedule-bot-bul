@@ -8,6 +8,7 @@ use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\OpenAi\SubjectValidator;
+use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class SubjectStateHandler implements StateHandlerInterface
@@ -22,13 +23,17 @@ class SubjectStateHandler implements StateHandlerInterface
     {
         if ($chatState === ChatStateEnum::SUBJECT_STUDY->value) {
             $this->sendQuestion($messageDto);
+            Log::channel('telegram')->info('Current subject state: ' . $chatState);
             if ($this->acceptAnswer($messageDto)) {
+                $messageDto->answer = null;
+                $messageDto->callbackData = null;
                 $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::GOAL->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
             }
         } else {
-            $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
+            Log::channel('telegram')->info('Go to goal handler: ' . $chatState);
+            $this->nextHandler->handle($messageDto, $chatState);
         }
     }
 
@@ -50,6 +55,10 @@ class SubjectStateHandler implements StateHandlerInterface
 
     private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
+        if (empty($messageDto->answer)) {
+            return false;
+        }
+        
         $userId = $messageDto->user->getId();
         $validateSubject = $this->subjectValidator->validateSubjectTitle($messageDto->answer ?? '');
 

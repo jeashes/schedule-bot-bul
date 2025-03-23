@@ -52,6 +52,10 @@ class EmailStateHandler implements StateHandlerInterface
 
     private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
+        if (empty($messageDto->answer)) {
+            return false;
+        }
+
         $userId = $messageDto->user->getId();
         $validatedEmail = $this->validateEmail($messageDto->answer);
 
