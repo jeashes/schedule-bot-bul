@@ -18,10 +18,13 @@ class EmailStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
+        $userId = $messageDto->user->getId();
+        $previousAnswer = $this->questionsRedisManager->getValueByKey($userId, ChatStateEnum::SCHEDULE->value);
+
         if ($chatState === ChatStateEnum::EMAIL->value) {
             $this->sendQuestion($messageDto);
-            if ($this->acceptAnswer($messageDto)) {
-                $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::FINISHED->value);
+            if ($this->acceptAnswer($messageDto) && $previousAnswer['approved']) {
+                $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::FINISHED->value);
             }
         }
     }

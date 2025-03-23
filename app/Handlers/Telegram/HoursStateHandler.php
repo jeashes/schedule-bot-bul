@@ -19,10 +19,13 @@ class HoursStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
+        $userId = $messageDto->user->getId();
+        $previousAnswer = $this->questionsRedisManager->getValueByKey($userId, ChatStateEnum::COURSE_TYPE->value);
+
         if ($chatState === ChatStateEnum::HOURS->value) {
             $this->sendQuestion($messageDto);
-            if ($this->acceptAnswer($messageDto)) {
-                $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::SCHEDULE->value);
+            if ($this->acceptAnswer($messageDto) && $previousAnswer['approved']) {
+                $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::SCHEDULE->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::SCHEDULE->value);
             }
