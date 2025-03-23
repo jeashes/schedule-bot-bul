@@ -8,6 +8,7 @@ use App\Enums\Telegram\CourseTypeEnum;
 use App\Enums\Workspace\CourseTypeEnum as WorkspaceCourseTypeEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
+use App\Enums\Telegram\ToolsEnum;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
@@ -22,11 +23,11 @@ class CourseTypeStateHandler implements StateHandlerInterface
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
         $userId = $messageDto->user->getId();
-        $previousAnswer = $this->questionsRedisManager->getValueByKey($userId, ChatStateEnum::TOOLS->value);
+        $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, ToolsEnum::QUESTION->value);
 
-        if ($chatState === ChatStateEnum::COURSE_TYPE->value) {
+        if ($chatState === ChatStateEnum::COURSE_TYPE->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            if ($this->acceptAnswer($messageDto) && $previousAnswer['approved']) {
+            if ($this->acceptAnswer($messageDto)) {
                 $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::HOURS->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::HOURS->value);
