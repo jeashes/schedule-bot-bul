@@ -13,7 +13,7 @@ use App\Interfaces\Telegram\StateHandlerInterface;
 class SubjectStateHandler implements StateHandlerInterface
 {
     public function __construct(
-        private readonly GoalStateStateHandler $nextHandler,
+        private readonly GoalStateHandler $nextHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
         private readonly SubjectValidator $subjectValidator,
     ) {}
