@@ -10,6 +10,7 @@ use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\OpenAi\KnowledgeLevelValidator;
 use Illuminate\Support\Facades\Redis;
+use App\Enums\Telegram\GoalEnum;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class KnowledgeLevelStateHandler implements StateHandlerInterface
@@ -23,11 +24,11 @@ class KnowledgeLevelStateHandler implements StateHandlerInterface
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
         $userId = $messageDto->user->getId();
-        $previousAnswer = $this->questionsRedisManager->getValueByKey($userId, ChatStateEnum::GOAL->value);
+        $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, GoalEnum::QUESTION->value);
 
-        if ($chatState === ChatStateEnum::KNOWLEDGE_LEVEL->value) {
+        if ($chatState === ChatStateEnum::KNOWLEDGE_LEVEL->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            if ($this->acceptAnswer($messageDto) && $previousAnswer['approved']) {
+            if ($this->acceptAnswer($messageDto)) {
                 $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::TOOLS->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::TOOLS->value);
