@@ -3,21 +3,35 @@
 namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
+use App\Enums\Telegram\ChatStateEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use App\Enums\Telegram\ToolsEnum;
 use App\Service\OpenAi\SubjectToolsValidator;
 use Longman\TelegramBot\Request as TelegramBotRequest;
+use App\Interfaces\Telegram\StateHandlerInterface;
 
-class ToolsStateHandler
+class ToolsStateHandler implements StateHandlerInterface
 {
     public function __construct(
+        private readonly CourseTypeStateHandler $nextHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
         private readonly SubjectToolsValidator $subjectToolsValidator
     ) {}
 
-    public function sendToolsQuestion(TelegramMessageDto $messageDto): void
+    public function handle(TelegramMessageDto $messageDto, int $chatState): void
+    {
+        if ($chatState === ChatStateEnum::TOOLS->value) {
+            $this->sendQuestion($messageDto);
+            if ($this->acceptAnswer($messageDto)) {
+                $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::COURSE_TYPE->value);
+                $this->nextHandler->handle($messageDto, ChatStateEnum::COURSE_TYPE->value);
+            }
+        }
+    }
+
+    private function sendQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
         $toolsInfo = json_decode(Redis::get($userId.'_'.ToolsEnum::QUESTION->value), true);
@@ -34,7 +48,7 @@ class ToolsStateHandler
         }
     }
 
-    public function acceptToolsAnswer(TelegramMessageDto $messageDto): bool
+    private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
         $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
