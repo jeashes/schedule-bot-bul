@@ -10,6 +10,7 @@ use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
+use App\Enums\Telegram\HoursOnStudyEnum;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class ScheduleStateHandler implements StateHandlerInterface
@@ -22,11 +23,11 @@ class ScheduleStateHandler implements StateHandlerInterface
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
         $userId = $messageDto->user->getId();
-        $previousAnswer = $this->questionsRedisManager->getValueByKey($userId, ChatStateEnum::HOURS->value);
+        $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, HoursOnStudyEnum::QUESTION->value);
 
-        if ($chatState === ChatStateEnum::SCHEDULE->value) {
+        if ($chatState === ChatStateEnum::SCHEDULE->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            if ($this->acceptAnswer($messageDto) && $previousAnswer['approved']) {
+            if ($this->acceptAnswer($messageDto)) {
                 $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::EMAIL->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::EMAIL->value);
