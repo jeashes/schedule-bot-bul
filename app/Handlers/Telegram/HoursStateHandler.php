@@ -25,9 +25,9 @@ class HoursStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::SCHEDULE->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::SCHEDULE->value);
-            } else {
-                $this->nextHandler->handle($messageDto, ChatStateEnum::SCHEDULE->value);
             }
+        } else {
+            $this->nextHandler->handle($messageDto, ChatStateEnum::SCHEDULE->value);
         }
     }
 

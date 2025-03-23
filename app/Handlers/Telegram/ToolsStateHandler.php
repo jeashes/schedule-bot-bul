@@ -28,9 +28,9 @@ class ToolsStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::COURSE_TYPE->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::COURSE_TYPE->value);
-            } else {
-                $this->nextHandler->handle($messageDto, ChatStateEnum::COURSE_TYPE->value);
             }
+        } else {
+            $this->nextHandler->handle($messageDto, ChatStateEnum::COURSE_TYPE->value);
         }
     }
 

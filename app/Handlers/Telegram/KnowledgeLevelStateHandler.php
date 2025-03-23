@@ -28,9 +28,9 @@ class KnowledgeLevelStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::TOOLS->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::TOOLS->value);
-            } else {
-                $this->nextHandler->handle($messageDto, ChatStateEnum::TOOLS->value);
             }
+        } else {
+            $this->nextHandler->handle($messageDto, ChatStateEnum::TOOLS->value);
         }
     }
 

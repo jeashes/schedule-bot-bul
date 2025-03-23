@@ -22,14 +22,13 @@ class SubjectStateHandler implements StateHandlerInterface
     {
         if ($chatState === ChatStateEnum::SUBJECT_STUDY->value) {
             $this->sendQuestion($messageDto);
-
             if ($this->acceptAnswer($messageDto)) {
                 $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::GOAL->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
-            } else {
-                $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
             }
+        } else {
+            $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
         }
     }
 

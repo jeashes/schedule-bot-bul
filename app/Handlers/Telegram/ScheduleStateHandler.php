@@ -27,9 +27,9 @@ class ScheduleStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::EMAIL->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::EMAIL->value);
-            } else {
-                $this->nextHandler->handle($messageDto, ChatStateEnum::EMAIL->value);
             }
+        } else {
+            $this->nextHandler->handle($messageDto, ChatStateEnum::EMAIL->value);
         }
     }
 
