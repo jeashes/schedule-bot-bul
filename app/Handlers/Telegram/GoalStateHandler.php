@@ -23,11 +23,10 @@ class GoalStateHandler implements StateHandlerInterface
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
         $userId = $messageDto->user->getId();
-        $previousAnswer = $this->questionsRedisManager->getValueByKey($userId, ChatStateEnum::SUBJECT_STUDY->value);
-
-        if ($chatState === ChatStateEnum::GOAL->value) {
+        $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, SubjectStudiesEnum::QUESTION->value);
+        if ($chatState === ChatStateEnum::GOAL->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            if ($this->acceptAnswer($messageDto) && $previousAnswer['approved']) {
+            if ($this->acceptAnswer($messageDto)) {
                 $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::KNOWLEDGE_LEVEL->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::KNOWLEDGE_LEVEL->value);
