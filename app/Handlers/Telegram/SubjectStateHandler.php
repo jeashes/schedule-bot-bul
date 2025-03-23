@@ -27,6 +27,8 @@ class SubjectStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::GOAL->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
+            } else {
+                $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
             }
         }
     }

@@ -28,6 +28,8 @@ class GoalStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::KNOWLEDGE_LEVEL->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::KNOWLEDGE_LEVEL->value);
+            } else {
+                $this->nextHandler->handle($messageDto, ChatStateEnum::KNOWLEDGE_LEVEL->value);
             }
         }
     }

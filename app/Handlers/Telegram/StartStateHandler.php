@@ -18,6 +18,9 @@ class StartStateHandler implements StateHandlerInterface
     {
         if ($chatState === ChatStateEnum::START->value) {
             $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::SUBJECT_STUDY->value);
+            
+            $this->nextHandler->handle($messageDto, ChatStateEnum::SUBJECT_STUDY->value);
+        } else {
             $this->nextHandler->handle($messageDto, ChatStateEnum::SUBJECT_STUDY->value);
         }
     }
