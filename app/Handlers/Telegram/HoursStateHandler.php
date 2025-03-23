@@ -3,16 +3,32 @@
 namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
+use App\Enums\Telegram\ChatStateEnum;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
+use App\Interfaces\Telegram\StateHandlerInterface;
 
-class HoursStateHandler
+class HoursStateHandler implements StateHandlerInterface
 {
-    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager) {}
+    public function __construct(
+        private readonly ScheduleStateHandler $nextHandler,
+        private readonly QuestionsRedisManager $questionsRedisManager
+    ) {}
 
-    public function sendHoursQuestion(TelegramMessageDto $messageDto): void
+    public function handle(TelegramMessageDto $messageDto, int $chatState): void
+    {
+        if ($chatState === ChatStateEnum::HOURS->value) {
+            $this->sendQuestion($messageDto);
+            if ($this->acceptAnswer($messageDto)) {
+                $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::SCHEDULE->value);
+                $this->nextHandler->handle($messageDto, ChatStateEnum::SCHEDULE->value);
+            }
+        }
+    }
+
+    private function sendQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
 
@@ -29,7 +45,7 @@ class HoursStateHandler
         }
     }
 
-    public function acceptHoursAnswer(TelegramMessageDto $messageDto): bool
+    private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
 
