@@ -53,6 +53,11 @@ class QuestionsRedisManager
         Redis::set($userId.'_'.$question, json_encode(['current_answer' => $answer, 'approved' => $approved]));
     }
 
+    public function getValueByKey(string $userId, string $question): array
+    {
+        return json_decode(Redis::get($userId.'_'.$question), true);
+    }
+
     private function removeOldAnswers(string $userId): void
     {
         Redis::del($userId.'_'.SubjectStudiesEnum::QUESTION->value);
