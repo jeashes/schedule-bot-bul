@@ -53,9 +53,9 @@ class QuestionsRedisManager
         Redis::set($userId.'_'.$question, json_encode(['current_answer' => $answer, 'approved' => $approved]));
     }
 
-    public function getValueByKey(string $userId, string $question): array
+    public function getPreviousAnswer(string $userId, string $question): int
     {
-        return json_decode(Redis::get($userId.'_'.$question), true);
+        return json_decode(Redis::get($userId.'_'.$question), true)['approved'] ?? 0;
     }
 
     private function removeOldAnswers(string $userId): void
