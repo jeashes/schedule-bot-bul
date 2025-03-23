@@ -3,16 +3,30 @@
 namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
+use App\Enums\Telegram\ChatStateEnum;
 use App\Enums\Telegram\UserEmailEnum;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
+use App\Interfaces\Telegram\StateHandlerInterface;
 
-class EmailStateHandler
+class EmailStateHandler implements StateHandlerInterface
 {
-    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager) {}
+    public function __construct(
+        private readonly QuestionsRedisManager $questionsRedisManager
+    ) {}
 
-    public function sendEmailQuestion(TelegramMessageDto $messageDto): void
+    public function handle(TelegramMessageDto $messageDto, int $chatState): void
+    {
+        if ($chatState === ChatStateEnum::EMAIL->value) {
+            $this->sendQuestion($messageDto);
+            if ($this->acceptAnswer($messageDto)) {
+                $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::FINISHED->value);
+            }
+        }
+    }
+
+    private function sendQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
         $userEmailInfo = json_decode(Redis::get($userId.'_'.UserEmailEnum::QUESTION->value), true);
@@ -32,7 +46,7 @@ class EmailStateHandler
         }
     }
 
-    public function acceptEmailAnswer(TelegramMessageDto $messageDto): bool
+    private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
         $userId = $messageDto->user->getId();
         $validatedEmail = $this->validateEmail($messageDto->answer);
