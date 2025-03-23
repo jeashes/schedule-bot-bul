@@ -4,13 +4,13 @@ namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\ChatStateEnum;
-use App\Managers\Telegram\QuestionsRedisManager;
-use Illuminate\Support\Facades\Redis;
-use Longman\TelegramBot\Request as TelegramBotRequest;
-use Longman\TelegramBot\Entities\InlineKeyboard;
 use App\Enums\Telegram\CourseTypeEnum;
 use App\Enums\Workspace\CourseTypeEnum as WorkspaceCourseTypeEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
+use App\Managers\Telegram\QuestionsRedisManager;
+use Illuminate\Support\Facades\Redis;
+use Longman\TelegramBot\Entities\InlineKeyboard;
+use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class CourseTypeStateHandler implements StateHandlerInterface
 {

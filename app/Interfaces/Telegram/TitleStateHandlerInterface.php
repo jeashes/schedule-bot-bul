@@ -6,5 +6,5 @@ use App\Dto\TelegramMessageDto;
 
 interface StateHandlerInterface
 {
-   public function handle(TelegramMessageDto $messageDto, int $chatState): void;
+    public function handle(TelegramMessageDto $messageDto, int $chatState): void;
 }

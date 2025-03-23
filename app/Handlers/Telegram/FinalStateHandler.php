@@ -3,10 +3,10 @@
 namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
-use App\Enums\Telegram\ChatStateEnum;
-use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Dto\UserWorkspaceDto;
+use App\Enums\Telegram\ChatStateEnum;
 use App\Enums\Telegram\UserEmailEnum;
+use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Jobs\CreateUserTrelloWorkspace;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
@@ -18,7 +18,7 @@ class FinalStateHandler implements StateHandlerInterface
     public function __construct(
         private readonly TrelloWorkSpaceRepository $trelloWorkSpaceRepository,
         private readonly UserRepository $userRepository,
-    ) { }
+    ) {}
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {

@@ -5,10 +5,10 @@ namespace App\Handlers\Telegram;
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\ChatStateEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
+use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\OpenAi\SubjectValidator;
 use Longman\TelegramBot\Request as TelegramBotRequest;
-use App\Interfaces\Telegram\StateHandlerInterface;
 
 class SubjectStateHandler implements StateHandlerInterface
 {
@@ -22,7 +22,7 @@ class SubjectStateHandler implements StateHandlerInterface
     {
         if ($chatState === ChatStateEnum::SUBJECT_STUDY->value) {
             $this->sendQuestion($messageDto);
-            
+
             if ($this->acceptAnswer($messageDto)) {
                 $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::GOAL->value);
 

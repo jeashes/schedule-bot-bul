@@ -20,7 +20,7 @@ class QuestionsRedisManager
         $this->removeOldAnswers($userId);
 
         $this->resetUserAnswer($userId, SubjectStudiesEnum::QUESTION->value);
-        
+
         $this->resetUserAnswer($userId, GoalEnum::QUESTION->value);
 
         $this->resetUserAnswer($userId, KnowledgeLevelEnum::QUESTION->value);

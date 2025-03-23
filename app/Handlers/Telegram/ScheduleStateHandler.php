@@ -6,11 +6,11 @@ use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\ChatStateEnum;
 use App\Enums\Telegram\ScheduleEnum;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
+use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Request as TelegramBotRequest;
-use App\Interfaces\Telegram\StateHandlerInterface;
 
 class ScheduleStateHandler implements StateHandlerInterface
 {

@@ -5,10 +5,10 @@ namespace App\Handlers\Telegram;
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\ChatStateEnum;
 use App\Enums\Telegram\UserEmailEnum;
+use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
-use App\Interfaces\Telegram\StateHandlerInterface;
 
 class EmailStateHandler implements StateHandlerInterface
 {

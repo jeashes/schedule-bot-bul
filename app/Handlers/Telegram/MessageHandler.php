@@ -53,7 +53,7 @@ class MessageHandler
     private function handleChatState(TelegramMessageDto $messageDto, string $userId): void
     {
         $chatState = $this->getChatState($userId);
-        if ($chatState != ChatStateEnum::USER_HAS_WORKSPACE->value) {
+        if ($chatState !== ChatStateEnum::USER_HAS_WORKSPACE->value) {
             $this->startStateHandler->handle($messageDto, $chatState);
         } else {
             $trelloBoard = $this->boardRepository->getBoardByUserId($userId);

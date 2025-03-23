@@ -41,7 +41,7 @@ class TelegramController extends Controller
             ?? $this->getMessageFrom($requestData, ['message', 'from'])
             ?? $this->getMessageFrom($requestData, ['callback_query', 'from']);
 
-            if (!$messageFrom) {
+            if (! $messageFrom) {
                 throw new ChatIdNotFoundException('Chat id not foundm check telegram logs and message structure');
             }
 
@@ -65,7 +65,7 @@ class TelegramController extends Controller
             $this->messageHandler->handleMessages($message);
 
         } catch (TelegramException $e) {
-            Log::channel('telegram')->error($e->getMessage() . ' ' . json_encode($request), [
+            Log::channel('telegram')->error($e->getMessage().' '.json_encode($request), [
                 'request' => json_encode($request),
             ]);
         }
@@ -102,14 +102,14 @@ class TelegramController extends Controller
 
     private function getMessageFrom(array $data, array $keys): ?array
     {
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (array_key_exists($key, $data)) {
                 $data = $data[$key];
             } else {
                 return null;
             }
         }
-        
+
         return $data;
     }
 }
