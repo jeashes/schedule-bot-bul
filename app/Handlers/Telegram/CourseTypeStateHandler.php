@@ -21,10 +21,13 @@ class CourseTypeStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
+        $userId = $messageDto->user->getId();
+        $previousAnswer = $this->questionsRedisManager->getValueByKey($userId, ChatStateEnum::TOOLS->value);
+
         if ($chatState === ChatStateEnum::COURSE_TYPE->value) {
             $this->sendQuestion($messageDto);
-            if ($this->acceptAnswer($messageDto)) {
-                $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::HOURS->value);
+            if ($this->acceptAnswer($messageDto) && $previousAnswer['approved']) {
+                $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::HOURS->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::HOURS->value);
             }
