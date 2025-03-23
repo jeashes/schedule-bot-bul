@@ -4,13 +4,13 @@ namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\ChatStateEnum;
+use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Enums\Telegram\ScheduleEnum;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
-use App\Enums\Telegram\HoursOnStudyEnum;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class ScheduleStateHandler implements StateHandlerInterface

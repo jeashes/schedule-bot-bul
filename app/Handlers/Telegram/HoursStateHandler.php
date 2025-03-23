@@ -4,10 +4,10 @@ namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\ChatStateEnum;
+use App\Enums\Telegram\CourseTypeEnum;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
-use App\Enums\Telegram\CourseTypeEnum;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 

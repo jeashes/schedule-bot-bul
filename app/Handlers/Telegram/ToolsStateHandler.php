@@ -4,11 +4,11 @@ namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\ChatStateEnum;
+use App\Enums\Telegram\KnowledgeLevelEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\ToolsEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
-use App\Enums\Telegram\KnowledgeLevelEnum;
 use App\Service\OpenAi\SubjectToolsValidator;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;

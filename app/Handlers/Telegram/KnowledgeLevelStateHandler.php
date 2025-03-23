@@ -4,13 +4,13 @@ namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
 use App\Enums\Telegram\ChatStateEnum;
+use App\Enums\Telegram\GoalEnum;
 use App\Enums\Telegram\KnowledgeLevelEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\OpenAi\KnowledgeLevelValidator;
 use Illuminate\Support\Facades\Redis;
-use App\Enums\Telegram\GoalEnum;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class KnowledgeLevelStateHandler implements StateHandlerInterface
