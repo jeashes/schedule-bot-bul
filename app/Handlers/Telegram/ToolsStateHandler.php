@@ -8,6 +8,7 @@ use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\ToolsEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
+use App\Enums\Telegram\KnowledgeLevelEnum;
 use App\Service\OpenAi\SubjectToolsValidator;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
@@ -23,11 +24,11 @@ class ToolsStateHandler implements StateHandlerInterface
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
         $userId = $messageDto->user->getId();
-        $previousAnswer = $this->questionsRedisManager->getValueByKey($userId, ChatStateEnum::KNOWLEDGE_LEVEL->value);
+        $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, KnowledgeLevelEnum::QUESTION->value);
 
-        if ($chatState === ChatStateEnum::TOOLS->value) {
+        if ($chatState === ChatStateEnum::TOOLS->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            if ($this->acceptAnswer($messageDto) && $previousAnswer['approved']) {
+            if ($this->acceptAnswer($messageDto)) {
                 $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::COURSE_TYPE->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::COURSE_TYPE->value);
