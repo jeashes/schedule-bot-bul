@@ -4,7 +4,4 @@ namespace App\Exceptions;
 
 use Exception;
 
-class ChatIdNotFoundException extends Exception
-{
-    
-}
+class ChatIdNotFoundException extends Exception {}

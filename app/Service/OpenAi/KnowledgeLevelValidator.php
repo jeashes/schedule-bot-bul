@@ -32,7 +32,7 @@ class KnowledgeLevelValidator
 
         $body = "Title: $title, knowledge level on validation: $knowledgeLevel";
 
-        Log::channel('telegram')->debug('KNOWLEDGE_LEVEL: ' . $this->dataCreator->aiAnalyze($systemPrompt, $body));
+        Log::channel('telegram')->debug('KNOWLEDGE_LEVEL: '.$this->dataCreator->aiAnalyze($systemPrompt, $body));
         $data = json_decode($this->dataCreator->aiAnalyze($systemPrompt, $body), true);
 
         return $data['found'] ?? 0;

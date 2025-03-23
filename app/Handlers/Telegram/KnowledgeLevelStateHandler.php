@@ -3,21 +3,47 @@
 namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
-use App\Managers\Telegram\QuestionsRedisManager;
-use Illuminate\Support\Facades\Redis;
+use App\Enums\Telegram\ChatStateEnum;
+use App\Enums\Telegram\GoalEnum;
 use App\Enums\Telegram\KnowledgeLevelEnum;
 use App\Enums\Telegram\SubjectStudiesEnum;
-use Longman\TelegramBot\Request as TelegramBotRequest;
+use App\Interfaces\Telegram\StateHandlerInterface;
+use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\OpenAi\KnowledgeLevelValidator;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
+use Longman\TelegramBot\Request as TelegramBotRequest;
 
-class KnowledgeLevelStateHandler
+class KnowledgeLevelStateHandler implements StateHandlerInterface
 {
     public function __construct(
+        private readonly ToolsStateHandler $nextHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
         private readonly KnowledgeLevelValidator $knowledgeLevelValidator
     ) {}
 
-    public function sendKnowledgeLevelQuestion(TelegramMessageDto $messageDto): void
+    public function handle(TelegramMessageDto $messageDto, int $chatState): void
+    {
+        $userId = $messageDto->user->getId();
+        $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, GoalEnum::QUESTION->value);
+
+        if ($chatState === ChatStateEnum::KNOWLEDGE_LEVEL->value && $previousAnswer) {
+            $this->sendQuestion($messageDto);
+            Log::channel('telegram')->info('Current knowledge level state: ' . $chatState);
+            if ($this->acceptAnswer($messageDto)) {
+                $messageDto->answer = null;
+                $messageDto->callbackData = null;
+                $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::TOOLS->value);
+
+                $this->nextHandler->handle($messageDto, ChatStateEnum::TOOLS->value);
+            }
+        } else {
+            Log::channel('telegram')->info('Go to tools state: ' . $chatState);
+            $this->nextHandler->handle($messageDto, $chatState);
+        }
+    }
+
+    private function sendQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
         $knowledgeLevelInfo = json_decode(Redis::get($userId.'_'.KnowledgeLevelEnum::QUESTION->value), true);
@@ -34,8 +60,12 @@ class KnowledgeLevelStateHandler
         }
     }
 
-    public function acceptKnowledgeLevelAnswer(TelegramMessageDto $messageDto): bool
+    private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
+        if (empty($messageDto->answer)) {
+            return false;
+        }
+        
         $userId = $messageDto->user->getId();
         $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
         $validateKnowledgeLevel = $this->knowledgeLevelValidator->validateKnowledgeLevel($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');

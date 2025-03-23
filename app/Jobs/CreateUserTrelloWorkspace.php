@@ -23,8 +23,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use Longman\TelegramBot\Telegram;
-use json_decode;
-use count;
 use Throwable;
 
 class CreateUserTrelloWorkspace implements ShouldQueue

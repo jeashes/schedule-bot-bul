@@ -3,18 +3,46 @@
 namespace App\Handlers\Telegram;
 
 use App\Dto\TelegramMessageDto;
+use App\Enums\Telegram\ChatStateEnum;
+use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Enums\Telegram\ScheduleEnum;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
+use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
+use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
-class ScheduleStateHandler
+class ScheduleStateHandler implements StateHandlerInterface
 {
-    public function __construct(private readonly QuestionsRedisManager $questionsRedisManager) {}
+    public function __construct(
+        private readonly EmailStateHandler $nextHandler,
+        private readonly QuestionsRedisManager $questionsRedisManager
+    ) {}
 
-    public function sendScheduleQuestion(TelegramMessageDto $messageDto): void
+    public function handle(TelegramMessageDto $messageDto, int $chatState): void
+    {
+        $userId = $messageDto->user->getId();
+        $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, HoursOnStudyEnum::QUESTION->value);
+
+        if ($chatState === ChatStateEnum::SCHEDULE->value && $previousAnswer) {
+            $this->sendQuestion($messageDto);
+            Log::channel('telegram')->info('Current schedule state: ' . $chatState);
+            if ($this->acceptAnswer($messageDto)) {
+                $messageDto->answer = null;
+                $messageDto->callbackData = null;
+                $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::EMAIL->value);
+
+                $this->nextHandler->handle($messageDto, ChatStateEnum::EMAIL->value);
+            }
+        } else {
+            Log::channel('telegram')->info('Go to email handler: ' . $chatState);
+            $this->nextHandler->handle($messageDto, $chatState);
+        }
+    }
+
+    private function sendQuestion(TelegramMessageDto $messageDto): void
     {
         $userId = $messageDto->user->getId();
         $scheduleInfo = json_decode(Redis::get($userId.'_'.ScheduleEnum::QUESTION->value), true);
@@ -58,8 +86,12 @@ class ScheduleStateHandler
         }
     }
 
-    public function acceptScheduleAnswer(TelegramMessageDto $messageDto): bool
+    private function acceptAnswer(TelegramMessageDto $messageDto): bool
     {
+        if (empty($messageDto->answer)) {
+            return false;
+        }
+        
         $userId = $messageDto->user->getId();
 
         if (in_array($messageDto->callbackData, array_column(WorkspaceSchedule::cases(), 'value'))) {

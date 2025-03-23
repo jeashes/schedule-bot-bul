@@ -11,13 +11,13 @@ class MakeTasks
     ) {}
 
     public function genTasksByAi(
-    string $topic,
-    string $goal,
-    string $knowledgeLevel,
-    string $tools,
-    string $courseType,
-    int $scheduleDaysCount,
-    float $hours,
+        string $topic,
+        string $goal,
+        string $knowledgeLevel,
+        string $tools,
+        string $courseType,
+        int $scheduleDaysCount,
+        float $hours,
     ): array {
         $systemPrompt = "Your task add to this system prompt that
 

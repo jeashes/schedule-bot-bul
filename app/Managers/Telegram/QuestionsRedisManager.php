@@ -20,7 +20,7 @@ class QuestionsRedisManager
         $this->removeOldAnswers($userId);
 
         $this->resetUserAnswer($userId, SubjectStudiesEnum::QUESTION->value);
-        
+
         $this->resetUserAnswer($userId, GoalEnum::QUESTION->value);
 
         $this->resetUserAnswer($userId, KnowledgeLevelEnum::QUESTION->value);
@@ -51,6 +51,11 @@ class QuestionsRedisManager
     public function setAnswerForQuestion(string $userId, string $question, string $answer = '', int $approved = 0): void
     {
         Redis::set($userId.'_'.$question, json_encode(['current_answer' => $answer, 'approved' => $approved]));
+    }
+
+    public function getPreviousAnswer(string $userId, string $question): int
+    {
+        return json_decode(Redis::get($userId.'_'.$question), true)['approved'] ?? 0;
     }
 
     private function removeOldAnswers(string $userId): void
