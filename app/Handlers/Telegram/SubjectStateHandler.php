@@ -23,7 +23,7 @@ class SubjectStateHandler implements StateHandlerInterface
     {
         if ($chatState === ChatStateEnum::SUBJECT_STUDY->value) {
             $this->sendQuestion($messageDto);
-            Log::channel('telegram')->info('Current subject state: ' . $chatState);
+            Log::channel('telegram')->info('Current subject state: '.$chatState);
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
@@ -32,7 +32,7 @@ class SubjectStateHandler implements StateHandlerInterface
                 $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
             }
         } else {
-            Log::channel('telegram')->info('Go to goal handler: ' . $chatState);
+            Log::channel('telegram')->info('Go to goal handler: '.$chatState);
             $this->nextHandler->handle($messageDto, $chatState);
         }
     }
@@ -58,7 +58,7 @@ class SubjectStateHandler implements StateHandlerInterface
         if (empty($messageDto->answer)) {
             return false;
         }
-        
+
         $userId = $messageDto->user->getId();
         $validateSubject = $this->subjectValidator->validateSubjectTitle($messageDto->answer ?? '');
 

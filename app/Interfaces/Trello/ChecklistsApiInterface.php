@@ -9,13 +9,17 @@ interface ChecklistsApiInterface
     public function createCheckItem(string $idCheckList, string $name): Response;
 
     public function createChecklist(
-        string $idCard, ?string $name = null,
-        ?string $pos = null, ?string $idChecklistSource = null
+        string $idCard,
+        ?string $name = null,
+        ?string $pos = null,
+        ?string $idChecklistSource = null
     ): Response;
 
     public function getChecklist(
-        string $idChecklist, ?string $cards = null,
-        ?string $checkItems = null, ?string $checkItemsFields = null,
+        string $idChecklist,
+        ?string $cards = null,
+        ?string $checkItems = null,
+        ?string $checkItemsFields = null,
         ?string $fields = null
     ): Response;
 
