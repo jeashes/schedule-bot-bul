@@ -8,6 +8,7 @@ use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Exceptions\ChatIdNotFoundException;
 use App\Handlers\Telegram\MessageHandler;
 use App\Managers\Telegram\QuestionsRedisManager;
+use App\Models\Mongo\BotPhrases;
 use App\Repository\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -24,7 +25,8 @@ class TelegramController extends Controller
         private readonly Telegram $telegram,
         private readonly MessageHandler $messageHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
-    ) {}
+    ) {
+    }
 
     #[Post('/webhook')]
     public function handleWebhook(Request $request, UserRepository $userRepository): void
@@ -54,10 +56,13 @@ class TelegramController extends Controller
             );
 
             $user = $userRepository->findByChatIdOrCreate($userDto);
+            $languageCode = ($request['message']['from']['language_code'] ?? $request['callback_query']['from']['language_code']) ?? BotPhrases::DEFAULT_LANGUAGE_CODE;
+
             $message = new TelegramMessageDto(
                 $request['message']['text'] ?? null,
                 $request['callback_query']['data'] ?? null,
-                $user
+                $user,
+                $languageCode
             );
 
             $this->botStartMessage($message);
@@ -77,9 +82,11 @@ class TelegramController extends Controller
         if ($messageDto->answer === '/start') {
 
             $this->questionsRedisManager->resetUserAnswers($userId);
+            $this->questionsRedisManager->uploadBotPhrasesByLang($messageDto->languageCode);
+    
             $keyboard = new InlineKeyboard([
                 [
-                    'text' => 'LET\'S GOOO',
+                    'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'lets_go'),
                     'callback_data' => $userId.'_'.SubjectStudiesEnum::QUESTION->value,
                 ],
             ]);
@@ -90,7 +97,8 @@ class TelegramController extends Controller
                 'chat_id' => $messageDto->user->getChatId(),
                 'reply_markup' => $keyboard,
                 'text' => __(
-                    'bot_messages.welcome', [
+                    $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'welcome'),
+                    [
                         'name' => $messageDto->user->getFirstName().' '
                         .$messageDto->user->getLastName(),
                     ]
