@@ -15,6 +15,11 @@ use Illuminate\Support\Facades\Redis;
 
 class QuestionsRedisManager
 {
+    public function __construct(private readonly BotPhrasesManager $botPhrasesManager)
+    {
+        
+    }
+
     public function resetUserAnswers(string $userId): void
     {
         $this->removeOldAnswers($userId);
@@ -56,6 +61,17 @@ class QuestionsRedisManager
     public function getPreviousAnswer(string $userId, string $question): int
     {
         return json_decode(Redis::get($userId.'_'.$question), true)['approved'] ?? 0;
+    }
+
+    public function uploadBotPhrasesByLang(string $languageCode): void
+    {
+        $translatedPhrases = $this->botPhrasesManager->preparePhrasesByLanguage($languageCode)->toArray();
+        Redis::set($languageCode, json_encode($translatedPhrases));
+    }
+
+    public function getBotPhraseByKey(string $languageCode, string $key): string
+    {
+        return json_decode(Redis::get($languageCode), true)[$key];
     }
 
     private function removeOldAnswers(string $userId): void
