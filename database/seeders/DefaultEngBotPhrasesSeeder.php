@@ -119,6 +119,41 @@ class DefaultEngBotPhrasesSeeder extends Seeder
                 'language_code' => 'en',
                 'phrase_text' => 'What your main goal in learning ?',
             ],
+            [
+                'phrase_key' => 'title_saved',
+                'language_code' => 'en',
+                'phrase_text' => 'Your title of object studies was save✅'
+            ],
+            [
+                'phrase_key' => 'goal_saved',
+                'language_code' => 'en',
+                'phrase_text' => 'Your study goal was save✅'
+            ],
+            [
+                'phrase_key' => 'knowledge_level_saved',
+                'language_code' => 'en',
+                'phrase_text' => 'Your knowledge level was save✅'
+            ],
+            [
+                'phrase_key' => 'tools_saved',
+                'language_code' => 'en',
+                'phrase_text' => 'Your description of tools was save✅'
+            ],
+            [
+                'phrase_key' => 'schedule_saved',
+                'language_code' => 'en',
+                'phrase_text' => 'Schedule was sucessufully save✅'
+            ],
+            [
+                'phrase_key' => 'hours_saved',
+                'language_code' => 'en',
+                'phrase_text' => 'Hours on studying was sucessufully save✅'
+            ],
+            [
+                'phrase_key' => 'course_type_saved',
+                'language_code' => 'en',
+                'phrase_text' => 'Form of study process was sucessufully save✅'
+            ]
         ];
 
         DB::connection('mongodb')->table('bot_phrases')->insert($phrases);
