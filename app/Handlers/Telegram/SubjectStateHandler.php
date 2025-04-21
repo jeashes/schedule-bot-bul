@@ -23,7 +23,7 @@ class SubjectStateHandler implements StateHandlerInterface
     {
         if ($chatState === ChatStateEnum::SUBJECT_STUDY->value) {
             $this->sendQuestion($messageDto);
-            Log::channel('telegram')->info('Current subject state: ' . $chatState);
+            Log::channel('telegram')->info('Current subject state: '.$chatState);
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
@@ -32,7 +32,7 @@ class SubjectStateHandler implements StateHandlerInterface
                 $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
             }
         } else {
-            Log::channel('telegram')->info('Go to goal handler: ' . $chatState);
+            Log::channel('telegram')->info('Go to goal handler: '.$chatState);
             $this->nextHandler->handle($messageDto, $chatState);
         }
     }
@@ -47,7 +47,7 @@ class SubjectStateHandler implements StateHandlerInterface
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => __('bot_messages.subject_of_studies'),
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'subject_of_studies'),
                 'parse_mode' => 'Markdown',
             ]);
         }
@@ -58,7 +58,7 @@ class SubjectStateHandler implements StateHandlerInterface
         if (empty($messageDto->answer)) {
             return false;
         }
-        
+
         $userId = $messageDto->user->getId();
         $validateSubject = $this->subjectValidator->validateSubjectTitle($messageDto->answer ?? '');
 
@@ -68,7 +68,7 @@ class SubjectStateHandler implements StateHandlerInterface
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
-                    'text' => 'Your title of object studies was save✅',
+                    'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'title_saved'),
                 ]);
 
                 return $validateSubject;
@@ -81,7 +81,7 @@ class SubjectStateHandler implements StateHandlerInterface
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
                     'text' => __(
-                        'bot_messages.wrong_subject_title',
+                        $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'wrong_subject_title'),
                         ['email' => $messageDto->answer]
                     ),
                 ]);

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Dto\Trello\CardDto;
 use App\Enums\Trello\InviteTypeEnum;
 use App\Helpers\WeekDayDates;
+use App\Managers\Telegram\QuestionsRedisManager;
 use App\Models\Mongo\User;
 use App\Models\Mongo\Workspace;
 use App\Repository\Trello\BoardRepository;
@@ -32,7 +33,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(private Workspace $workspace, private User $user) {}
+    public function __construct(private Workspace $workspace, private User $user, private readonly string $languageCode) {}
 
     /**
      * Execute the job.
@@ -40,6 +41,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
     public function handle(
         BoardRepository $boardRepository,
         BoardClient $boardClient,
+        QuestionsRedisManager $questionsRedisManager,
         MemberClient $memberClient,
         CardClient $cardClient,
         CheckListClient $checklistClient,
@@ -101,7 +103,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
             TelegramBotRequest::initialize($telegram);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $this->user->getChatId(),
-                'text' => "Check your mail, tasks on next two weeks were successfully created!\nYour board: {$board->url}",
+                'text' => $questionsRedisManager->getBotPhraseByKey($this->languageCode, 'check_email'),
             ]);
         } catch (Throwable $e) {
             Log::channel('trello')->error($e->getMessage(), ['backtrace' => $e->getTraceAsString()]);

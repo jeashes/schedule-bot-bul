@@ -42,7 +42,7 @@ class EmailStateHandler implements StateHandlerInterface
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => __(
-                    'bot_messages.ask_email',
+                    $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'ask_email'),
                     ['triesCount' => 3]
                 ),
                 'parse_mode' => 'Markdown',
@@ -68,7 +68,7 @@ class EmailStateHandler implements StateHandlerInterface
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
                     'text' => __(
-                        'bot_messages.wrong_email',
+                        $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'wrong_email'),
                         ['email' => $messageDto->answer]
                     ),
                 ]);

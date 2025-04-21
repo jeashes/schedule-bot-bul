@@ -44,7 +44,7 @@ class MessageHandler
             ]);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => __('bot_messages.error'),
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'error'),
                 'parse_mode' => 'Markdown',
             ]);
         }
@@ -59,7 +59,10 @@ class MessageHandler
             $trelloBoard = $this->boardRepository->getBoardByUserId($userId);
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => __('bot_messages.workspace_created', ['url' => $trelloBoard->url]),
+                'text' => __(
+                    $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'workspace_created'),
+                    ['url' => $trelloBoard->url]
+                ),
                 'parse_mode' => 'Markdown',
             ]);
         }

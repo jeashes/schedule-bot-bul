@@ -10,8 +10,8 @@ use App\Enums\Telegram\ToolsEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\OpenAi\SubjectToolsValidator;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class ToolsStateHandler implements StateHandlerInterface
@@ -29,7 +29,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
         if ($chatState === ChatStateEnum::TOOLS->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            Log::channel('telegram')->info('Current tools state: ' . $chatState);
+            Log::channel('telegram')->info('Current tools state: '.$chatState);
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
@@ -38,7 +38,7 @@ class ToolsStateHandler implements StateHandlerInterface
                 $this->nextHandler->handle($messageDto, ChatStateEnum::COURSE_TYPE->value);
             }
         } else {
-            Log::channel('telegram')->info('Go to course type handler: ' . $chatState);
+            Log::channel('telegram')->info('Go to course type handler: '.$chatState);
             $this->nextHandler->handle($messageDto, $chatState);
         }
     }
@@ -54,7 +54,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => __('bot_messages.tools_for_study'),
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'tools_for_study'),
                 'parse_mode' => 'Markdown',
             ]);
         }
@@ -65,7 +65,7 @@ class ToolsStateHandler implements StateHandlerInterface
         if (empty($messageDto->answer)) {
             return false;
         }
-        
+
         $userId = $messageDto->user->getId();
         $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
         $tools = $this->subjectToolsValidator->validateToolsForStudy($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
@@ -76,7 +76,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
-                    'text' => 'Your description of tools was save✅',
+                    'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'tools_saved'),
                 ]);
 
                 return $tools;
@@ -88,7 +88,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
-                    'text' => __('bot_messages.wrong_tools_for_study'),
+                    'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'wrong_tools_for_study'),
                 ]);
 
                 return $tools;
