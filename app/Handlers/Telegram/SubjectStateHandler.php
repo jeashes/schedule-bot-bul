@@ -47,7 +47,7 @@ class SubjectStateHandler implements StateHandlerInterface
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => __('bot_messages.subject_of_studies'),
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'subject_of_studies'),
                 'parse_mode' => 'Markdown',
             ]);
         }
@@ -68,7 +68,7 @@ class SubjectStateHandler implements StateHandlerInterface
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
-                    'text' => 'Your title of object studies was save✅',
+                    'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'title_saved'),
                 ]);
 
                 return $validateSubject;
@@ -81,7 +81,7 @@ class SubjectStateHandler implements StateHandlerInterface
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
                     'text' => __(
-                        'bot_messages.wrong_subject_title',
+                        $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'wrong_subject_title'),
                         ['email' => $messageDto->answer]
                     ),
                 ]);
