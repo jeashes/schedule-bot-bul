@@ -80,7 +80,7 @@ class ScheduleStateHandler implements StateHandlerInterface
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'reply_markup' => $keyboard,
-                'text' => __('bot_messages.schedule'),
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'schedule'),
                 'parse_mode' => 'Markdown',
             ]);
         }
@@ -100,7 +100,7 @@ class ScheduleStateHandler implements StateHandlerInterface
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => 'Schedule was sucessufylly save✅',
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'schedule_saved'),
             ]);
 
             return true;

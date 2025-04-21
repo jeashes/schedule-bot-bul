@@ -52,7 +52,7 @@ class HoursStateHandler implements StateHandlerInterface
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => __('bot_messages.total_hours_on_study'),
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'total_hours_on_study'),
             ]);
         }
     }
@@ -74,7 +74,7 @@ class HoursStateHandler implements StateHandlerInterface
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $userId,
-                    'text' => 'Hours on studying was sucessufully save✅',
+                    'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'hours_saved'),
                 ]);
 
                 return $validateHours;
@@ -82,7 +82,7 @@ class HoursStateHandler implements StateHandlerInterface
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
                     'text' => __(
-                        'bot_messages.wrong_hours',
+                        $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'wrong_hours'),
                         ['hours' => $messageDto->answer]
                     ),
                 ]);

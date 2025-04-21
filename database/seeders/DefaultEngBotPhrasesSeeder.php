@@ -153,6 +153,11 @@ class DefaultEngBotPhrasesSeeder extends Seeder
                 'phrase_key' => 'course_type_saved',
                 'language_code' => 'en',
                 'phrase_text' => 'Form of study process was sucessufully save✅'
+            ],
+            [
+                'phrase_key' => 'check_email',
+                'language_code' => 'en',
+                'phrase_text' => "Check your mail, tasks on next two weeks were successfully created!\nYour board: :url"
             ]
         ];
 

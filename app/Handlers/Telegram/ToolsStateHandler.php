@@ -54,7 +54,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => __('bot_messages.tools_for_study'),
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'tools_for_study'),
                 'parse_mode' => 'Markdown',
             ]);
         }
@@ -76,7 +76,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
-                    'text' => 'Your description of tools was save✅',
+                    'text' =>  $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'tools_saved'),
                 ]);
 
                 return $tools;
@@ -88,7 +88,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
-                    'text' => __('bot_messages.wrong_tools_for_study'),
+                    'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'wrong_tools_for_study'),
                 ]);
 
                 return $tools;

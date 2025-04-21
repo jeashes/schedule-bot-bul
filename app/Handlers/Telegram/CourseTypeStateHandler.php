@@ -70,7 +70,7 @@ class CourseTypeStateHandler implements StateHandlerInterface
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'reply_markup' => $keyboard,
-                'text' => __('bot_messages.course_type'),
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'course_type'),
                 'parse_mode' => 'Markdown',
             ]);
         }
@@ -90,7 +90,7 @@ class CourseTypeStateHandler implements StateHandlerInterface
 
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
-                'text' => 'Form of study process was sucessufylly save✅',
+                'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'course_type_saved'),
             ]);
 
             return true;
