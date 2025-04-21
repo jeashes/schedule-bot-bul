@@ -76,7 +76,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
                 TelegramBotRequest::sendMessage([
                     'chat_id' => $messageDto->user->getChatId(),
-                    'text' =>  $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'tools_saved'),
+                    'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'tools_saved'),
                 ]);
 
                 return $tools;

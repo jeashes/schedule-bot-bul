@@ -15,10 +15,7 @@ use Illuminate\Support\Facades\Redis;
 
 class QuestionsRedisManager
 {
-    public function __construct(private readonly BotPhrasesManager $botPhrasesManager)
-    {
-        
-    }
+    public function __construct(private readonly BotPhrasesManager $botPhrasesManager) {}
 
     public function resetUserAnswers(string $userId): void
     {

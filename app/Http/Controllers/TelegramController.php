@@ -25,8 +25,7 @@ class TelegramController extends Controller
         private readonly Telegram $telegram,
         private readonly MessageHandler $messageHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
-    ) {
-    }
+    ) {}
 
     #[Post('/webhook')]
     public function handleWebhook(Request $request, UserRepository $userRepository): void
@@ -83,7 +82,7 @@ class TelegramController extends Controller
 
             $this->questionsRedisManager->resetUserAnswers($userId);
             $this->questionsRedisManager->uploadBotPhrasesByLang($messageDto->languageCode);
-    
+
             $keyboard = new InlineKeyboard([
                 [
                     'text' => $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'lets_go'),

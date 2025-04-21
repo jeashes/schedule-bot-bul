@@ -4,10 +4,7 @@ namespace App\Service\OpenAi;
 
 class BotPhrasesTranslator
 {
-    public function __construct(private readonly DataCreator $dataCreator)
-    {
-        
-    }
+    public function __construct(private readonly DataCreator $dataCreator) {}
 
     public function translate(string $targetLang, string $sourcePhrases): array
     {
@@ -36,7 +33,7 @@ class BotPhrasesTranslator
 
         Translate all messages maintaining the original meaning and formatting.
         PROMPT;
-    
+
         $data = json_decode($this->dataCreator->aiAnalyze($systemPrompt, ''), true);
 
         return $data;

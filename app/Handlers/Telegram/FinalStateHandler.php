@@ -31,7 +31,7 @@ class FinalStateHandler implements StateHandlerInterface
             TelegramBotRequest::sendMessage([
                 'chat_id' => $messageDto->user->getChatId(),
                 'text' => __(
-                    $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'trello_workspace_created'), 
+                    $this->questionsRedisManager->getBotPhraseByKey($messageDto->languageCode, 'trello_workspace_created'),
                     [
                         'name' => $messageDto->user->getFirstName().' '
                         .$messageDto->user->getLastName(),
