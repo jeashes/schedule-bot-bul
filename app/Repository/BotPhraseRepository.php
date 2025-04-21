@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 
 class BotPhraseRepository
 {
-    public function getPhrasesByLanguageCode(string $languageCode): array|Collection
+    public function getPhrasesByLanguageCode(string $languageCode): Collection
     {
         return BotPhrases::query()->where('language_code', $languageCode)->get();
     }

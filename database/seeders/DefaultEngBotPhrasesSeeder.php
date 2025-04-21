@@ -14,6 +14,11 @@ class DefaultEngBotPhrasesSeeder extends Seeder
     {
         $phrases = [
             [
+                'phrase_key' => 'lets_go',
+                'language_code' => 'en',
+                'phrase_text' => 'LET\'S GOOO'
+            ],
+            [
                 'phrase_key' => 'welcome', 
                 'language_code' => 'en',
                 'phrase_text' => 'Hi, *:name!*'.

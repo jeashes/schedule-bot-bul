@@ -13,7 +13,7 @@ class BotPhrasesManager
         private readonly BotPhrasesTranslator $translator,
     ) {}
 
-    public function preparePhrasesByLanguage(string $languageCode): array|Collection
+    public function preparePhrasesByLanguage(string $languageCode): Collection
     {
         $phrases = $this->botPhraseRepository->getPhrasesByLanguageCode($languageCode)->toArray();
 
