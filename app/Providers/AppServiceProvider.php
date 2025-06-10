@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Helpers\WeekDayDates;
 use App\Repository\TrelloWorkSpaceRepository;
 use App\Repository\UserRepository;
+use App\Service\Google\GoogleConfig;
 use App\Service\Trello\TrelloConfig;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(TrelloConfig::class, function ($app) {
             return new TrelloConfig(config('trello.api_key'), config('trello.api_token'));
+        });
+
+        $this->app->singleton(GoogleConfig::class, function ($app) {
+            return new GoogleConfig(config('google.api_key'), config('google.cx'));
         });
 
         $this->app->singleton(TrelloWorkSpaceRepository::class);
