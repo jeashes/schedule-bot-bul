@@ -14,6 +14,8 @@ class User extends Model
     protected $collection = 'users';
 
     protected $fillable = [
+        'telegram_id',
+        'trello_id',
         'username',
         'workspace_id',
         'first_name',
@@ -28,6 +30,16 @@ class User extends Model
     public function getId(): string
     {
         return $this->getAttribute('_id');
+    }
+
+    public function getTelegramId(): int
+    {
+        return $this->getAttribute('telegram_id');
+    }
+
+    public function setTelegramId(int $value): int
+    {
+        $this->setAttribute('telegram_id', $value);
     }
 
     public function getUserName(): ?string
