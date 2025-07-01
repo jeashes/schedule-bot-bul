@@ -30,8 +30,10 @@ class TelegramWebhookUpdateCommand extends Command
     {
         $botToken = config('telegram.bot_api_token');
         $botWebhook = config('telegram.bot_webhook');
+        $telegramSecret = config('telegram.secret_token');
+
         $queryParams = [
-            'url' => "{$botWebhook}/api/webhook",
+            'url' => "{$botWebhook}/api/webhook/{$telegramSecret}",
         ];
 
         try {

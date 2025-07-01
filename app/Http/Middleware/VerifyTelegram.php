@@ -15,7 +15,7 @@ class VerifyTelegram
     {
         $routeSecret = $request->route('tg_secret');
 
-        abort_unless($routeSecret === config('telegram.bot_webhook'), 403, 'Invalid Telegram webhook secret');
+        abort_unless($routeSecret === config('telegram.secret_token'), 403, 'Invalid Telegram webhook secret');
 
         $telegramId = $request->input('message.from.id')
             ?? $request->input('callback_query.from.id')
