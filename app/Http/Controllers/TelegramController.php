@@ -16,6 +16,7 @@ use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Exception\TelegramException;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use Longman\TelegramBot\Telegram;
+use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Post;
 
 class TelegramController extends Controller
@@ -24,12 +25,15 @@ class TelegramController extends Controller
         private readonly Telegram $telegram,
         private readonly MessageHandler $messageHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
-    ) {}
+    ) {
 
-    #[Post('/webhook')]
+    }
+
+    #[Post('/webhook/{tg_secret}')]
+    #[Middleware('verify.telegram')]
     public function handleWebhook(Request $request, UserRepository $userRepository): void
     {
-        Log::channel('telegram')->debug(json_encode($request->all()));
+        Log::channel('telegram')->debug('Telegram request data', $request->all());
 
         try {
             $this->telegram->handle();
