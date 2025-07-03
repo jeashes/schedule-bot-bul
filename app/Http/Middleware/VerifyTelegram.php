@@ -26,7 +26,11 @@ class VerifyTelegram
             return response('ignored', 200);
         }
 
-        $user = MongoUser::query()->where(['telegram_id' => $telegramId])->firstOrFail();
+        $user = MongoUser::query()
+                    ->where(['telegram_id' => $telegramId])
+                    ->orWhere(['chat_id' => $telegramId])
+                    ->firstOrFail();
+
         Auth::login($user);
 
         return next($request);
