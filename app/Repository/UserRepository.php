@@ -10,18 +10,13 @@ class UserRepository
     public function findByChatIdOrCreate(UserDto $userDto): MongoUser
     {
         $userMessageData = [
-            'first_name' => $userDto->firstName,
+            'telegram_id' => $userDto->telegramId,
             'chat_id' => $userDto->chatId,
+            'first_name' => $userDto->firstName,
+            'last_name' => $userDto->lastName,
+            'username' => $userDto->username,
             'language_code' => $userDto->languageCode,
         ];
-
-        if (! is_null($userDto->lastName)) {
-            $userMessageData['last_name'] = $userDto->lastName;
-        }
-
-        if (! is_null($userDto->username)) {
-            $userMessageData['username'] = $userDto->username;
-        }
 
         return MongoUser::query()->firstOrCreate(['chat_id' => $userDto->chatId], $userMessageData);
     }

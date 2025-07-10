@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Dto\TelegramMessageDto;
 use App\Dto\UserDto;
 use App\Enums\Telegram\SubjectStudiesEnum;
-use App\Exceptions\ChatIdNotFoundException;
+use App\Exceptions\TelegramIdNotFoundException;
 use App\Handlers\Telegram\MessageHandler;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Repository\UserRepository;
@@ -16,6 +16,7 @@ use Longman\TelegramBot\Entities\InlineKeyboard;
 use Longman\TelegramBot\Exception\TelegramException;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 use Longman\TelegramBot\Telegram;
+use Spatie\RouteAttributes\Attributes\Middleware;
 use Spatie\RouteAttributes\Attributes\Post;
 
 class TelegramController extends Controller
@@ -24,36 +25,52 @@ class TelegramController extends Controller
         private readonly Telegram $telegram,
         private readonly MessageHandler $messageHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
-    ) {}
+    ) {
 
-    #[Post('/webhook')]
+    }
+
+    #[Post('/webhook/{tg_secret}')]
+    #[Middleware('verify.telegram')]
     public function handleWebhook(Request $request, UserRepository $userRepository): void
     {
-        Log::channel('telegram')->debug(json_encode($request->all()));
+        Log::channel('telegram')->debug('Telegram request data', $request->all());
 
         try {
             $this->telegram->handle();
 
             $requestData = $request->toArray();
 
-            $messageFrom = $this->getMessageFrom($requestData, ['my_chat_member', 'chat'])
-            ?? $this->getMessageFrom($requestData, ['my_chat_member', 'from'])
-            ?? $this->getMessageFrom($requestData, ['message', 'from'])
-            ?? $this->getMessageFrom($requestData, ['callback_query', 'from']);
+            $messageFrom = data_get($requestData, 'message.from')
+                ?? data_get($requestData, 'callback_query.from')
+                ?? data_get($requestData, 'inline_query.from');
 
-            if (! $messageFrom) {
-                throw new ChatIdNotFoundException('Chat id not foundm check telegram logs and message structure');
+            $chatId = data_get($requestData, 'message.chat.id')
+                ?? data_get($requestData, 'my_chat_member.chat.id')
+                ?? data_get($requestData, 'callback_query.message.chat.id');
+
+            $telegramId = $messageFrom['id'];
+
+            if (! $telegramId) {
+                Log::channel('telegram')->error('Telegram id not found', $requestData);
+                throw new TelegramIdNotFoundException('Telegram id not found. Please check telegram logs and message structure');
+            }
+
+            if (! $chatId) {
+                Log::channel('telegram')->debug('Chat id not found', $requestData);
+                $chatId = $telegramId;
             }
 
             $userDto = new UserDto(
-                username: array_key_exists('username', $messageFrom) ? $messageFrom['username'] : null,
+                username: $messageFrom['username'] ?? null,
                 firstName: $messageFrom['first_name'] ?? '#####',
-                lastName: array_key_exists('last_name', $messageFrom) ? $messageFrom['last_name'] : null,
-                chatId: $messageFrom['id'],
+                lastName: $messageFrom['last_name'] ?? null,
+                chatId: $chatId,
                 languageCode: $messageFrom['language_code'] ?? 'en',
+                telegramId: $telegramId
             );
 
             $user = $userRepository->findByChatIdOrCreate($userDto);
+
             $message = new TelegramMessageDto(
                 $request['message']['text'] ?? null,
                 $request['callback_query']['data'] ?? null,
@@ -98,18 +115,5 @@ class TelegramController extends Controller
                 'parse_mode' => 'Markdown',
             ]);
         }
-    }
-
-    private function getMessageFrom(array $data, array $keys): ?array
-    {
-        foreach ($keys as $key) {
-            if (array_key_exists($key, $data)) {
-                $data = $data[$key];
-            } else {
-                return null;
-            }
-        }
-
-        return $data;
     }
 }
