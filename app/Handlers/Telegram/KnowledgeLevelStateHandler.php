@@ -53,7 +53,7 @@ class KnowledgeLevelStateHandler implements StateHandlerInterface
             $this->questionsRedisManager->setAnswerForQuestion($userId, KnowledgeLevelEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __('bot_messages.knowledge_level_question'),
                 'parse_mode' => 'Markdown',
             ]);
@@ -75,7 +75,7 @@ class KnowledgeLevelStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->setAnswerForQuestion($userId, KnowledgeLevelEnum::QUESTION->value, $messageDto->answer, 1);
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => 'Your knowledge level was save✅',
                 ]);
 
@@ -87,7 +87,7 @@ class KnowledgeLevelStateHandler implements StateHandlerInterface
                 }
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => __('bot_messages.wrong_knowledge_level'),
                 ]);
 

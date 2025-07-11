@@ -38,12 +38,12 @@ class MessageHandler
             Log::channel('telegram')->error('Something went wrong: '.$e->getMessage().','.$e->getLine(), [
                 'chat_state' => $state,
                 'user_id' => $userId,
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'user_has_workspace' => $this->boardRepository->userBoardWasCreated($userId),
                 'stacktrace' => $e->getTraceAsString(),
             ]);
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __('bot_messages.error'),
                 'parse_mode' => 'Markdown',
             ]);
@@ -58,7 +58,7 @@ class MessageHandler
         } else {
             $trelloBoard = $this->boardRepository->getBoardByUserId($userId);
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __('bot_messages.workspace_created', ['url' => $trelloBoard->url]),
                 'parse_mode' => 'Markdown',
             ]);

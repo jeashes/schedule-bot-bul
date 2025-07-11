@@ -46,7 +46,7 @@ class SubjectStateHandler implements StateHandlerInterface
             $this->questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __('bot_messages.subject_of_studies'),
                 'parse_mode' => 'Markdown',
             ]);
@@ -67,7 +67,7 @@ class SubjectStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, $messageDto->answer, 1);
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => 'Your title of object studies was save✅',
                 ]);
 
@@ -79,7 +79,7 @@ class SubjectStateHandler implements StateHandlerInterface
                 }
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => __(
                         'bot_messages.wrong_subject_title',
                         ['email' => $messageDto->answer]

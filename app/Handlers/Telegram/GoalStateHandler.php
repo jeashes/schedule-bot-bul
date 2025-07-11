@@ -51,7 +51,7 @@ class GoalStateHandler implements StateHandlerInterface
             $this->questionsRedisManager->setAnswerForQuestion($userId, GoalEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __('bot_messages.goal_question'),
                 'parse_mode' => 'Markdown',
             ]);
@@ -73,7 +73,7 @@ class GoalStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->setAnswerForQuestion($userId, GoalEnum::QUESTION->value, $messageDto->answer, 1);
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => 'Your study goal was save✅',
                 ]);
 
@@ -85,7 +85,7 @@ class GoalStateHandler implements StateHandlerInterface
                 }
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => __('bot_messages.wrong_learn_goal'),
                 ]);
 

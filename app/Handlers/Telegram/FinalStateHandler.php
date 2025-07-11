@@ -27,11 +27,11 @@ class FinalStateHandler implements StateHandlerInterface
             dispatch(new CreateUserTrelloWorkspace($dto->workspace, $dto->user));
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __(
                     'bot_messages.trello_workspace_created', [
-                        'name' => $messageDto->user->getFirstName().' '
-                        .$messageDto->user->getLastName(),
+                        'name' => $messageDto->user->first_name.' '
+                        .$messageDto->user->last_name,
                     ]
                 ),
                 'parse_mode' => 'Markdown',

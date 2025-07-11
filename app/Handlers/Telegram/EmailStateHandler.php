@@ -40,7 +40,7 @@ class EmailStateHandler implements StateHandlerInterface
             $this->questionsRedisManager->setAnswerForQuestion($userId, UserEmailEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __(
                     'bot_messages.ask_email',
                     ['triesCount' => 3]
@@ -66,7 +66,7 @@ class EmailStateHandler implements StateHandlerInterface
                 return $validatedEmail;
             case false:
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => __(
                         'bot_messages.wrong_email',
                         ['email' => $messageDto->answer]
