@@ -2,9 +2,29 @@
 
 namespace App\Models\Mongo;
 
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * Class User
+ *
+ * Represents a user document in the MongoDB 'users' collection.
+ *
+ * @property string $_id           The unique identifier for the user (MongoDB ObjectId).
+ * @property int $telegram_id      The Telegram user ID.
+ * @property string|null $trello_id The Trello user ID.
+ * @property string|null $username The Telegram username.
+ * @property string|null $workspace_id The associated workspace ID.
+ * @property string|null $first_name The user's first name.
+ * @property string|null $last_name  The user's last name.
+ * @property int|null $chat_id     The Telegram chat ID.
+ * @property string|null $language_code The user's language code.
+ * @property string|null $email    The user's email address.
+ * @property \Carbon\Carbon|null $created_at The creation timestamp.
+ * @property \Carbon\Carbon|null $updated_at The update timestamp.
+ * 
+ * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ * 
+ */
 class User extends Model
 {
     public $timestamps = true;
@@ -27,98 +47,11 @@ class User extends Model
         'updated_at',
     ];
 
-    public function getId(): string
-    {
-        return $this->getAttribute('_id');
-    }
-
-    public function getTelegramId(): int
-    {
-        return $this->getAttribute('telegram_id');
-    }
-
-    public function setTelegramId(int $value): int
-    {
-        $this->setAttribute('telegram_id', $value);
-    }
-
-    public function getUserName(): ?string
-    {
-        return $this->getAttribute('username');
-    }
-
-    public function setUserName(string $value): void
-    {
-        $this->setAttribute('username', $value);
-    }
-
-    public function getFirstName(): string
-    {
-        return $this->getAttribute('first_name');
-    }
-
-    public function setFirstName(string $value): void
-    {
-        $this->setAttribute('first_name', $value);
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->getAttribute('last_name');
-    }
-
-    public function setLastName(string $value): void
-    {
-        $this->setAttribute('lasts_name', $value);
-    }
-
-    public function getChatId(): int
-    {
-        return $this->getAttribute('chat_id');
-    }
-
-    public function setChatId(int $value): void
-    {
-        $this->setAttribute('chat_id', $value);
-    }
-
-    public function getLanguageCode(): string
-    {
-        return $this->getAttribute('language_code');
-    }
-
-    public function setLanguageCode(string $value): void
-    {
-        $this->setAttribute('language_code', $value);
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->getAttribute('email');
-    }
-
-    public function setEmail(string $value): void
-    {
-        $this->setAttribute('email', $value);
-    }
-
-    public function workspace(): HasOne
-    {
-        return $this->hasOne(Workspace::class, 'workspace_id', '_id');
-    }
-
-    public function getWorkspace(): ?Workspace
-    {
-        return $this->workspace;
-    }
-
-    public function getWorkspaceId(): ?string
-    {
-        return $this->getAttribute('workspace_id');
-    }
-
-    public function setWorkspaceId(string $value): void
-    {
-        $this->setAttribute('workspace_id', $value);
-    }
+    protected $casts = [
+        '_id' => 'string',
+        'telegram_id' => 'integer',
+        'chat_id' => 'integer',
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime'
+    ];
 }

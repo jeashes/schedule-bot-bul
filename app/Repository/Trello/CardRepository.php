@@ -15,7 +15,7 @@ class CardRepository
                 'trello_id' => $dto->id,
                 'board_id' => $dto->idBoard,
                 'url' => $dto->url,
-                'due' => $dto->closed,
+                'due' => $dto->due,
                 'dueComplete' => $dto->dueComplete,
                 'email' => $dto->email,
             ],
