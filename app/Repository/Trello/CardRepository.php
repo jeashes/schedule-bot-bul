@@ -9,7 +9,7 @@ class CardRepository
 {
     public function saveCard(string $userId, CardDto $dto): TrelloCard
     {
-        return TrelloCard::firstOrCreate(
+        return TrelloCard::query()->firstOrCreate(
             [
                 'user_id' => $userId,
                 'trello_id' => $dto->id,

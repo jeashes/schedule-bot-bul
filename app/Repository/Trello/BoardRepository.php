@@ -30,7 +30,7 @@ class BoardRepository
 
     public function saveBoard(string $userId, BoardDto $dto): TrelloBoard
     {
-        return TrelloBoard::firstOrCreate(
+        return TrelloBoard::query()->firstOrCreate(
             [
                 'trello_id' => $dto->id,
                 'user_id' => $userId,
