@@ -23,7 +23,7 @@ class CourseTypeStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, ToolsEnum::QUESTION->value);
 
         if ($chatState === ChatStateEnum::COURSE_TYPE->value && $previousAnswer) {
@@ -44,7 +44,7 @@ class CourseTypeStateHandler implements StateHandlerInterface
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $courseTypeInfo = json_decode(Redis::get($userId.'_'.CourseTypeEnum::QUESTION->value), true);
 
         if (is_null($courseTypeInfo['current_answer'])) {
@@ -82,7 +82,7 @@ class CourseTypeStateHandler implements StateHandlerInterface
             return false;
         }
 
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
 
         if (in_array($messageDto->callbackData, array_column(WorkspaceCourseTypeEnum::cases(), 'value'))) {
 

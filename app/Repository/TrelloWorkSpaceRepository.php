@@ -18,7 +18,7 @@ class TrelloWorkSpaceRepository
     public function createWorkspaceByUserId(array $workspaceParams, string $userId): Workspace
     {
         $workspace = Workspace::firstOrCreate($workspaceParams, []);
-        MongoUser::find($userId)->update(['workspace_id' => $workspace->getId()]);
+        MongoUser::find($userId)->update(['workspace_id' => $workspace->_id]);
 
         return $workspace;
     }

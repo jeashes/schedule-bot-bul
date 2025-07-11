@@ -50,7 +50,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
         Telegram $telegram,
     ): void {
         try {
-            $userId = $this->user->getId();
+            $userId = $this->user->_id;
             $board = $boardRepository->createAndStoreBoard($this->workspace, $this->user);
 
             $this->uploadAndUpdateBackground($board->trello_id, $boardClient, $memberClient);
@@ -91,7 +91,7 @@ class CreateUserTrelloWorkspace implements ShouldQueue
                 $cardData['checkItems'][] = $checkItemData['id'];
                 $card = $cardRepository->saveCard($userId, new CardDto($cardData));
 
-                $this->workspace->addTaskId($card->getId());
+                $this->workspace->addTaskId($card->_id);
             }
 
             $boardClient->inviteMemberViaEmail(

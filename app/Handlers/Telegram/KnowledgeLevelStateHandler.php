@@ -24,7 +24,7 @@ class KnowledgeLevelStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, GoalEnum::QUESTION->value);
 
         if ($chatState === ChatStateEnum::KNOWLEDGE_LEVEL->value && $previousAnswer) {
@@ -45,7 +45,7 @@ class KnowledgeLevelStateHandler implements StateHandlerInterface
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $knowledgeLevelInfo = json_decode(Redis::get($userId.'_'.KnowledgeLevelEnum::QUESTION->value), true);
 
         if (is_null($knowledgeLevelInfo['current_answer'])) {
@@ -66,7 +66,7 @@ class KnowledgeLevelStateHandler implements StateHandlerInterface
             return false;
         }
         
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
         $validateKnowledgeLevel = $this->knowledgeLevelValidator->validateKnowledgeLevel($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
 

@@ -23,7 +23,7 @@ class ScheduleStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, HoursOnStudyEnum::QUESTION->value);
 
         if ($chatState === ChatStateEnum::SCHEDULE->value && $previousAnswer) {
@@ -44,7 +44,7 @@ class ScheduleStateHandler implements StateHandlerInterface
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $scheduleInfo = json_decode(Redis::get($userId.'_'.ScheduleEnum::QUESTION->value), true);
 
         if (is_null($scheduleInfo['current_answer'])) {
@@ -92,7 +92,7 @@ class ScheduleStateHandler implements StateHandlerInterface
             return false;
         }
         
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
 
         if (in_array($messageDto->callbackData, array_column(WorkspaceSchedule::cases(), 'value'))) {
 

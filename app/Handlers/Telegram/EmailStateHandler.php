@@ -19,7 +19,7 @@ class EmailStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, ScheduleEnum::QUESTION->value);
 
         if ($chatState === ChatStateEnum::EMAIL->value && $previousAnswer) {
@@ -32,7 +32,7 @@ class EmailStateHandler implements StateHandlerInterface
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $userEmailInfo = json_decode(Redis::get($userId.'_'.UserEmailEnum::QUESTION->value), true);
 
         if (is_null($userEmailInfo['current_answer'])) {
@@ -56,7 +56,7 @@ class EmailStateHandler implements StateHandlerInterface
             return false;
         }
 
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $validatedEmail = $this->validateEmail($messageDto->answer);
 
         switch ($validatedEmail) {

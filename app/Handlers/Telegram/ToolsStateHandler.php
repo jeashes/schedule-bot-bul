@@ -24,7 +24,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, KnowledgeLevelEnum::QUESTION->value);
 
         if ($chatState === ChatStateEnum::TOOLS->value && $previousAnswer) {
@@ -45,7 +45,7 @@ class ToolsStateHandler implements StateHandlerInterface
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $toolsInfo = json_decode(Redis::get($userId.'_'.ToolsEnum::QUESTION->value), true);
 
         if (is_null($toolsInfo['current_answer'])) {
@@ -66,7 +66,7 @@ class ToolsStateHandler implements StateHandlerInterface
             return false;
         }
         
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
         $tools = $this->subjectToolsValidator->validateToolsForStudy($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
 

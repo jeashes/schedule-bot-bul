@@ -90,7 +90,7 @@ class TelegramController extends Controller
 
     private function botStartMessage(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         if ($messageDto->answer === '/start') {
 
             $this->questionsRedisManager->resetUserAnswers($userId);

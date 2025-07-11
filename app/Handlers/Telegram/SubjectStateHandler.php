@@ -27,7 +27,7 @@ class SubjectStateHandler implements StateHandlerInterface
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
-                $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::GOAL->value);
+                $this->questionsRedisManager->updateChatState($messageDto->user->_id, ChatStateEnum::GOAL->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
             }
@@ -39,7 +39,7 @@ class SubjectStateHandler implements StateHandlerInterface
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
 
         if ($messageDto->callbackData === $userId.'_'.SubjectStudiesEnum::QUESTION->value) {
 
@@ -59,7 +59,7 @@ class SubjectStateHandler implements StateHandlerInterface
             return false;
         }
         
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $validateSubject = $this->subjectValidator->validateSubjectTitle($messageDto->answer ?? '');
 
         switch ($validateSubject) {

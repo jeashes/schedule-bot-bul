@@ -23,7 +23,7 @@ class GoalStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, SubjectStudiesEnum::QUESTION->value);
         if ($chatState === ChatStateEnum::GOAL->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
@@ -43,7 +43,7 @@ class GoalStateHandler implements StateHandlerInterface
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $goalInfo = json_decode(Redis::get($userId.'_'.GoalEnum::QUESTION->value), true);
 
         if (is_null($goalInfo['current_answer'])) {
@@ -64,7 +64,7 @@ class GoalStateHandler implements StateHandlerInterface
             return false;
         }
         
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
         $validateGoal = $this->goalValidator->validateLearnGoal($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
 

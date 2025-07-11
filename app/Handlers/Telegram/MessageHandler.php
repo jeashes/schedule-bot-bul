@@ -21,7 +21,7 @@ class MessageHandler
 
     public function handleMessages(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         if ($this->boardRepository->userBoardWasCreated($userId)) {
             $this->questionsRedisManager->updateChatState($userId, ChatStateEnum::USER_HAS_WORKSPACE->value);
         }

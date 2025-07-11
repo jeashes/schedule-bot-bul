@@ -25,7 +25,7 @@ class BoardRepository
 
         $dto = new BoardDto($data);
 
-        return $this->saveBoard($user->getId(), $dto);
+        return $this->saveBoard($user->_id, $dto);
     }
 
     public function saveBoard(string $userId, BoardDto $dto): TrelloBoard

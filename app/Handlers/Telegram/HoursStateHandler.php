@@ -21,7 +21,7 @@ class HoursStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, CourseTypeEnum::QUESTION->value);
 
         if ($chatState === ChatStateEnum::HOURS->value && $previousAnswer) {
@@ -42,7 +42,7 @@ class HoursStateHandler implements StateHandlerInterface
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
 
         $hoursOnStudyInfo = json_decode(Redis::get($userId.'_'.HoursOnStudyEnum::QUESTION->value), true);
 
@@ -63,7 +63,7 @@ class HoursStateHandler implements StateHandlerInterface
             return false;
         }
 
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
 
         $validateHours = $this->validateHours($messageDto->answer);
 

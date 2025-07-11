@@ -23,7 +23,7 @@ class FinalStateHandler implements StateHandlerInterface
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
         if ($chatState === ChatStateEnum::FINISHED->value) {
-            $dto = $this->prepareUserWorkspaceForCreating($messageDto->user->getId());
+            $dto = $this->prepareUserWorkspaceForCreating($messageDto->user->_id);
             dispatch(new CreateUserTrelloWorkspace($dto->workspace, $dto->user));
 
             TelegramBotRequest::sendMessage([
