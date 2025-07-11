@@ -16,7 +16,7 @@ class BoardRepository
     public function createAndStoreBoard(Workspace $workspace, User $user): TrelloBoard
     {
         $response = $this->client->createBoard(
-            name: $workspace->getName(),
+            name: $workspace->name,
             desc: __('trello.workspace_description'),
             idOrganization: config('trello.organization_id')
         );

@@ -104,12 +104,12 @@ class TelegramController extends Controller
             $messageDto->answer = null;
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'reply_markup' => $keyboard,
                 'text' => __(
                     'bot_messages.welcome', [
-                        'name' => $messageDto->user->getFirstName().' '
-                        .$messageDto->user->getLastName(),
+                        'name' => $messageDto->user->first_name.' '
+                        .$messageDto->user->last_name,
                     ]
                 ),
                 'parse_mode' => 'Markdown',

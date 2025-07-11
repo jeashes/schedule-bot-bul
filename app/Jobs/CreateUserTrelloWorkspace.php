@@ -59,15 +59,15 @@ class CreateUserTrelloWorkspace implements ShouldQueue
             $listRepository->saveDefaultLists($userId, $lists);
             $toDoList = $listRepository->getToDoList($userId);
 
-            $scheduleDays = $weekDayDates->getDatesBySchedule($this->workspace->getSchedule());
+            $scheduleDays = $weekDayDates->getDatesBySchedule($this->workspace->schedule);
             $tasks = $makeTasks->genTasksByAi(
-                $this->workspace->getName(),
-                $this->workspace->getGoal(),
-                $this->workspace->getKnowledgeLevel(),
-                $this->workspace->getTools(),
-                $this->workspace->getCourseType(),
+                $this->workspace->name,
+                $this->workspace->goal,
+                $this->workspace->knowledge_level,
+                $this->workspace->tools,
+                $this->workspace->course_type,
                 count($scheduleDays),
-                $this->workspace->getTimeOnSchedule()
+                $this->workspace->time_on_schedule
             );
 
             for ($i = 0; $i < count($tasks); $i++) {
@@ -95,12 +95,12 @@ class CreateUserTrelloWorkspace implements ShouldQueue
             }
 
             $boardClient->inviteMemberViaEmail(
-                $board->trello_id, $this->user->getEmail(), InviteTypeEnum::NORMAL->value
+                $board->trello_id, $this->user->email, InviteTypeEnum::NORMAL->value
             );
 
             TelegramBotRequest::initialize($telegram);
             TelegramBotRequest::sendMessage([
-                'chat_id' => $this->user->getChatId(),
+                'chat_id' => $this->user->chat_id,
                 'text' => "Check your mail, tasks on next two weeks were successfully created!\nYour board: {$board->url}",
             ]);
         } catch (Throwable $e) {
