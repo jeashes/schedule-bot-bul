@@ -9,8 +9,8 @@ use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
 use App\Service\OpenAi\GoalValidator;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class GoalStateHandler implements StateHandlerInterface
@@ -23,11 +23,11 @@ class GoalStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, SubjectStudiesEnum::QUESTION->value);
         if ($chatState === ChatStateEnum::GOAL->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            Log::channel('telegram')->info('Current goal state: ' . $chatState);
+            Log::channel('telegram')->info('Current goal state: '.$chatState);
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
@@ -36,14 +36,14 @@ class GoalStateHandler implements StateHandlerInterface
                 $this->nextHandler->handle($messageDto, ChatStateEnum::KNOWLEDGE_LEVEL->value);
             }
         } else {
-            Log::channel('telegram')->info('Go to knowledge level state: ' . $chatState);
+            Log::channel('telegram')->info('Go to knowledge level state: '.$chatState);
             $this->nextHandler->handle($messageDto, $chatState);
         }
     }
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $goalInfo = json_decode(Redis::get($userId.'_'.GoalEnum::QUESTION->value), true);
 
         if (is_null($goalInfo['current_answer'])) {
@@ -51,7 +51,7 @@ class GoalStateHandler implements StateHandlerInterface
             $this->questionsRedisManager->setAnswerForQuestion($userId, GoalEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __('bot_messages.goal_question'),
                 'parse_mode' => 'Markdown',
             ]);
@@ -63,8 +63,8 @@ class GoalStateHandler implements StateHandlerInterface
         if (empty($messageDto->answer)) {
             return false;
         }
-        
-        $userId = $messageDto->user->getId();
+
+        $userId = $messageDto->user->_id;
         $subjectInfo = json_decode(Redis::get($userId.'_'.SubjectStudiesEnum::QUESTION->value), true);
         $validateGoal = $this->goalValidator->validateLearnGoal($subjectInfo['current_answer'] ?? '', $messageDto->answer ?? '');
 
@@ -73,7 +73,7 @@ class GoalStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->setAnswerForQuestion($userId, GoalEnum::QUESTION->value, $messageDto->answer, 1);
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => 'Your study goal was save✅',
                 ]);
 
@@ -85,7 +85,7 @@ class GoalStateHandler implements StateHandlerInterface
                 }
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => __('bot_messages.wrong_learn_goal'),
                 ]);
 

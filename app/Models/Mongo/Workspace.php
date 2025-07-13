@@ -4,13 +4,33 @@ namespace App\Models\Mongo;
 
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * Class Workspace
+ *
+ * Represents a workspace entity stored in a MongoDB collection.
+ *
+ * @property string $name The name of the workspace.
+ * @property float $time_on_schedule The amount of time scheduled for the workspace.
+ * @property int $schedule The schedule identifier or value.
+ * @property string[] $task_ids An array of associated task IDs.
+ * @property string $goal The goal or objective of the workspace.
+ * @property string $knowledge_level The knowledge level associated with the workspace.
+ * @property int $course_type The type of course associated with the workspace.
+ * @property bool $is_active Indicates if the workspace is active.
+ * @property string|null $tools The tools associated with the workspace.
+ * @property Carbon $created_at Created date.
+ * @property Carbon $updated_at Updated date.
+ *
+ * @method void addTaskId(string $taskId) Adds a task ID to the workspace's task_ids string[].
+ * @method static \Illuminate\Database\Eloquent\Builder|Workspace query()
+ */
 class Workspace extends Model
 {
     public $timestamps = true;
 
     protected $connection = 'mongodb';
 
-    protected $collection = 'workspace';
+    protected $collection = 'workspaces';
 
     protected $fillable = [
         'name',
@@ -20,101 +40,28 @@ class Workspace extends Model
         'goal',
         'knowledge_level',
         'course_type',
+        'is_active',
         'tools',
     ];
 
-    public function getId(): string
-    {
-        return $this->getAttribute('_id');
-    }
+    protected $casts = [
+        '_id' => 'string',
+        'is_active' => 'boolean',
+        'time_on_schedule' => 'float',
+        'schedule' => 'integer',
+        'course_type' => 'integer',
+        'task_ids' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
-    public function getName(): string
+    /**
+     * Adds a task ID to the 'task_ids' array attribute of the workspace.
+     *
+     * @param  string  $taskId  The ID of the task to add.
+     */
+    public function addTaskId(string $taskId): void
     {
-        return $this->getAttribute('name');
-    }
-
-    public function setName(string $value): void
-    {
-        $this->setAttribute('name', $value);
-    }
-
-    public function getTimeOnSchedule(): float
-    {
-        return $this->getAttribute('time_on_schedule');
-    }
-
-    public function setTimeOnSchedule(float $value): void
-    {
-        $this->setAttribute('time_on_schedule', $value);
-    }
-
-    public function getSchedule(): int
-    {
-        return $this->getAttribute('schedule');
-    }
-
-    public function setSchedule(int $value): void
-    {
-        $this->setAttribute('schedule', $value);
-    }
-
-    public function getGoal(): string
-    {
-        return $this->getAttribute('goal');
-    }
-
-    public function setGoal(string $value): void
-    {
-        $this->setAttribute('goal', $value);
-    }
-
-    public function getKnowledgeLevel(): string
-    {
-        return $this->getAttribute('knowledge_level');
-    }
-
-    public function setKnowledgeLevel(string $value): void
-    {
-        $this->setAttribute('knowledge_level', $value);
-    }
-
-    public function getCourseType(): int
-    {
-        return $this->getAttribute('course_type');
-    }
-
-    public function setCourseType(int $value): void
-    {
-        $this->setAttribute('course_type', $value);
-    }
-
-    public function getTools(): string
-    {
-        return $this->getAttribute('tools');
-    }
-
-    public function setTools(string $value): void
-    {
-        $this->setAttribute('tools', $value);
-    }
-
-    public function getTaskIds(): array
-    {
-        return $this->getAttribute('task_ids');
-    }
-
-    public function addTaskId(string $value): void
-    {
-        $currentTasks = $this->task_ids ?? [];
-        if (! in_array((string) $value, array_map('strval', $currentTasks))) {
-            $currentTasks[] = $value;
-            $this->setTaskIds($currentTasks);
-            $this->save();
-        }
-    }
-
-    private function setTaskIds(array $value): void
-    {
-        $this->setAttribute('task_ids', $value);
+        $this->push('task_ids', $taskId, true);
     }
 }

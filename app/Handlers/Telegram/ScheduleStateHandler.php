@@ -9,9 +9,9 @@ use App\Enums\Telegram\ScheduleEnum;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
-use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class ScheduleStateHandler implements StateHandlerInterface
@@ -23,12 +23,12 @@ class ScheduleStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, HoursOnStudyEnum::QUESTION->value);
 
         if ($chatState === ChatStateEnum::SCHEDULE->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            Log::channel('telegram')->info('Current schedule state: ' . $chatState);
+            Log::channel('telegram')->info('Current schedule state: '.$chatState);
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
@@ -37,14 +37,14 @@ class ScheduleStateHandler implements StateHandlerInterface
                 $this->nextHandler->handle($messageDto, ChatStateEnum::EMAIL->value);
             }
         } else {
-            Log::channel('telegram')->info('Go to email handler: ' . $chatState);
+            Log::channel('telegram')->info('Go to email handler: '.$chatState);
             $this->nextHandler->handle($messageDto, $chatState);
         }
     }
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $scheduleInfo = json_decode(Redis::get($userId.'_'.ScheduleEnum::QUESTION->value), true);
 
         if (is_null($scheduleInfo['current_answer'])) {
@@ -78,7 +78,7 @@ class ScheduleStateHandler implements StateHandlerInterface
                 ]);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'reply_markup' => $keyboard,
                 'text' => __('bot_messages.schedule'),
                 'parse_mode' => 'Markdown',
@@ -91,15 +91,15 @@ class ScheduleStateHandler implements StateHandlerInterface
         if (empty($messageDto->answer)) {
             return false;
         }
-        
-        $userId = $messageDto->user->getId();
+
+        $userId = $messageDto->user->_id;
 
         if (in_array($messageDto->callbackData, array_column(WorkspaceSchedule::cases(), 'value'))) {
 
             $this->questionsRedisManager->setAnswerForQuestion($userId, ScheduleEnum::QUESTION->value, $messageDto->callbackData, 1);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => 'Schedule was sucessufylly save✅',
             ]);
 

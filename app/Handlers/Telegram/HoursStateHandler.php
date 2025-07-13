@@ -8,8 +8,8 @@ use App\Enums\Telegram\CourseTypeEnum;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class HoursStateHandler implements StateHandlerInterface
@@ -21,12 +21,12 @@ class HoursStateHandler implements StateHandlerInterface
 
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         $previousAnswer = $this->questionsRedisManager->getPreviousAnswer($userId, CourseTypeEnum::QUESTION->value);
 
         if ($chatState === ChatStateEnum::HOURS->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            Log::channel('telegram')->info('Current hours state: ' . $chatState);
+            Log::channel('telegram')->info('Current hours state: '.$chatState);
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
@@ -35,14 +35,14 @@ class HoursStateHandler implements StateHandlerInterface
                 $this->nextHandler->handle($messageDto, ChatStateEnum::SCHEDULE->value);
             }
         } else {
-            Log::channel('telegram')->info('Go to schedule handler: ' . $chatState);
+            Log::channel('telegram')->info('Go to schedule handler: '.$chatState);
             $this->nextHandler->handle($messageDto, $chatState);
         }
     }
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
 
         $hoursOnStudyInfo = json_decode(Redis::get($userId.'_'.HoursOnStudyEnum::QUESTION->value), true);
 
@@ -51,7 +51,7 @@ class HoursStateHandler implements StateHandlerInterface
             $this->questionsRedisManager->setAnswerForQuestion($userId, HoursOnStudyEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __('bot_messages.total_hours_on_study'),
             ]);
         }
@@ -63,7 +63,7 @@ class HoursStateHandler implements StateHandlerInterface
             return false;
         }
 
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
 
         $validateHours = $this->validateHours($messageDto->answer);
 
@@ -80,7 +80,7 @@ class HoursStateHandler implements StateHandlerInterface
                 return $validateHours;
             case false:
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => __(
                         'bot_messages.wrong_hours',
                         ['hours' => $messageDto->answer]

@@ -23,30 +23,30 @@ class SubjectStateHandler implements StateHandlerInterface
     {
         if ($chatState === ChatStateEnum::SUBJECT_STUDY->value) {
             $this->sendQuestion($messageDto);
-            Log::channel('telegram')->info('Current subject state: ' . $chatState);
+            Log::channel('telegram')->info('Current subject state: '.$chatState);
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
-                $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::GOAL->value);
+                $this->questionsRedisManager->updateChatState($messageDto->user->_id, ChatStateEnum::GOAL->value);
 
                 $this->nextHandler->handle($messageDto, ChatStateEnum::GOAL->value);
             }
         } else {
-            Log::channel('telegram')->info('Go to goal handler: ' . $chatState);
+            Log::channel('telegram')->info('Go to goal handler: '.$chatState);
             $this->nextHandler->handle($messageDto, $chatState);
         }
     }
 
     private function sendQuestion(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
 
         if ($messageDto->callbackData === $userId.'_'.SubjectStudiesEnum::QUESTION->value) {
 
             $this->questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value);
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'text' => __('bot_messages.subject_of_studies'),
                 'parse_mode' => 'Markdown',
             ]);
@@ -58,8 +58,8 @@ class SubjectStateHandler implements StateHandlerInterface
         if (empty($messageDto->answer)) {
             return false;
         }
-        
-        $userId = $messageDto->user->getId();
+
+        $userId = $messageDto->user->_id;
         $validateSubject = $this->subjectValidator->validateSubjectTitle($messageDto->answer ?? '');
 
         switch ($validateSubject) {
@@ -67,7 +67,7 @@ class SubjectStateHandler implements StateHandlerInterface
                 $this->questionsRedisManager->setAnswerForQuestion($userId, SubjectStudiesEnum::QUESTION->value, $messageDto->answer, 1);
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => 'Your title of object studies was save✅',
                 ]);
 
@@ -79,7 +79,7 @@ class SubjectStateHandler implements StateHandlerInterface
                 }
 
                 TelegramBotRequest::sendMessage([
-                    'chat_id' => $messageDto->user->getChatId(),
+                    'chat_id' => $messageDto->user->chat_id,
                     'text' => __(
                         'bot_messages.wrong_subject_title',
                         ['email' => $messageDto->answer]

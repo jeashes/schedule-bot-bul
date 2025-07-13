@@ -11,16 +11,22 @@ use App\Enums\Telegram\SubjectStudiesEnum;
 use App\Enums\Telegram\ToolsEnum;
 use App\Models\Mongo\User as MongoUser;
 use App\Models\Mongo\Workspace;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 class TrelloWorkSpaceRepository
 {
     public function createWorkspaceByUserId(array $workspaceParams, string $userId): Workspace
     {
-        $workspace = Workspace::firstOrCreate($workspaceParams, []);
-        MongoUser::find($userId)->update(['workspace_id' => $workspace->getId()]);
+        return DB::transaction(function () use ($workspaceParams, $userId) {
+            $workspace = Workspace::query()->firstOrCreate($workspaceParams, []);
 
-        return $workspace;
+            $user = MongoUser::query()->findOrFail($userId);
+
+            $user->update(['workspace_id' => $workspace->_id]);
+
+            return $workspace;
+        }, 1);
     }
 
     public function getWorkspaceParamsFromRedis(string $userId): array

@@ -6,6 +6,7 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 
 class TelegramWebhookUpdateCommand extends Command
 {
@@ -26,7 +27,7 @@ class TelegramWebhookUpdateCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $botToken = config('telegram.bot_api_token');
         $botWebhook = config('telegram.bot_webhook');
@@ -41,15 +42,15 @@ class TelegramWebhookUpdateCommand extends Command
 
             if ($response->successful()) {
                 $this->info('Webhook for bot was successfully updated');
-            } else {
-                $this->error('Telegram webhook was not updated, something went wrong');
+
+                return SymfonyCommand::SUCCESS;
             }
+            $this->error('Telegram webhook was not updated, something went wrong');
+
+            return SymfonyCommand::FAILURE;
 
         } catch (RequestException $e) {
-            Log::channel('telegram')->error(
-                'Something went wrong during updating webhook for bot',
-                ['error' => $e->getMessage()]
-            );
+            Log::channel('telegram')->error('Something went wrong during updating webhook for bot', ['error' => $e->getMessage()]);
         }
     }
 }

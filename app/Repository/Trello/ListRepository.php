@@ -30,7 +30,7 @@ class ListRepository
 
     public function saveList(string $userId, ListDto $dto): TrelloList
     {
-        return TrelloList::firstOrCreate(
+        return TrelloList::query()->firstOrCreate(
             [
                 'trello_id' => $dto->id,
                 'user_id' => $userId,
@@ -44,7 +44,7 @@ class ListRepository
 
     public function getToDoList(string $userId): TrelloList
     {
-        return TrelloList::where([
+        return TrelloList::query()->where([
             'user_id' => $userId,
             'name' => DefaultListNameEnum::TODO->value,
         ])->first();
@@ -52,7 +52,7 @@ class ListRepository
 
     public function getInProgressList(string $userId): TrelloList
     {
-        return TrelloList::where([
+        return TrelloList::query()->where([
             'user_id' => $userId,
             'name' => DefaultListNameEnum::DOING->value,
         ])->first();

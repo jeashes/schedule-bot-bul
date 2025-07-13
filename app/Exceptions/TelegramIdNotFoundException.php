@@ -4,4 +4,4 @@ namespace App\Exceptions;
 
 use Exception;
 
-class TelegramIdNotFoundException extends Exception { }
+class TelegramIdNotFoundException extends Exception {}

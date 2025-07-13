@@ -25,9 +25,7 @@ class TelegramController extends Controller
         private readonly Telegram $telegram,
         private readonly MessageHandler $messageHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
-    ) {
-
-    }
+    ) {}
 
     #[Post('/webhook/{tg_secret}')]
     #[Middleware('verify.telegram')]
@@ -90,7 +88,7 @@ class TelegramController extends Controller
 
     private function botStartMessage(TelegramMessageDto $messageDto): void
     {
-        $userId = $messageDto->user->getId();
+        $userId = $messageDto->user->_id;
         if ($messageDto->answer === '/start') {
 
             $this->questionsRedisManager->resetUserAnswers($userId);
@@ -104,12 +102,12 @@ class TelegramController extends Controller
             $messageDto->answer = null;
 
             TelegramBotRequest::sendMessage([
-                'chat_id' => $messageDto->user->getChatId(),
+                'chat_id' => $messageDto->user->chat_id,
                 'reply_markup' => $keyboard,
                 'text' => __(
                     'bot_messages.welcome', [
-                        'name' => $messageDto->user->getFirstName().' '
-                        .$messageDto->user->getLastName(),
+                        'name' => $messageDto->user->first_name.' '
+                        .$messageDto->user->last_name,
                     ]
                 ),
                 'parse_mode' => 'Markdown',

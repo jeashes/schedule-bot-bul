@@ -16,7 +16,7 @@ class BoardRepository
     public function createAndStoreBoard(Workspace $workspace, User $user): TrelloBoard
     {
         $response = $this->client->createBoard(
-            name: $workspace->getName(),
+            name: $workspace->name,
             desc: __('trello.workspace_description'),
             idOrganization: config('trello.organization_id')
         );
@@ -25,12 +25,12 @@ class BoardRepository
 
         $dto = new BoardDto($data);
 
-        return $this->saveBoard($user->getId(), $dto);
+        return $this->saveBoard($user->_id, $dto);
     }
 
     public function saveBoard(string $userId, BoardDto $dto): TrelloBoard
     {
-        return TrelloBoard::firstOrCreate(
+        return TrelloBoard::query()->firstOrCreate(
             [
                 'trello_id' => $dto->id,
                 'user_id' => $userId,

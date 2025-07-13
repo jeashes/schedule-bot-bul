@@ -9,16 +9,14 @@ class UserRepository
 {
     public function findByChatIdOrCreate(UserDto $userDto): MongoUser
     {
-        $userMessageData = [
+        return MongoUser::query()->firstOrCreate(['chat_id' => $userDto->chatId], [
             'telegram_id' => $userDto->telegramId,
             'chat_id' => $userDto->chatId,
             'first_name' => $userDto->firstName,
             'last_name' => $userDto->lastName,
             'username' => $userDto->username,
             'language_code' => $userDto->languageCode,
-        ];
-
-        return MongoUser::query()->firstOrCreate(['chat_id' => $userDto->chatId], $userMessageData);
+        ]);
     }
 
     public function findById(string $userId): MongoUser

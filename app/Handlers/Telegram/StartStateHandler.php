@@ -17,7 +17,7 @@ class StartStateHandler implements StateHandlerInterface
     public function handle(TelegramMessageDto $messageDto, int $chatState): void
     {
         if ($chatState === ChatStateEnum::START->value) {
-            $this->questionsRedisManager->updateChatState($messageDto->user->getId(), ChatStateEnum::SUBJECT_STUDY->value);
+            $this->questionsRedisManager->updateChatState($messageDto->user->_id, ChatStateEnum::SUBJECT_STUDY->value);
 
             $this->nextHandler->handle($messageDto, ChatStateEnum::SUBJECT_STUDY->value);
         } else {
