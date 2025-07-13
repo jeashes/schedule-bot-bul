@@ -36,14 +36,11 @@ class TrelloBoard extends Model
         'permission_level',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            '_id' => 'string',
-            'user_id' => 'string',
-            'closed' => 'boolean',
-            'created_at'  => 'datetime',
-            'updated_at'  => 'datetime'
-        ];
-    }
+    private $casts = [
+        '_id' => 'string',
+        'user_id' => 'string',
+        'closed' => 'boolean',
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime'
+    ];
 }

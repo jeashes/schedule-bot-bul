@@ -42,15 +42,12 @@ class TrelloCard extends Model
         'email',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            '_id' => 'string',
-            'board_id' => 'string',
-            'due' => 'datetime',
-            'dueComplete' => 'boolean',
-            'created_at'  => 'datetime',
-            'updated_at'  => 'datetime'
-        ];
-    }
+    protected $casts = [
+        '_id' => 'string',
+        'board_id' => 'string',
+        'due' => 'datetime',
+        'dueComplete' => 'boolean',
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime'
+    ];
 }

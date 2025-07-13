@@ -36,5 +36,5 @@ class TrelloList extends Model
         'board_id' => 'string',
         'created_at'  => 'datetime',
         'updated_at'  => 'datetime'
-    ];   
+    ];
 }

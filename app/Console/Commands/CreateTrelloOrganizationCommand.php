@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Service\Trello\Organizations\OrganizationClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Throwable;
 
 class CreateTrelloOrganizationCommand extends Command
@@ -26,14 +27,14 @@ class CreateTrelloOrganizationCommand extends Command
     /**s
      * Execute the console command.
      */
-    public function handle(OrganizationClient $client)
+    public function handle(OrganizationClient $client): int
     {
         $displayName = 'Organization for schedule';
         $name = 'Main organization';
         $desription = 'The organization where creates boards for scheduling';
         if ($this->isTrelloOrgAlreadyCreated(config('trello.organization_id'), $client)) {
             $this->info('Organization id already exist in config/trello');
-            exit();
+            return SymfonyCommand::FAILURE;
         }
 
         $response = $client->create(
@@ -46,6 +47,7 @@ class CreateTrelloOrganizationCommand extends Command
         $organizationId = $data['id'];
 
         $this->info("Your organization id successfully created: $organizationId, please add into config/trello");
+        return SymfonyCommand::SUCCESS;
     }
 
     private function isTrelloOrgAlreadyCreated(string $orgId, OrganizationClient $client): bool
