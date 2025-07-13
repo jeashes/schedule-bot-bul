@@ -34,6 +34,7 @@ class CreateTrelloOrganizationCommand extends Command
         $desription = 'The organization where creates boards for scheduling';
         if ($this->isTrelloOrgAlreadyCreated(config('trello.organization_id'), $client)) {
             $this->info('Organization id already exist in config/trello');
+
             return SymfonyCommand::FAILURE;
         }
 
@@ -47,6 +48,7 @@ class CreateTrelloOrganizationCommand extends Command
         $organizationId = $data['id'];
 
         $this->info("Your organization id successfully created: $organizationId, please add into config/trello");
+
         return SymfonyCommand::SUCCESS;
     }
 

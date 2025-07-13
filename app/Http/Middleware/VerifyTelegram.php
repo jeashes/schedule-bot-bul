@@ -21,15 +21,16 @@ class VerifyTelegram
             ?? $request->input('callback_query.from.id')
             ?? $request->input('inline_query.from.id');
 
-        if (!$telegramId) {
+        if (! $telegramId) {
             Log::channel('telegram')->info('Request has not from.id', $request->toArray());
+
             return response('ignored', 200);
         }
 
         $user = MongoUser::query()
-                    ->where(['telegram_id' => $telegramId])
-                    ->orWhere(['chat_id' => $telegramId])
-                    ->firstOrFail();
+            ->where(['telegram_id' => $telegramId])
+            ->orWhere(['chat_id' => $telegramId])
+            ->firstOrFail();
 
         Auth::login($user);
 

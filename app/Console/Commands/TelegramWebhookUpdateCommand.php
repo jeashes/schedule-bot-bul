@@ -42,11 +42,12 @@ class TelegramWebhookUpdateCommand extends Command
 
             if ($response->successful()) {
                 $this->info('Webhook for bot was successfully updated');
+
                 return SymfonyCommand::SUCCESS;
-            } else {
-                $this->error('Telegram webhook was not updated, something went wrong');
-                return SymfonyCommand::FAILURE;
             }
+            $this->error('Telegram webhook was not updated, something went wrong');
+
+            return SymfonyCommand::FAILURE;
 
         } catch (RequestException $e) {
             Log::channel('telegram')->error('Something went wrong during updating webhook for bot', ['error' => $e->getMessage()]);

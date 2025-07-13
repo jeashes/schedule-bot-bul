@@ -9,9 +9,9 @@ use App\Enums\Telegram\ScheduleEnum;
 use App\Enums\Workspace\ScheduleEnum as WorkspaceSchedule;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Entities\InlineKeyboard;
-use Illuminate\Support\Facades\Log;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class ScheduleStateHandler implements StateHandlerInterface
@@ -28,7 +28,7 @@ class ScheduleStateHandler implements StateHandlerInterface
 
         if ($chatState === ChatStateEnum::SCHEDULE->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            Log::channel('telegram')->info('Current schedule state: ' . $chatState);
+            Log::channel('telegram')->info('Current schedule state: '.$chatState);
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
@@ -37,7 +37,7 @@ class ScheduleStateHandler implements StateHandlerInterface
                 $this->nextHandler->handle($messageDto, ChatStateEnum::EMAIL->value);
             }
         } else {
-            Log::channel('telegram')->info('Go to email handler: ' . $chatState);
+            Log::channel('telegram')->info('Go to email handler: '.$chatState);
             $this->nextHandler->handle($messageDto, $chatState);
         }
     }
@@ -91,7 +91,7 @@ class ScheduleStateHandler implements StateHandlerInterface
         if (empty($messageDto->answer)) {
             return false;
         }
-        
+
         $userId = $messageDto->user->_id;
 
         if (in_array($messageDto->callbackData, array_column(WorkspaceSchedule::cases(), 'value'))) {

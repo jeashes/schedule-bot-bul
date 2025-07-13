@@ -8,8 +8,8 @@ use App\Enums\Telegram\CourseTypeEnum;
 use App\Enums\Telegram\HoursOnStudyEnum;
 use App\Interfaces\Telegram\StateHandlerInterface;
 use App\Managers\Telegram\QuestionsRedisManager;
-use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Longman\TelegramBot\Request as TelegramBotRequest;
 
 class HoursStateHandler implements StateHandlerInterface
@@ -26,7 +26,7 @@ class HoursStateHandler implements StateHandlerInterface
 
         if ($chatState === ChatStateEnum::HOURS->value && $previousAnswer) {
             $this->sendQuestion($messageDto);
-            Log::channel('telegram')->info('Current hours state: ' . $chatState);
+            Log::channel('telegram')->info('Current hours state: '.$chatState);
             if ($this->acceptAnswer($messageDto)) {
                 $messageDto->answer = null;
                 $messageDto->callbackData = null;
@@ -35,7 +35,7 @@ class HoursStateHandler implements StateHandlerInterface
                 $this->nextHandler->handle($messageDto, ChatStateEnum::SCHEDULE->value);
             }
         } else {
-            Log::channel('telegram')->info('Go to schedule handler: ' . $chatState);
+            Log::channel('telegram')->info('Go to schedule handler: '.$chatState);
             $this->nextHandler->handle($messageDto, $chatState);
         }
     }

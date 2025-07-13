@@ -25,9 +25,7 @@ class TelegramController extends Controller
         private readonly Telegram $telegram,
         private readonly MessageHandler $messageHandler,
         private readonly QuestionsRedisManager $questionsRedisManager,
-    ) {
-
-    }
+    ) {}
 
     #[Post('/webhook/{tg_secret}')]
     #[Middleware('verify.telegram')]
