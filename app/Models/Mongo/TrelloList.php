@@ -5,8 +5,6 @@ namespace App\Models\Mongo;
 use MongoDB\Laravel\Eloquent\Model;
 
 /**
- * Class TrelloList
- *
  * Represents a Trello list stored in the MongoDB 'trello_cards' collection.
  *
  * @property string $_id      The unique identifier for the Trello list (cast to string).

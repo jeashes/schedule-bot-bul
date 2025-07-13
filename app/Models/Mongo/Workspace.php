@@ -22,7 +22,7 @@ use MongoDB\Laravel\Eloquent\Model;
  * @property Carbon $updated_at       Updated date.
  *
  * @method void addTaskId(string $taskId) Adds a task ID to the workspace's task_ids string[].
- * 
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|Workspace query()
  */
 class Workspace extends Model

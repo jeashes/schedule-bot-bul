@@ -5,8 +5,6 @@ namespace App\Models\Mongo;
 use MongoDB\Laravel\Eloquent\Model;
 
 /**
- * Class TrelloCard
- *
  * Represents a Trello card stored in a MongoDB collection.
  *
  * @property string $_id         The unique identifier for the Trello card (MongoDB ObjectId as string).

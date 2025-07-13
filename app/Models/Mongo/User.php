@@ -5,8 +5,6 @@ namespace App\Models\Mongo;
 use MongoDB\Laravel\Eloquent\Model;
 
 /**
- * Class User
- *
  * Represents a user document in the MongoDB 'users' collection.
  *
  * @property string $_id           The unique identifier for the user (MongoDB ObjectId).
@@ -21,9 +19,9 @@ use MongoDB\Laravel\Eloquent\Model;
  * @property string|null $email    The user's email address.
  * @property \Carbon\Carbon|null $created_at The creation timestamp.
  * @property \Carbon\Carbon|null $updated_at The update timestamp.
- * 
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|User query()
- * 
+ *
  */
 class User extends Model
 {
