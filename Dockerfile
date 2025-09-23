@@ -61,7 +61,13 @@ RUN bash -c 'mkdir -p /home/www/public/storage/framework/{cache,sessions,testing
 
 COPY . .
 
-RUN groupadd -g $WWWGROUP schedule-bot && useradd -u $WWWUSER -g schedule-bot -s /bin/sh schedule-bot
+RUN if getent group $WWWGROUP >/dev/null; then \
+      echo "Group with GID=$WWWGROUP will be renamed on schedule-bot\n"; \
+      groupmod -n schedule-bot $(getent group $WWWGROUP | cut -d: -f1); \
+    else \
+      groupadd -g $WWWGROUP schedule-bot; \
+    fi \
+ && useradd -u $WWWUSER -g $WWWGROUP -s /bin/bash schedule-bot
 
 # Chown all the files to the app user.
 RUN chown -R schedule-bot:schedule-bot /home/www/public
