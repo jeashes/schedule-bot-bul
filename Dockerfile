@@ -2,6 +2,9 @@ FROM ubuntu:22.04
 
 WORKDIR /home/www/public
 
+ARG WWWGROUP
+ARG WWWUSER
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install common tools
@@ -58,8 +61,10 @@ RUN bash -c 'mkdir -p /home/www/public/storage/framework/{cache,sessions,testing
 
 COPY . .
 
-RUN bash -c 'chown -R www-data:www-data storage /home/www/public/storage/{app,logs}'
-RUN bash -c 'chown -R www-data:www-data storage /home/www/public/storage/framework/{cache,sessions,testing,views}'
+RUN groupadd -g $WWWGROUP schedule-bot && useradd -u $WWWUSER -g schedule-bot -s /bin/sh schedule-bot
+
+# Chown all the files to the app user.
+RUN chown -R schedule-bot:schedule-bot /home/www/public
 
 RUN bash -c 'chmod -R 775 /home/www/public/storage/{app,logs}'
 RUN bash -c 'chmod -R 775 /home/www/public/storage/framework/{cache,sessions,testing,views}'
@@ -68,4 +73,6 @@ RUN composer install
 
 EXPOSE 7000
 
-ENTRYPOINT [ "php", "artisan", "--host=0.0.0.0", "--port=7000", "serve" ]
+USER schedule-bot
+
+ENTRYPOINT [ "php", "artisan", "serve", "--host=0.0.0.0", "--port=7000"]
