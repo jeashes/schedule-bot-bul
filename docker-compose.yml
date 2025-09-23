@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+  schedule-bot:
+    container_name: schedule-bot-dev
+    build:
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: '${GROUP_ID}'
+        WWWUSER: '${USER_ID}'
+    restart: unless-stopped
+    ports:
+      - '9000:9000'
+    volumes:
+      - '.:/var/www'
+    networks:
+      - schedule-bot-dev-network
+
+  schedule-bot-web:
+    image: nginx:alpine
+    container_name: schedule-bot-web
+    restart: unless-stopped
+    tty: true
+    ports:
+      - '8080:80'
+      - "443:443"
+    volumes:
+      - ./public:/var/www/public
+      - ./infrastructure/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - schedule-bot-dev-network
+    depends_on:
+      - schedule-bot
+
+  schedule-bot-redis:
+    image: redis:alpine
+    container_name: schedule-bot-redis-dev
+    ports:
+      - '6379:6379'
+    volumes:
+      - schedule-bot-redis-data:/data
+    networks:
+      - schedule-bot-dev-network
+    healthcheck:
+      test: [ 'CMD', 'redis-cli', 'ping' ]
+      retries: 3
+      timeout: 5s
+
+  schedule-bot-mongo:
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    container_name: schedule-bot-mongo-dev
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: '${MONGO_USERNAME}'
+      MONGO_INITDB_ROOT_PASSWORD: '${MONGO_PASSWORD}'
+      MONGO_INITDB_DATABASE: '${MONGODB_DATABASE}'
+    volumes:
+      - schedule-bot-mongo-data:/data
+    networks:
+      - schedule-bot-dev-network
+
+volumes:
+  schedule-bot-redis-data:
+    driver: 'local'
+  schedule-bot-mongo-data:
+    driver: 'local'
+
+networks:
+  schedule-bot-dev-network:
+    driver: 'bridge'
