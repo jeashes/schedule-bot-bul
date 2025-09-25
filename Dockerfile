@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-WORKDIR /home/www/public
+WORKDIR /var/www
 
 ARG WWWGROUP
 ARG WWWUSER
@@ -56,13 +56,21 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Get latest Composer
 COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 
-RUN bash -c 'mkdir -p /home/www/public/storage/{app,logs}'
-RUN bash -c 'mkdir -p /home/www/public/storage/framework/{cache,sessions,testing,views}'
-
 COPY . .
 
+RUN bash -c 'mkdir -p /var/www/storage/{app,logs}'
+RUN bash -c 'mkdir -p /var/www/storage/framework/{cache,sessions,testing,views}'
+
+RUN bash -c 'chmod -R 775 /var/www/storage/{app,logs}'
+RUN bash -c 'chmod -R 775 /var/www/storage/framework/{cache,sessions,testing,views}'
+
+COPY infrastructure/start-container /usr/local/bin/start-container
+COPY infrastructure/supervisord.conf /etc/supervisor/supervisord.sail.conf
+COPY infrastructure/php/php.ini /etc/php/8.1/cli/conf.d/99-sail.ini
+COPY infrastructure/php/www.conf /etc/php/8.1/fpm/pool.d/www.conf
+
 RUN if getent group $WWWGROUP >/dev/null; then \
-      echo "Group with GID=$WWWGROUP will be renamed on schedule-bot\n"; \
+      echo "Group with GID=$WWWGROUP will be renamed on schedule-bot"; \
       groupmod -n schedule-bot $(getent group $WWWGROUP | cut -d: -f1); \
     else \
       groupadd -g $WWWGROUP schedule-bot; \
@@ -70,15 +78,17 @@ RUN if getent group $WWWGROUP >/dev/null; then \
  && useradd -u $WWWUSER -g $WWWGROUP -s /bin/bash schedule-bot
 
 # Chown all the files to the app user.
-RUN chown -R schedule-bot:schedule-bot /home/www/public
+RUN chown -R schedule-bot:schedule-bot /var/www
 
-RUN bash -c 'chmod -R 775 /home/www/public/storage/{app,logs}'
-RUN bash -c 'chmod -R 775 /home/www/public/storage/framework/{cache,sessions,testing,views}'
+RUN chown -R schedule-bot:schedule-bot storage bootstrap/cache
+RUN chmod -R ug+rwX storage bootstrap/cache
+
+RUN chmod +x /usr/local/bin/start-container
 
 RUN composer install
 
 EXPOSE 7000
 
-USER schedule-bot
+# USER schedule-bot
 
-ENTRYPOINT [ "php", "artisan", "serve", "--host=0.0.0.0", "--port=7000"]
+ENTRYPOINT [ "/usr/local/bin/start-container"]
